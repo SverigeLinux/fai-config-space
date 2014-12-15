@@ -1,0 +1,18 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 30000 )
+
+editfiles:
+   any::
+        ## Enable all:
+	{ ${target}/etc/unburden-home-dir.list
+          SetCommentStart "#"
+          UnCommentLinesMatching "#m . .*"
+	}
+	{ ${target}/etc/default/unburden-home-dir
+          SetCommentStart "#"
+          UnCommentLinesMatching "#UNBURDEN_HOME=true"
+	}

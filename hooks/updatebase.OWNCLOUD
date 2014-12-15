@@ -1,0 +1,15 @@
+#! /bin/bash
+# Import custom apt sources.list and apt keys.
+
+echo "Adding OwnCloud repository"
+if [ -x $target/etc/apt/sources.list.d ]; then
+  echo 'deb http://download.opensuse.org/repositories/isv:/ownCloud:/community/Debian_7.0/ /' >> $target/etc/apt/sources.list.d/owncloud.list
+fi
+
+# Initialize apt-key before apt is called the first time
+if [ -x $target/usr/bin/apt-key ]; then
+  echo "Apt: list of keys"
+  $ROOTCMD /usr/bin/apt-key list
+  $ROOTCMD wget -O- http://download.opensuse.org/repositories/isv:ownCloud:community/Debian_7.0/Release.key | $ROOTCMD apt-key add -
+fi
+

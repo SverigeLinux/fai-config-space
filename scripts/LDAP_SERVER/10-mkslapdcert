@@ -1,0 +1,31 @@
+#!/bin/bash
+#
+# Create a self-signed certificate for LDAP
+#
+
+set -e
+
+CERT="/etc/ldap/slapd.crt"
+KEY="/etc/ldap/slapd.key"
+CONF="/etc/ldap/slapd.cnf"
+TEMPLATE="${target}/usr/share/ssl-cert/ssleay.cnf"
+HostName="${HOSTNAME}.intern"
+
+if [ -f $target/$CERT ] && [ -f $target/$KEY ]; then
+  echo "$CERT and $KEY exists, exiting!"
+  exit 0
+fi
+
+sed -e s#@HostName@#"$HostName"# $TEMPLATE > ${target}/$CONF
+echo "subjectAltName=DNS:$HostName,DNS:$HOSTNAME,DNS:ldap.intern,DNS:ldap" >> ${target}/$CONF
+
+$ROOTCMD openssl req -config $CONF -new -x509 -days 7000 -nodes -out $CERT -keyout $KEY
+
+$ROOTCMD chmod 600 $KEY $CONF
+$ROOTCMD chown openldap:openldap $KEY
+
+ifclass FAISERVER || exit 0
+
+## Add the LDAP certificate to the fai config space:
+$ROOTCMD mkdir -pv /srv/fai/config/files/${CERT}/
+$ROOTCMD cp -v $CERT /srv/fai/config/files/${CERT}/LDAP_CLIENT

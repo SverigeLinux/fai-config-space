@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+## Fetch sudoers' base from LDAP:
+BASE=$($ROOTCMD ldapsearch -xLLL "(ou=sudoers)" dn | cut -d ' ' -f 2)
+
+if [ -n "$BASE" ] ; then
+    ainsl /etc/ldap/ldap.conf "sudoers_base $BASE"
+fi

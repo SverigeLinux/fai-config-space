@@ -1,0 +1,16 @@
+PACKAGES aptitude
+fai-quickstart
+
+isc-dhcp-client
+debmirror tcpdump
+apache2
+genisoimage grub-pc
+lftp
+syslinux-common
+
+whois
+git
+
+## PXE installer:
+debian-installer-7.0-netboot-i386
+debian-installer-7.0-netboot-amd64

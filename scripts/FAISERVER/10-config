@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+fcopy -r /etc/fai
+
+if [ "$FAI_ACTION" == "install" ] || [ "$CONVERT" == "true" ] ; then
+    ## fetch template and insert 'number' of workstations:
+    fcopy  /etc/rc.local
+    sed -i "s/WS_RANGE/${WS_RANGE}/g" $target/etc/rc.local
+    sed -i "s/DL_RANGE/${DL_RANGE}/g" $target/etc/rc.local
+    PREFIX=`echo $SUBNET | cut -d "." --fields=1,2,3`
+    sed -i "s/PREFIX/${PREFIX}/g" $target/etc/rc.local
+
+    if ifclass DISKLESS_SERVER ; then
+	sed -i "s%\(^.*\#\#DISKLESS_SERVER\#\#\)%\#\1%"  $target/etc/rc.local
+    fi
+fi

@@ -1,0 +1,24 @@
+# Default values for installation GATEWAY_A.
+
+# allow installation of packages from unsigned repositories
+FAI_ALLOW_UNSIGNED=0
+
+CONSOLEFONT=
+KEYMAP=us-latin1
+
+# Set UTC=yes if your system clock is set to UTC (GMT), and UTC=no if not.
+UTC=yes
+TIMEZONE=Europe/Berlin
+
+# Use: 'mkpasswd -Hsha-256 <PASSWORD>' to create the password hash
+# pw is "fai":
+#ROOTPW='$1$kBnWcO.E$djxB128U7dMkrltJHPf6d1'
+# If $ROOTPW is empty, you will be prompted during installation:
+ROOTPW=${ROOTPW:-''}
+
+GATEWAY_IPADDR=${GATEWAY_IPADDR:-'10.0.0.1'}
+BROADCAST_LAN=${BROADCAST_LAN:-'10.0.255.255'}
+NETMASK="255.255.0.0"
+
+# erros in tasks greater than this value will cause the installation to stop
+STOP_ON_ERROR=700

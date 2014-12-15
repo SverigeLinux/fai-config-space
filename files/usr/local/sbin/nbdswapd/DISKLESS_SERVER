@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+#  Inspired by nbdswapd from the ltsp-server package.
+
+set -e
+
+## swap size (in MB):
+SIZE="128"
+
+SWAP="$1"
+SWAPDIR=${SWAP%/*}
+
+test -d $SWAPDIR || mkdir -p $SWAPDIR
+
+## create swap file:
+dd if=/dev/zero of=$SWAP bs=1M count=0 seek="$SIZE" 2> /dev/null
+chmod 600 $SWAP

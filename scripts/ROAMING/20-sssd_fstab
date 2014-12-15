@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+set -e
+
+fcopy -m root,root,0600 /etc/sssd/sssd.conf
+
+HOMEDIRS='/lan/mainserver/home0'
+
+## Make sure the home directories are accessible:
+if [ "$FAI_ACTION" == "install" ] || [ "$CONVERT" == "true" ] ; then
+    umask 022
+    mkdir -p $target/$HOMEDIRS
+fi
+
+## Bind mount the home directories to /home for offline use,
+## when the local files are hidden by the NFS mount:
+ainsl /etc/fstab "/home  $HOMEDIRS  none  bind  0  0"

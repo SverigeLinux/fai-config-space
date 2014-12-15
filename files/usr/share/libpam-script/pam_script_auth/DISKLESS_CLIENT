@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+#  Use Kerberos key as machine key if machine key is unavailable.
+#
+
+set -e
+
+FILE="/tmp/krb5cc_diskless"
+
+if [ "$PAM_USER" != "root" ] && [ ! -e /etc/krb5.keytab ] && [ ! -e $FILE ] ; then
+    cp -v /tmp/krb5cc_pam_* $FILE
+    /etc/init.d/autofs restart > /dev/null
+fi
+
+exit 0

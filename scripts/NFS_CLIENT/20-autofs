@@ -1,0 +1,11 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 30000 )
+
+editfiles:
+	{ ${target}/etc/default/autofs
+	  AppendIfNoSuchLine "LDAPURI=ldap:///"
+	}

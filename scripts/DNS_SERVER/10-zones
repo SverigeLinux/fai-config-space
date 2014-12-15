@@ -1,0 +1,130 @@
+#!/bin/bash
+#
+set -e
+
+## Generate the DNS configuration.
+## Use variables from corresponding class/*.var file.
+
+# FIXME: make this more general for different subnet masks.
+
+PREFIX1=`echo $SUBNET | cut -d "." --fields=1`
+PREFIX2=`echo $SUBNET | cut -d "." --fields=2`
+FILE="/etc/bind/db.${PREFIX1}.${PREFIX2}"
+JOURNAL="/var/lib/bind/db.${PREFIX1}.${PREFIX2}.jnl"
+
+if [ -e $target$FILE ]; then
+    exit 0
+fi
+
+ainsl /etc/bind/named.conf.local "include \"/etc/bind/localzones\";"
+
+cat > $target/etc/bind/localzones <<EOF
+include "/etc/bind/ddns.key";
+
+zone "${PREFIX2}.${PREFIX1}.in-addr.arpa" {
+        type master;
+        notify no;
+        file "$FILE";
+        allow-update { key DHCP_UPDATER; };
+        journal "$JOURNAL";
+};
+
+zone "${SETDOMAIN}" {
+        type master;
+        notify no;
+        file "/etc/bind/db.${SETDOMAIN}";
+        allow-update { key DHCP_UPDATER; };
+        journal "/var/lib/bind/db.${SETDOMAIN}.jnl";
+};
+EOF
+
+###################
+
+REV=`echo $MAINSERVER_IPADDR | cut -d "." --fields=4`
+
+cat > $target$FILE <<EOF
+\$TTL 500
+@               IN      SOA     mainserver.${SETDOMAIN}. root.mail.${SETDOMAIN}. (
+                                1 ; Serialnumber
+                                3600    ; Refresh
+                                1800    ; Retry
+                                720000  ; Expire
+                                6400 )  ; Minimum TTL
+                        NS      mainserver.${SETDOMAIN}.
+                        MX      10 mainserver.${SETDOMAIN}.
+$REV.0                    PTR     mainserver.${SETDOMAIN}.
+EOF
+## Uncomment if you prefere hardcoded DNS entries:
+# NUM=0
+# for IPADDR in `seq $WS_RANGE` ; do
+#     NUMSTR=`printf "%02d" $NUM`
+#     echo "${IPADDR}.0                    PTR     workstation${NUMSTR}.${SETDOMAIN}." \
+#         >> $target$FILE
+#     NUM=$(($NUM+1))
+# done
+# NUM=0
+# for IPADDR in `seq $DL_RANGE` ; do
+#     NUMSTR=`printf "%02d" $NUM`
+#     echo "${IPADDR}.0                    PTR     diskless${NUMSTR}.${SETDOMAIN}." \
+#         >> $target$FILE
+#     NUM=$(($NUM+1))
+# done
+
+###################
+
+cat > $target/etc/bind/db.${SETDOMAIN} <<EOF
+\$TTL 500
+@               IN      SOA     mainserver.${SETDOMAIN}. root.mail.${SETDOMAIN}. (
+                                1 ; Serialnumber
+                                3600    ; Refresh
+                                1800    ; Retry
+                                720000  ; Expire
+                                6400 )  ; Minimum TTL
+                        NS      mainserver.${SETDOMAIN}.
+                        MX      10 mainserver.${SETDOMAIN}.
+mainserver              A       ${MAINSERVER_IPADDR}
+_ldap._tcp              SRV     100 0 389 mainserver.${SETDOMAIN}.
+_syslog._udp            SRV     100 0 514 mainserver.${SETDOMAIN}.
+_kerberos._udp          SRV     100 0 88  mainserver.${SETDOMAIN}.
+_kerberos-adm._tcp      SRV     100 0 749 mainserver.${SETDOMAIN}.
+_kpasswd._udp           SRV     100 0 464 mainserver.${SETDOMAIN}.
+ns                      CNAME   mainserver.${SETDOMAIN}.
+dns                     CNAME   mainserver.${SETDOMAIN}.
+www                     CNAME   mainserver.${SETDOMAIN}.
+ntp                     CNAME   mainserver.${SETDOMAIN}.
+aptcache                CNAME   mainserver.${SETDOMAIN}.
+webcache                CNAME   mainserver.${SETDOMAIN}.
+cfengine                CNAME   mainserver.${SETDOMAIN}.
+bootps                  CNAME   mainserver.${SETDOMAIN}.
+homes                   CNAME   mainserver.${SETDOMAIN}.
+wpad                    CNAME   mainserver.${SETDOMAIN}.
+db                      CNAME   mainserver.${SETDOMAIN}.
+backup                  CNAME   mainserver.${SETDOMAIN}.
+ssh                     CNAME   mainserver.${SETDOMAIN}.
+print                   CNAME   mainserver.${SETDOMAIN}.
+domain                  CNAME   mainserver.${SETDOMAIN}.
+ldap                    CNAME   mainserver.${SETDOMAIN}.
+kerberos                CNAME   mainserver.${SETDOMAIN}.
+mail                    CNAME   mainserver.${SETDOMAIN}.
+syslog                  CNAME   mainserver.${SETDOMAIN}.
+faiserver               CNAME   mainserver.${SETDOMAIN}.
+swapserver              CNAME   mainserver.${SETDOMAIN}.
+EOF
+
+## Uncomment if you prefere hardcoded DNS entries:
+# PREFIX=`echo $SUBNET | cut -d "." --fields=1,2,3`
+#
+# NUM=0
+# for IPADDR in `seq $WS_RANGE` ; do
+#     NUMSTR=`printf "%02d" $NUM`
+#     echo "workstation${NUMSTR}           A       $PREFIX.$IPADDR" \
+#         >> $target/etc/bind/db.${SETDOMAIN}
+#     NUM=$(($NUM+1))
+# done
+# NUM=0
+# for IPADDR in `seq $DL_RANGE` ; do
+#     NUMSTR=`printf "%02d" $NUM`
+#     echo "diskless${NUMSTR}              A       $PREFIX.$IPADDR" \
+#         >> $target/etc/bind/db.${SETDOMAIN}
+#     NUM=$(($NUM+1))
+# done

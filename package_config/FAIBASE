@@ -1,0 +1,26 @@
+PACKAGES aptitude DEBIAN
+fai-client
+cron
+debconf-utils
+file
+hdparm
+less
+nfs-common
+rdate
+rsync
+openssh-client openssh-server
+strace
+time
+procinfo
+nullmailer
+eject
+locales
+console-setup kbd
+pciutils usbutils
+lvm2
+
+nscd
+#heirloom-mailx
+mutt
+cfengine2
+acpi-support-base

@@ -1,0 +1,8 @@
+## Only list packages that are essential for the LOG_CLIENT class.
+## Put all setup-dependent packages in the SETUP_* class.
+PACKAGES aptitude
+munin-node
+smartmontools
+lm-sensors
+nagios-nrpe-server
+nagios-plugins-basic

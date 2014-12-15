@@ -1,0 +1,8 @@
+## Only list packages that are essential for the KERBEROS_CLIENT class.
+## Put all setup-dependent packages in the SETUP_* class.
+PACKAGES aptitude
+krb5-user
+libpam-krb5
+krb5-clients
+libsasl2-modules-gssapi-mit
+ntp

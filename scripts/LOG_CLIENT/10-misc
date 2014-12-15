@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+#  Configure syslog, munin and icinga.
+#
+
+set -e
+
+fcopy -r /etc/rsyslog.d/
+fcopy -r /etc/nagios/
+
+
+## allow access from host 'syslog':
+IP=$(host syslog | tail -n 1 | awk '{print $NF}' | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
+
+if [ -n $IP ] ; then
+    ainsl -a /etc/nagios/nrpe.d/debian-lan.cfg "allowed_hosts=${IP}"
+    IP=${IP//\./\\\.}
+    ainsl -Q /etc/munin/munin-node.conf "allow ^${IP}$" "allow ^${IP}$"
+fi
+
+## reconfigure munin-node on first boot (excludes diskless machines: 'dirinstall'):
+if [ "$FAI_ACTION" == "install" ] ; then
+    FILE="$target/etc/rc.local"
+    sed -i "s%\(^exit 0\)%\#\1%" $FILE
+    cat >> $FILE <<EOF
+
+## Add missing plugins to munin, the line will be commented afterwards:
+munin-node-configure --shell 2>/dev/null | sh && sed -i -e "s%\(^munin-node-configure\)%\#\1%" -e "s%\#\(exit 0\)%\1%" \$0
+EOF
+fi

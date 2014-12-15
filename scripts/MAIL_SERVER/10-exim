@@ -1,0 +1,37 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 30000 )
+
+editfiles:
+   any::
+      { ${target}/etc/default/exim4
+	  AppendIfNoSuchLine "KRB5_KTNAME=/etc/krb5.keytab.smtp; export KRB5_KTNAME"
+      }
+
+      { ${target}/etc/exim4/conf.d/auth/30_exim4-config_examples
+	  BeginGroupIfNoSuchLine "# Authenticate via kerberos/GSSAPI:"
+	    AppendIfNoSuchLine "# Authenticate via kerberos/GSSAPI:"
+	    AppendIfNoSuchLine "auth_gssapi:"
+	    AppendIfNoSuchLine "  driver = cyrus_sasl"
+	    AppendIfNoSuchLine "  server_hostname = mail"
+	    AppendIfNoSuchLine "  server_realm = INTERN"
+	    AppendIfNoSuchLine "  server_mech = gssapi"
+	    AppendIfNoSuchLine "  public_name = GSSAPI"
+	    AppendIfNoSuchLine "  server_set_id = $auth1"
+	    AppendIfNoSuchLine "  server_advertise_condition = $(dollar){if def:tls_cipher}"
+	  EndGroup
+      }
+
+      { ${target}/etc/exim4/conf.d/acl/30_exim4-config_check_rcpt
+	  BeginGroupIfNoSuchLine "  # Compare sender and kerberos ticket:"
+	    LocateLineMatching "  # Deny unless the sender address can be verified."
+	    InsertLine "  # Compare sender and kerberos ticket:"
+	    InsertLine "  deny"
+	    InsertLine "    condition = $(dollar){if eq{$authenticated_id}{$sender_address_local_part@INTERN}{false}{true}}"
+	    InsertLine "    message = Not authenticated or sender address $sender_address in conflict with authentication $authenticated_id"
+	    InsertLine ""
+	  EndGroup
+      }

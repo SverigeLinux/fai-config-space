@@ -1,0 +1,8 @@
+## Here are all default packages for the given setup that do not fit
+## another class.
+PACKAGES aptitude
+anacron
+sudo-ldap
+quota
+unattended-upgrades
+unburden-home-dir

@@ -1,0 +1,3 @@
+nullmailer nullmailer/adminaddr string postmaster@mail.intern
+nullmailer nullmailer/relayhost string mail.intern smtp --starttls --insecure
+unattended-upgrades unattended-upgrades/enable_auto_updates boolean true

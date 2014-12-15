@@ -1,0 +1,4 @@
+## Only list packages that are essential for the RAID class.
+## Put all setup-dependent packages in the SETUP_* class.
+PACKAGES aptitude
+mdadm

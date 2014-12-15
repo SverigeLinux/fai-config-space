@@ -1,0 +1,7 @@
+## Only list packages that are essential for the PROXY class.
+## Put all setup-dependent packages in the SETUP_* class.
+PACKAGES aptitude
+squid3
+adzapper
+## Uncomment for web filtering:
+#dansguardian

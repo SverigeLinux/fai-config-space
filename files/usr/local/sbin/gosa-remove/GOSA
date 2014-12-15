@@ -1,0 +1,61 @@
+#!/bin/sh
+
+set -e
+
+## This script is run by www-data using sudo. Keep that in mind!
+## Make sure that malicious execution cannot hurt.
+##
+## This script removes the home directories and principals for users removed with gosa.
+## Home directories are not purged immediately, but marked with a time stamp. Next time
+## this script is run it looks for all home directories marked for removal and removes
+## directories older than the given age $MAXAGE.
+##
+## Malicious execution can mark directories for purging, but if $MAXAGE is chosen not
+## too short, this will be detected by the owner and no data will get lost.
+
+USERID=$1
+HOMEDIR=$2
+
+## minimum age to keep a directory before it is purged
+## in days (only integer values):
+
+MAXAGE_DAYS=500
+
+####################################
+
+MAXAGE_SEC=$(( $MAXAGE_DAYS*24*60*60 ))
+
+[ -d $HOMEDIR ] || exit 1
+
+PREFIX=/lan
+HOSTNAME=$(hostname -s)
+echo "$HOMEDIR" | egrep -q "^$PREFIX/$HOSTNAME.*$USERID" || exit 1
+
+## move mail directory to home directory
+if [ -d /var/mail/$USERID ]; then
+    mkdir -p $HOMEDIR/Maildir/
+    mv /var/mail/$USERID/* $HOMEDIR/Maildir/
+    rmdir /var/mail/$USERID
+fi
+
+## rename home directory and delete principal:
+HOME=`dirname $HOMEDIR`
+RM_HOMEDIR="$HOME/rm_"`date "+%Y%m%d"`"_"`basename $HOMEDIR`
+mv $HOMEDIR $RM_HOMEDIR
+
+chown root:root $RM_HOMEDIR
+chmod go-rwx $RM_HOMEDIR
+
+kadmin.local -q "delete_principal $USERID"
+logger -t gosa-remove -p notice Home directory \'$HOMEDIR\' marked for deletion and principal \'$USERID\' removed.
+
+for DIR in `find $HOME -maxdepth 1 -type d -regextype posix-egrep -regex ".*/rm_[0-9]{8}_[^/]+"` ; do
+    RMDATE=`echo $DIR | sed "s/.*rm_\([0-9]\{8\}\)_.*/\1/"`
+    AGE=$(( `date +"%s"`-`date +"%s" -d $RMDATE` ))
+    if [ $AGE -gt $MAXAGE_SEC ] ; then
+	rm -rf $DIR
+	logger -t gosa-remove -p notice Home directory \'$DIR\' purged.
+    fi
+done
+
+exit 0

@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# Fetch public key for the local site's APT repository.
+#
+
+set -e
+
+if [ -z $APT_URL ] ; then
+    exit 0
+fi
+
+echo "Check if public key is available:"
+if $ROOTCMD wget -O /tmp/DebianLAN.pubkey $APT_URL/DebianLAN.pubkey ; then
+    echo -n "Run apt-key and add key: "
+    $ROOTCMD apt-key add /tmp/DebianLAN.pubkey
+    ## Key is available, add repository to sources.list.d/.
+    FILE=/etc/apt/sources.list.d/local.list
+    ainsl -a $FILE "## Local APT repository for site-specific packages:"
+    ainsl $FILE "deb $APT_URL stable main"
+else
+    echo "No key available."
+fi

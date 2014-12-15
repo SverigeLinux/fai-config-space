@@ -1,0 +1,67 @@
+#!/bin/sh
+
+set -e
+
+## This script is run by www-data using sudo. Keep that in mind!
+## Make sure that malicious execution cannot hurt.
+##
+## This script creates the home directories and principals for users
+## added with gosa.  There are some tests that make sure only
+## non-existent home directories are created.  Malicious execution
+## cannot hurt, because either the user is missing in ldap or his home
+## directory already exists. In both cases nothing should happen.
+
+PREFIX=/lan
+HOSTNAME=$(hostname -s)
+USERID=$1
+## Fetch home dir permissions from 'adduser.conf':
+eval $(grep "^DIR_MODE" /etc/adduser.conf)
+
+#FIXME Change this ldap search to only find new users, to not slow down as more users are added.
+# One ide might be to look for objects without the krbPasswordExpiration attributes.
+
+## lookup user and create home directory and principal:
+ldapsearch -b "dc=intern" -xLLL "(&(uid=$USERID)(objectClass=posixAccount))" \
+    cn homeDirectory gidNumber 2>/dev/null | perl -p0e 's/\n //g' | \
+while read KEY VALUE ; do
+    case "$KEY" in
+	dn:) USERNAME= ; HOMEDIR= ; GROUPID= ; USERDN="dn=$VALUE" ;;
+	cn:) USERNAME="$VALUE" ;;
+	homeDirectory:) HOMEDIR="$VALUE" ;;
+	gidNumber:) GROUPID="$VALUE"  ;;
+	"")
+	    test "$HOMEDIR" || continue
+	    echo "$HOMEDIR" | grep -q "^$PREFIX/$HOSTNAME" || continue
+	    test -e "$HOMEDIR" && continue
+	    cp -r /etc/skel $HOMEDIR
+	    if type nscd > /dev/null 2>&1 ; then
+		nscd -i passwd
+		nscd -i group
+	    fi
+	    chown -R $USERID:$GROUPID $HOMEDIR
+	    chmod $DIR_MODE $HOMEDIR
+	    kadmin.local -q "add_principal -randkey -x $USERDN $USERID"
+	    logger -t gosa-create -p notice Home directory \'$HOMEDIR\' and principal \'$USERID\' created.
+## send a welcome-email:
+            cat << EOF | /usr/lib/sendmail $USERID
+Subject: Welcome to the mail-system
+
+Hello $USERNAME,
+
+welcome to the mail-system.
+
+Your userID is $USERID, and your email
+address is:
+
+      $USERID@mail.intern
+
+Regards,
+
+    Debian-LAN SysAdmin
+
+EOF
+	    ;;
+    esac
+done
+
+exit 0

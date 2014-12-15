@@ -1,0 +1,18 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 30000 )
+
+
+editfiles:
+  any::
+    { ${target}/etc/default/slapd
+        BeginGroupIfNoSuchLine 'KRB5_KTNAME=/etc/krb5.keytab.ldap; export KRB5_KTNAME'
+           HashCommentLinesStarting "KRB5_KTNAME="
+           HashCommentLinesStarting "export KRB5_KTNAME"
+           LocateLineMatching '#.*export KRB5_KTNAME=.*'
+           InsertLine 'KRB5_KTNAME=/etc/krb5.keytab.ldap; export KRB5_KTNAME'
+        EndGroup
+    }

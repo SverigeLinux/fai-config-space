@@ -1,0 +1,24 @@
+## RAID1 on two identical disks.
+
+disk_config  disk1
+primary  -  64-512    -  -
+primary  -  64-2096   -  -
+logical  -   0-       -  -
+
+disk_config  disk2  sameas:disk1
+
+
+disk_config  raid  fstabkey:uuid
+raid1  /boot  disk1.1,disk2.1  ext4  rw
+raid1  swap   disk1.2,disk2.2  swap  sw
+raid1  -      disk1.5,disk2.5  -     -
+
+
+disk_config  lvm  fstabkey:uuid
+vg  vg_system  md2
+vg_system-root  /      1G-5G     ext4  errors=remount-ro
+vg_system-usr   /usr   2G-20G    ext4  defaults
+vg_system-var   /var   1G-40G    ext4  defaults
+vg_system-opt   /opt   4G-10G    ext4  defaults
+vg_system-home  /lan/mainserver/home0  1G-40%  ext4  usrquota
+vg_system-backup /backup 1G-40%  ext4  defaults

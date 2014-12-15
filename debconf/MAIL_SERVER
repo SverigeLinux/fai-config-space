@@ -1,0 +1,5 @@
+exim4-config exim4/dc_eximconfig_configtype select mail sent by smarthost; received via SMTP or fetchmail
+exim4-config exim4/mailname string mail.intern
+exim4-config exim4/dc_localdelivery select Maildir format in home directory
+exim4-config exim4/use_split_config boolean true
+exim4-config exim4/dc_local_interfaces string

@@ -1,0 +1,17 @@
+define host{
+        use           generic-host
+        host_name     gateway
+        address       $GATEWAY
+}
+
+define host{
+        use           generic-host
+        host_name     mainserver
+        address       127.0.0.1
+}
+
+define host{
+        use                    client-host
+        host_name              workstation00
+        hostgroups             workstation
+}

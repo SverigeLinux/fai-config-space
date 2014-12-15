@@ -1,0 +1,16 @@
+passwd passwd/shadow boolean true
+locales locales/default_environment_locale select en_US.UTF-8
+locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8
+xserver-xorg xserver-xorg/config/inputdevice/keyboard/model string pc105
+xserver-xorg xserver-xorg/autodetect_monitor boolean false
+xserver-xorg xserver-xorg/autodetect_keyboard boolean true
+xserver-xorg xserver-xorg/autodetect_mouse boolean true
+xserver-xorg xserver-xorg/autodetect_video_card boolean true
+nbd-client nbd-client/killall boolean false
+nbd-client nbd-client/device string /dev/nbd0
+nbd-client nbd-client/host string swapserver
+nbd-client nbd-client/port string 10809
+nbd-client nbd-client/type select swap
+## FIXME: workaround #685610
+nbd-client nbd-client/extra string -Nswap
+nbd-client nbd-client/number string 1

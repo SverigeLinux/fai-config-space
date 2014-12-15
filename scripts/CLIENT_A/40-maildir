@@ -1,0 +1,21 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 30000 )
+
+editfiles:
+   any::
+	{ ${target}/etc/environment
+	  ## Set MAIL variable:
+	  AppendIfNoSuchLine "MAIL=~/Maildir"
+	}
+	{ ${target}/etc/pam.d/login
+	  ## Set MAIL variable:
+	  ReplaceAll "pam_mail.so standard" With "pam_mail.so dir=~/Maildir"
+	}
+	{ ${target}/etc/pam.d/sshd
+	  ## Set MAIL variable:
+	  ReplaceAll "pam_mail.so standard noenv" With "pam_mail.so dir=~/Maildir"
+	}

@@ -1,0 +1,15 @@
+## Only list packages that are essential for the LOG_SERVER class.
+## Put all setup-dependent packages in the SETUP_* class.
+PACKAGES aptitude
+apache2
+libapache2-mod-auth-kerb
+munin
+munin-node
+icinga
+nagios-images
+nagios-plugins-standard
+nagios-nrpe-plugin
+
+dnsutils
+smartmontools
+lm-sensors

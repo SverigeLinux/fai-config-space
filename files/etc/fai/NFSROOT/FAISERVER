@@ -1,0 +1,38 @@
+# package list for creating the NFSROOT
+
+PACKAGES aptitude
+nfs-common fai-nfsroot module-init-tools ssh rdate lshw rpcbind
+rsync lftp less dump reiserfsprogs e2fsprogs usbutils
+hwinfo psmisc pciutils hdparm smartmontools parted mdadm lvm2
+dnsutils ntpdate dosfstools xfsprogs xfsdump
+procinfo numactl dialog
+console-tools console-common
+iproute udev subversion
+xz-utils
+cupt
+
+grub-pc
+cfengine2
+# we need mkpasswd:
+whois
+
+# some network cards needs firmware
+firmware-bnx2 firmware-bnx2x firmware-realtek
+
+# dracut can replace live-boot
+#dracut-network live-boot- live-boot-initramfs-tools-
+
+# squeeze also needs initramfs-tools, even with dracut
+#initramfs-tools
+
+# choose if you like live-boot or dracut inside the nfsroot
+live-boot
+
+# you should not edit the lines below
+# architecture dependend list of packages that are installed
+
+PACKAGES aptitude I386
+linux-image-686-pae
+
+PACKAGES aptitude AMD64
+linux-image-amd64

@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+
+set -e
+
+if $ROOTCMD which dansguardian > /dev/null ; then
+    ## enable dansguardian:
+    sed -i "s/^UNCONFIGURED/\# Line commented by FAI.  UNCONFIGURED/"  ${target}/etc/dansguardian/dansguardian.conf
+    ## disable access to squid from the network (commented, access needed for APT):
+    #sed -i "/^http_access allow localnet$/d" ${target}/etc/squid3/squid.conf
+fi

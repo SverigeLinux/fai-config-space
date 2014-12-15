@@ -1,0 +1,6 @@
+slapd slapd/no_configuration boolean true
+slapd shared/organization string Debian-LAN
+slapd slapd/custom_suffix string dc=intern
+slapd slapd/domain string intern
+slapd slapd/internal/dn string dc=intern
+slapd slapd/internal/admin string ^cn=admin,dc=intern$

@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+#
+
+#
+# Enable services again when converting a minimal installation.
+# Only do that when converting:
+if [ -n "$POLICYFILE" ] ; then
+    rm $POLICYFILE
+fi
+
+#
+# Run etckeeper:
+#
+
+$ROOTCMD etckeeper commit "saving modifications after configure scripts run" || true

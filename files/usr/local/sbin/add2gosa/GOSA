@@ -1,0 +1,280 @@
+#!/bin/bash
+#
+# Import a list of users to GOsa.  Based on the ldapscripts package.
+#
+
+set -e
+
+umask 0022
+
+sync_nscd(){
+    if pidof nscd 1>&2 > /dev/null ; then
+        ## Clear tables to have database up to date:
+        nscd -i passwd
+        nscd -i group
+    fi
+}
+
+mk_uname() {
+    # Convert to ASCII and remove non-alphabetic characters:
+    local FNAME=$(echo $1 | iconv -f UTF-8 -t ASCII//TRANSLIT | sed "s/[^A-Za-z]//g")
+    local GNAME=$(echo $2 | iconv -f UTF-8 -t ASCII//TRANSLIT | sed "s/[^A-Za-z]//g")
+    # Lower case:
+    FNAME=${FNAME,,}
+    GNAME=${GNAME,,}
+    # Check if username is not yet in use:
+    N=3
+    UNAME=${FNAME::$N}${GNAME::$N}
+    sync_nscd
+    while getent passwd $UNAME > /dev/null || getent group $UNAME > /dev/null; do
+        N=$(($N+1))
+        if [ $N -gt 5 ] ; then
+            UNAME=${FNAME::3}${GNAME::3}$((N-5))
+        else
+            UNAME=${FNAME::$N}${GNAME::$N}
+        fi
+    done
+    echo $UNAME
+}
+
+ou2LDAP() {
+    OU=$1
+    # Add ou to LDAP
+    _extractldif 3 | sed -e "s|<ORGUNIT>|$OU|g" | _filterldif | _utf8encode | _ldapadd
+    [ $? -eq 0 ] || end_die "Error adding '$OU' to '$SUFFIX'."
+    echo_log "Successfully added '$OU' to '$SUFFIX'."
+}
+
+user2LDAP() {
+    set +e
+    # Get rid of leading and trailing whitespace:
+    local FNAME=$(echo $1)
+    local GNAME=$(echo $2)
+    local GECOS=$(echo $GNAME $FNAME | iconv -f UTF-8 -t ASCII//TRANSLIT)
+    _USER="$3"
+    _GROUP="$_USER"
+
+    # Group GID
+    _GID=$(_findnextgid)
+    [ -z "_GID" ] && end_die "Cannot guess next free group ID."
+
+    # Add group to LDAP
+    _extractldif 4 | _filterldif | _utf8encode | _ldapadd
+    [ $? -eq 0 ] || end_die "Error adding group '$_GROUP' to LDAP."
+    echo_log "Successfully added group '$_GROUP' to LDAP."
+
+    ###################
+
+    # User UID
+    _UID=$(_findnextuid)
+    [ -z "_UID" ] && end_die "Cannot guess next free user ID."
+
+    # Compute homedir
+    _HOMEDIR=$(echo "$UHOMES" | sed "s|%u|$_USER|g")
+
+    # Add user to LDAP
+    _extractldif 5 | \
+        sed -e "s|<GNAME>|$GNAME|g" \
+        -e "s|<FNAME>|$FNAME|g" \
+        -e "s|<GECOS>|$GECOS|g" \
+        -e "s|<PWHASH>|$PWHASH|g" \
+        | _filterldif | _utf8encode | _ldapadd
+    [ $? -eq 0 ] || end_die "Error adding user '$_USER' to LDAP."
+    echo_log "Successfully added user '$_USER' to LDAP."
+
+    # Create Home dir
+    if [ -e "$_HOMEDIR" ] ; then
+        warn_log "Skipped home directory creation for user '$_USER' (already exists)."
+    else
+        if [ -d "$HOMESKEL" ] ; then
+            mkdir -p $(dirname "$_HOMEDIR") 2>>"$LOGFILE" 1>/dev/null
+            cp -pR "$HOMESKEL/" "$_HOMEDIR" 2>>"$LOGFILE" 1>/dev/null
+        else
+            mkdir -p "$_HOMEDIR" 2>>"$LOGFILE" 1>/dev/null
+        fi
+        chmod "$HOMEPERMS" "$_HOMEDIR" 2>>"$LOGFILE" 1>/dev/null
+        chown -R "$_UID":"$_GID" "$_HOMEDIR" 2>>"$LOGFILE" 1>/dev/null
+        echo_log "Successfully created home directory '$_HOMEDIR' for user '$_USER'."
+    fi
+    set -e
+}
+
+checkPASSWD (){
+    PASSWD="$1"
+    local NUM=0
+    if [ $(expr length "$PASSWD") -ge $MINLEN ] ; then
+        [ -n "${PASSWD//[![:lower:]]/}" ] && NUM=$(($NUM+1))
+        [ -n "${PASSWD//[![:upper:]]/}" ] && NUM=$(($NUM+1))
+        [ -n "${PASSWD//[![:digit:]]/}" ] && NUM=$(($NUM+1))
+        [ -n "${PASSWD//[![:punct:]]/}" ] && NUM=$(($NUM+1))
+    fi
+    echo $NUM
+}
+
+createPASSWD (){
+    local NUM=0
+    while [ $NUM -lt $MINCLS ] ; do
+        PASSWD=$(slappasswd -g)
+        NUM=$(checkPASSWD "$PASSWD")
+    done
+    echo "$PASSWD"
+}
+
+###########################################
+
+FILE=$1
+GOSAOU=$2
+
+# Source runtime file
+_RUNTIMEFILE="/usr/share/ldapscripts/runtime"
+. "$_RUNTIMEFILE"
+
+# We need to overwrite variables defined in the configuration
+# and sourced in the runtime file above:
+SUFFIX="$GOSAOU,ou=gosa,dc=intern"
+SUFFIX=${SUFFIX#,} # remove ',' if $GOSAOU=""
+GIDSTART="10000"
+UIDSTART="10000"
+
+## Map LDAP structure on the home directory tree if not switched off:
+if [ -n "$GOSAOU" ] && [ "$3" != "--no-map" ] ; then
+    HSUFFIX=$(echo -n "${GOSAOU}," | tac -s "," | sed -e "s|ou=||g" -e "s|,|\/|g" )
+    UHOMES=${UHOMES/\%u/${HSUFFIX}%u}
+fi
+
+## Password restrictions (compliant with kerberos policy):
+MINLEN=4  # minimal password length (max 8 with slappasswd as password generator)
+MINCLS=2  # minimal number of character classes
+
+if [ ! -r "$FILE" ] ; then
+    cat <<EOF
+Usage: add2gosa <file> [ou=<GOsa Department>[,ou=...] [--no-map]]
+
+The UTF-8 or ASCII encoded <file> contains rows of last and first names,
+separated by a TAB:
+
+     <LastName>     <FirstName>
+        ....            ....
+
+Empty lines or lines starting with a '#' will be ignored.  The
+generated password is appended to the line during processing, the line
+commented.
+
+Optionally it is possible to specify an organizational unit within the
+GOsa tree.  The users will be added to that department.  The location
+of the home directory created will map the structure of the
+organizational units in LDAP.  This feature can be switched off with
+the --no-map option.
+
+Examples:
+
+  * add users to GOsa base, home directory: '/<default>/<username>':
+
+           add2gosa <file>
+
+
+  * add users to department 'ou=2013,ou=students', home directory
+    '/<default>/students/2013/<username>':
+
+           add2gosa <file> ou=2013,ou=students
+
+The department has to be created in GOsa before adding users.
+EOF
+    exit 1
+fi
+
+TMPFILE=$(mktemp)
+
+# Test if the input file is valid.
+# Remove all comments:
+grep -Ev "^(#|[[:space:]]*$)" $FILE | sed "s/\#.*//g" > $TMPFILE
+
+# Check number of columns and encoding:
+L=$(awk -F "\t" '{if (NF!=2) {print NR ":\t" $0;}}' $TMPFILE)
+E=$(file -b $TMPFILE)
+if [ "$E" != "UTF-8 Unicode text" ] && [ "$E" != "ASCII text" ] ; then
+    echo "ERROR:  The encoding of '${FILE}' seems to be: '$E'."
+    echo "        Convert '${FILE}' to UTF-8 and try again."
+    exit 1
+elif [ -n "$L" ] ; then
+    echo "$L"
+    echo "ERROR:  There are lines with more or less than 2 columns in '${FILE}', see above."
+    echo "        Fix the problematic lines and try again."
+    exit 1
+else
+    echo "Input file '${FILE}' seems to be valid."
+fi
+
+
+sync_nscd
+# Test if dn exists:
+_ldapsearch "$SUFFIX" "(objectClass=organizationalUnit)" "dn" \
+    | grep -q "$SUFFIX" || end_die "No Department '$SUFFIX' found.  Create it in GOsa first."
+# Create ou=groups if missing:
+_ldapsearch "$GSUFFIX,$SUFFIX" "(objectClass=organizationalUnit)" "dn" \
+    | grep -q "$GSUFFIX,$SUFFIX" || ou2LDAP $GSUFFIX
+# Create ou=people if missing:
+_ldapsearch "$USUFFIX,$SUFFIX" "(objectClass=organizationalUnit)" "dn" \
+    | grep -q "$USUFFIX,$SUFFIX" || ou2LDAP $USUFFIX
+echo
+
+chmod 600 $FILE
+IFS=$'\n'
+for LINE in $(awk '{print $0}' $TMPFILE) ; do
+    FNAME=$(echo "$LINE" | awk -F "\t" '{print $1}')
+    GNAME=$(echo "$LINE" | awk -F "\t" '{print $2}')
+    # Create $USERNAME:
+    USERNAME=$(mk_uname "$FNAME" "$GNAME")
+    echo "---------------- $USERNAME ----------------"
+    PASSWD=$(createPASSWD)
+    PWHASH=$(slappasswd -s $PASSWD -h {SSHA})
+    echo "Password and hash created."
+    # Add username and password to $FILE (only first occurence):
+    sed -i "0,/^[[:space:]]*\($FNAME[[:space:]]\+$GNAME\)[[:space:]]*$/s||\# \1\t$USERNAME\t${PASSWD}|" $FILE
+    user2LDAP "$FNAME" "$GNAME" "$USERNAME" "$PWHASH"
+    USERDN="dn=uid=$USERNAME,$USUFFIX,$SUFFIX"
+    kadmin.local -q "add_principal -pw "$PASSWD" -x $USERDN $USERNAME"
+    echo
+done
+rm $TMPFILE
+
+cat <<EOF
+   ===================== IMPORTANT NOTICE =====================
+    Make sure to keep '$FILE' save or remove it!
+    Advice users to change their password immediately in GOsa.
+   ============================================================
+EOF
+
+end_ok
+
+# Ldif ou template ##################################
+###dn: <ORGUNIT>,<suffix>
+###objectClass: top
+###objectClass: organizationalUnit
+###ou: <ORGUNIT>
+
+# Ldif group template ###############################
+####dn: cn=<group>,<gsuffix>,<suffix>
+####objectClass: <gclass>
+####cn: <group>
+####gidNumber: <gid>
+####description: Group of user <group>
+
+# Ldif user template ################################
+#####dn: uid=<user>,<usuffix>,<suffix>
+#####objectClass: person
+#####objectClass: organizationalPerson
+#####objectClass: inetOrgPerson
+#####objectClass: gosaAccount
+#####objectClass: posixAccount
+#####objectClass: shadowAccount
+#####sn: <FNAME>
+#####givenName: <GNAME>
+#####cn: <GNAME> <FNAME>
+#####gecos: <GECOS>
+#####uid: <user>
+#####homeDirectory: <home>
+#####loginShell: <shell>
+#####uidNumber: <uid>
+#####gidNumber: <gid>
+#####userPassword: <PWHASH>

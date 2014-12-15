@@ -1,0 +1,7 @@
+disk_config disk1 disklabel:msdos bootable:1 fstabkey:uuid
+
+primary /      500-1G   ext4  errors=remount-ro
+logical swap   200-1000 swap  sw
+logical /var   1G-      ext4  defaults
+logical /tmp   100-1G   ext4  defaults
+logical /usr   1G-4G    ext4  defaults

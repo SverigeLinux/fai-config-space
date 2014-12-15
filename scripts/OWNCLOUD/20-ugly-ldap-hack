@@ -1,0 +1,17 @@
+#!/usr/sbin/cfagent -f 
+
+# 
+# This is a workaround for getting TLS-enabled OpenLDAP logins to work properly. 
+# When https://github.com/owncloud/core/issues/7908 is resolved, this hack can be removed.
+#
+
+control:
+    any::
+    actionsequence = ( editfiles files )
+    EditFileSize = ( 30000 )
+
+editfiles:
+    any::
+        { ${target}/var/www/owncloud/apps/user_ldap/ajax/testConfiguration.php
+            ReplaceAll ", null);" With ");"
+        }

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+ainsl /etc/exports "/srv/fai/nfsroot  ${SUBNETMASK}(async,ro,no_subtree_check,no_root_squash)"
+ainsl /etc/exports "/srv/fai/config   ${FAINETMASK}(async,ro,no_subtree_check,no_root_squash)"

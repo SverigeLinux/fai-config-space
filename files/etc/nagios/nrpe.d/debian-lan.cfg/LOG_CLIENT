@@ -1,0 +1,12 @@
+## command definitions for debian-lan
+command[check_apt]=/usr/lib/nagios/plugins/check_apt
+
+## fixed arguments
+command[debian-lan_check_ntp_time]=/usr/lib/nagios/plugins/check_ntp_time -H ntp -w 0.5 -c 1
+command[debian-lan_check_procs]=/usr/lib/nagios/plugins/check_procs -w '150' -c '200'
+command[debian-lan_check_procs_zombie]=/usr/lib/nagios/plugins/check_procs -w '5' -c '10' -s Z
+command[debian-lan_check_all_disks]=/usr/lib/nagios/plugins/check_disk -w '20%' -c '10%' -e -l
+command[debian-lan_check_swap]=/usr/lib/nagios/plugins/check_swap -w '50%' -c '30%'
+command[debian-lan_check_load]=/usr/lib/nagios/plugins/check_load --warning='5.0,4.0,3.0' --critical='10.0,6.0,4.0'
+command[debian-lan_check_users]=/usr/lib/nagios/plugins/check_users -w '5' -c '10'
+command[debian-lan_check_file_age]=/usr/lib/nagios/plugins/check_file_age -w 0 -c 0 -W 500 -f /etc/krb5.keytab

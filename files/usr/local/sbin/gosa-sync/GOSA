@@ -1,0 +1,54 @@
+#!/bin/bash
+
+set -e
+
+## This script is run by www-data using sudo. Keep that in mind!
+## Make sure that malicious execution cannot hurt.
+##
+## This script synchronizes the kerberos password of principals to the
+## posix password whenever the password is changed in ldap by gosa. To
+## make sure only authorized changes happen, it is tested if the
+## supplied password corresponds to the supplied distinguished name in
+## ldap.
+##
+## A caller not knowing the correct ldap password cannot change the
+## principal's one.
+
+USERDN="$1"
+USERID=`echo "$USERDN" | sed "s/^uid=\([^,]*\),.*$/\1/"`
+
+## The new user password is in environment, $USERPASSWORD.
+## Check if provided password corresponds to hash saved in ldap database:
+
+TMPFILE=$(tempfile)
+trap "rm -f $TMPFILE" ERR SIGHUP SIGINT SIGTERM
+
+cat <<EOF | tr -d "\n" > "$TMPFILE"
+$USERPASSWORD
+EOF
+
+IAM=`ldapwhoami -x -Z -y "$TMPFILE" -D "$USERDN" 2>/dev/null || true`
+
+# Escapes " because kadmin needs to use double quotes:
+EUSERPASSWORD="$(cat $TMPFILE | sed -e 's/\"/\"\"/g')"
+
+if [ "$IAM" = "dn:$USERDN" ] ; then
+    cat > "$TMPFILE" <<EOF
+change_password -pw "$EUSERPASSWORD" $USERID
+EOF
+    RET=$((cat "$TMPFILE" | kadmin.local 1> /dev/null) 2>&1)
+    if [ -z "$RET" ] ; then
+        logger -t gosa-sync -p notice "Sucessfully changed kerberos password for '$USERID'."
+    else
+        logger -t gosa-sync -p warning "$RET"
+        echo "$RET"
+    fi
+else
+    RET="Could not verify password for '$USERID'. Nothing done."
+    echo $RET
+    logger -t gosa-sync -p warning "$RET"
+fi
+
+rm "$TMPFILE"
+
+exit 0

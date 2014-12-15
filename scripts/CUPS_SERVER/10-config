@@ -1,0 +1,38 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 30000 )
+
+editfiles:
+   any::
+	{ ${target}/etc/cups/cupsd.conf
+	  ## Allow remote access:
+	  BeginGroupIfNoSuchLine 'Port 631'
+	    HashCommentLinesStarting 'Listen localhost:631'
+	    LocateLineMatching '#.*Listen localhost:631'
+	    InsertLine '# Allow remote access'
+	    InsertLine 'Port 631'
+	    InsertLine 'ServerAlias print.intern'
+
+	    LocateLineMatching 'BrowseAllow all'
+	    InsertLine 'BrowseRemoteProtocols cups dnssd'
+	    InsertLine 'BrowseAddress @LOCAL'
+
+	    LocateLineMatching '<Location />'
+	    LocateLineMatching '  Order allow,deny'
+	    InsertLine '  # Allow remote access'
+	    InsertLine '  Allow all'
+
+	    LocateLineMatching '<Location /admin>'
+	    LocateLineMatching '  Order allow,deny'
+	    InsertLine '  # Allow remote access'
+	    InsertLine '  Allow all'
+
+	    LocateLineMatching '<Location /admin/conf>'
+	    LocateLineMatching '  Order allow,deny'
+	    InsertLine '  # Allow remote access'
+	    InsertLine '  Allow all'
+	  EndGroup
+	}

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -e
+
+CONFDIR="/srv/fai/config"
+
+if [ "$FAI_ACTION" == "install" ] ; then
+    ## Copy the config space to the faiserver:
+    echo -n "Cleaning config space ... "
+    rm -rf $target/$CONFDIR
+    echo "done."
+
+    mkdir -p $target/$CONFDIR
+    cp -a /var/lib/fai/config/* $target/$CONFDIR
+    echo "New config space copied to faiserver."
+fi
+
+if [ "$FAI_ACTION" == "install" ] || [ "$CONVERT" == "true" ] ; then
+    ## Replace the IP addresses with the chosen ones (cf. class/SERVER_A.var):
+    sed -i -e "s/^MAINSERVER_IPADDR=.*/MAINSERVER_IPADDR=\"$MAINSERVER_IPADDR\"/" \
+        -e "s/^GATEWAY=.*/GATEWAY=\"$GATEWAY\"/" $target/$CONFDIR/class/SERVER_A.var
+fi
+
+if [ ! -d $target/$CONFDIR/.git ] ; then
+    ## Use git to track modifications of the config space:
+    export HOME="/root"
+    $ROOTCMD git config --global user.name  root
+    $ROOTCMD git config --global user.email root@$HOSTNAME
+    $ROOTCMD git config --global color.ui auto
+    $ROOTCMD git init $CONFDIR
+    $ROOTCMD git --git-dir=$CONFDIR/.git --work-tree=$CONFDIR add $CONFDIR
+    $ROOTCMD git --git-dir=$CONFDIR/.git commit -m "Initial commit"
+fi

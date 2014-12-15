@@ -1,0 +1,88 @@
+# Default values for installation SERVER_A.
+
+# allow installation of packages from unsigned repositories
+FAI_ALLOW_UNSIGNED=1
+
+CONSOLEFONT=
+KEYMAP=us-latin1
+
+# Set UTC=yes if your system clock is set to UTC (GMT), and UTC=no if not.
+UTC=yes
+TIMEZONE=Europe/Berlin
+
+# Local user and root password for the new installed linux system
+# Leave empty if no local user apart from root is needed.
+USERNAME=""
+
+# Use: 'mkpasswd -Hsha-256 <PASSWORD>' to create the password hash
+# pw is "fai":
+#ROOTPW='$1$kBnWcO.E$djxB128U7dMkrltJHPf6d1'
+# If $ROOTPW is empty, you will be prompted during installation:
+ROOTPW=${ROOTPW:-''}
+# If $ADMINPW is empty, you will be prompted during installation:
+ADMINPW=${ADMINPW:-''}
+
+## All sensible data will end up here (see below):
+DATADIR=/root/installation/
+
+## The Kerberos KDC master password in clear text (!).  If undefined
+## or empty, a random password will be created and saved in $DATADIR.
+KDC_MASTER_PW=
+
+## The password for the LDAP admin and root's principals in clear
+## text (!!!).  If undefined or empty, a random password will be
+## created and saved in $DATADIR.
+LDAP_ADMIN_PW=
+
+## Variables that define the network.  You can choose the same IP
+## address for mainserver ($MAINSERVER_IPADDR) and gateway ($GATEWAY)
+## interactively during installation, see below.
+MAINSERVER_IPADDR=${MAINSERVER_IPADDR:-''}
+GATEWAY=${GATEWAY:-''}
+BROADCAST_LAN=${BROADCAST_LAN:-'10.0.255.255'}
+NAMESERVER_IPADDR=""  # leave empty to use mainserver's IP address
+
+if [ -z "$GATEWAY" ] || [ -z "$MAINSERVER_IPADDR" ] ; then
+    ## Dialog to choose setup:
+    inp=$(dialog --insecure --stdout --backtitle " Network Setup " --radiolist \
+        "There are two variants available:\n\n\
+   SEPARATE: The mainserver and the network's gateway\n\
+             are separate machines.\n\n\
+   COMBINED: The mainserver is configured as gateway\n\
+             to the external network (2 NICs needed)." 15 63 2 \
+        SEPARATE " mainserver: 10.0.0.10, gateway: 10.0.0.1 " on \
+        COMBINED " mainserver == gateway: 10.0.0.1, 2 NICs " off )
+    if [ "$inp" = "COMBINED" ] ; then
+        MAINSERVER_IPADDR='10.0.0.1'
+        GATEWAY='10.0.0.1'
+    else
+        MAINSERVER_IPADDR='10.0.0.10'
+        GATEWAY='10.0.0.1'
+    fi
+    unset inp
+fi
+
+SUBNET="10.0.0.0"
+NETMASK="255.255.0.0"
+SUBNETMASK="10.0.0.0/16"
+
+## NETMASK for FAI config space access:
+FAINETMASK=${FAINETMASK:-'10.0.0.0/16'}
+
+## DHCP range for unknown clients (cf. dhcpd.conf):
+RANGE="10.0.1.100 10.0.1.199"
+
+## IP address-endings for workstations and diskless machines (the list
+## is generated using 'seq $WS_RANGE' respectively 'seq $DL_RANGE'):
+WS_RANGE="50 149"
+DL_RANGE="150 249"
+
+## Local APT repository for the site (accessible via http).
+## Set empty to skip this feature.
+APT_REPO_DIR="/var/www/debian/"
+## URL of the local site's APT repository.
+## Set empty to skip this feature.
+APT_URL="http://www.intern/debian/"
+
+# erros in tasks greater than this value will cause the installation to stop
+STOP_ON_ERROR=700

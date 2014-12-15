@@ -1,0 +1,6 @@
+# Default values for ROAMING class.
+# Use: 'mkpasswd -Hsha-256 <PASSWORD>' to create the password hash
+# pw is "fai":
+#ROOTPW='$1$kBnWcO.E$djxB128U7dMkrltJHPf6d1'
+# If password is empty, you are prompted during installation.
+ROOTPW=''

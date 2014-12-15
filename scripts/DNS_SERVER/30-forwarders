@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+set -e
+
+if [ "$FAI_ACTION" = "install" ] || [ "$CONVERT" = "true" ] ; then
+    if [ "$MAINSERVER_IPADDR" != "$GATEWAY" ] ; then
+        ## Add gateway as DNS forwarder:
+        sed -i -e "/\/\/ forwarders {/i \        forwarders {${GATEWAY};};" $target/etc/bind/named.conf.options
+    fi
+fi

@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+set -e
+
+ainsl /etc/default/nfs-common 'RPCGSSDOPTS="-n"'
+ainsl /etc/pam.d/common-auth  'auth    optional  pam_script.so'
+fcopy -m root,root,0755 /usr/share/libpam-script/pam_script_auth

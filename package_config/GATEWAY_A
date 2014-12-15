@@ -1,0 +1,7 @@
+PACKAGES aptitude
+bind9-host
+dnsmasq
+ntp
+etckeeper
+anacron
+unattended-upgrades

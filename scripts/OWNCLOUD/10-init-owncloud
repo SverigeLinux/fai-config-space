@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -vx
+
+fcopy -m root,root,0700 /root/owncloud_start.sql
+fcopy -v -m www-data,www-data,0700 /var/www/owncloud/config/config.php
+touch $target/var/www/owncloud/data/.ocdata
+
+#echo "blahablaha" >> ${target}/root/installation/LDAPadminPW
+
+# if [ -e ${target}/root/installation/LDAPadminPW ] ; then
+PW=`cat $target/root/installation/LDAPadminPWD`
+LDAP_ADMIN_PW_BASE64=$(echo -n $PW | base64 -w 0)
+sed -i s/@LDAP_ADMIN_PW_BASE64@/$LDAP_ADMIN_PW_BASE64/ ${target}/root/owncloud_start.sql
+# fi
+
+# Rename skeleton folders for owncloud for swedish users
+mv ${target}/var/www/owncloud/core/skeleton/documents ${target}/var/www/owncloud/core/skeleton/Dokument
+mv ${target}/var/www/owncloud/core/skeleton/music ${target}/var/www/owncloud/core/skeleton/Musik
+mv ${target}/var/www/owncloud/core/skeleton/photos ${target}/var/www/owncloud/core/skeleton/Bilder
+

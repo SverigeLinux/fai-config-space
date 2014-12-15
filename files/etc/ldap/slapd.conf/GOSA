@@ -1,0 +1,164 @@
+#######################################################################
+# Global Directives:
+
+# Schema and objectClass definitions
+include         /etc/ldap/schema/core.schema
+include         /etc/ldap/schema/cosine.schema
+include         /etc/ldap/schema/nis.schema
+include		/etc/ldap/schema/inetorgperson.schema
+include		/etc/ldap/schema/kerberos.schema
+include         /etc/ldap/schema/autofs.schema
+include         /etc/ldap/schema/fusiondirectory/samba.schema
+include         /etc/ldap/schema/fusiondirectory/sudo.schema
+
+# These should be present for FusionDirectory
+include /etc/ldap/schema/fusiondirectory/core-fd-conf.schema
+include /etc/ldap/schema/fusiondirectory/core-fd.schema
+include /etc/ldap/schema/fusiondirectory/asterisk-fd-conf.schema
+include /etc/ldap/schema/fusiondirectory/ldapns.schema
+include /etc/ldap/schema/fusiondirectory/recovery-fd.schema
+#include /etc/ldap/schema/fusiondirectory/rfc2307bis.schema
+include /etc/ldap/schema/fusiondirectory/sudo-fd-conf.schema
+include /etc/ldap/schema/fusiondirectory/service-fd.schema
+include /etc/ldap/schema/fusiondirectory/systems-fd-conf.schema
+include /etc/ldap/schema/fusiondirectory/systems-fd.schema
+
+# include /etc/ldap/schema/fusiondirectory/
+# include /etc/ldap/schema/fusiondirectory/
+# include /etc/ldap/schema/fusiondirectory/
+
+
+
+# These should be present for GOsa:
+# include         /etc/ldap/schema/gosa/samba3.schema
+# include         /etc/ldap/schema/gosa/gosystem.schema
+# include         /etc/ldap/schema/gosa/gofon.schema
+# include         /etc/ldap/schema/gosa/gofax.schema
+# include         /etc/ldap/schema/gosa/goto.schema
+# include         /etc/ldap/schema/gosa/goserver.schema
+# include         /etc/ldap/schema/gosa/gosa-samba3.schema
+# include         /etc/ldap/schema/gosa/trust.schema
+# include         /etc/ldap/schema/gosa/sudo.schema
+
+# Where the pid file is put. The init.d script
+# will not stop the server if you change this.
+pidfile		/var/run/slapd/slapd.pid
+
+# List of arguments that were passed to the server
+argsfile        /var/run/slapd/slapd.args
+
+# Read slapd.conf(5) for possible values
+loglevel	none
+
+# TLS/SSL
+TLSCACertificateFile    /etc/ldap/slapd.crt
+TLSCertificateKeyFile   /etc/ldap/slapd.key
+TLSCertificateFile      /etc/ldap/slapd.crt
+TLSVerifyClient		try
+
+modulepath	/usr/lib/ldap
+moduleload	back_hdb
+
+# The maximum number of entries that is returned for a search operation
+sizelimit 500
+
+# The tool-threads parameter sets the actual amount of cpu's that is used
+# for indexing.
+tool-threads 1
+
+defaultsearchbase "dc=intern"
+
+security update_ssf=128  simple_bind=128
+
+# Access via ldapi/unix socket is assumed to have 128 bit encryption.
+# This is required to allow the Kerberos KDC to connect:
+localssf 128
+
+backend		hdb
+
+#######################################################################
+# FIXME
+#database  config
+#rootdn	  cn=config
+#rootpw	  @LDAP_PW@
+#######################################################################
+database	hdb
+
+# First database
+suffix		"dc=intern"
+rootdn		"cn=admin,dc=intern"
+# Where the database file are physically stored
+directory	"/var/lib/ldap"
+
+# The dbconfig settings are used to generate a DB_CONFIG file the first
+# time slapd starts.  They do NOT override existing an existing DB_CONFIG
+# file.  You should therefore change these settings in DB_CONFIG directly
+# or remove DB_CONFIG and restart slapd for changes to take effect.
+
+# For the Debian package we use 2MB as default but be sure to update this
+# value if you have plenty of RAM
+dbconfig set_cachesize 0 2097152 0
+
+# Number of objects that can be locked at the same time.
+dbconfig set_lk_max_objects 1500
+# Number of locks (both requested and granted)
+dbconfig set_lk_max_locks 1500
+# Number of lockers
+dbconfig set_lk_max_lockers 1500
+
+# Indices to maintain
+index  default                eq
+index  objectClass
+index  ou
+index  uidNumber
+index  gidNumber
+index  memberUid
+index  uniqueMember
+index  krbPwdPolicyReference
+index  krbPrincipalName       pres,sub,eq
+index  cn                     pres,sub,eq
+index  uid                    pres,sub,eq
+index  sudoUser               eq,sub
+
+# Save the time that the entry gets modified, for database #1
+lastmod         on
+
+# Checkpoint the BerkeleyDB database periodically in case of system
+# failure and to speed slapd shutdown.
+checkpoint      512 30
+
+## map authentication via gssapi on user dn:
+authz-regexp "uid=([^,]*),cn=gssapi,cn=auth"
+        "ldap:///dc=intern??sub?(uid=$1)"
+
+## map authentication via sasl on user dn:
+#authz-regexp "uid=([^,]*),cn=intern,cn=gssapi,cn=auth"
+#        "ldap:///dc=intern??sub?(uid=$1)"
+
+################# GOsa access ###################
+access to dn.subtree="ou=gosa,dc=intern"
+       by dn.exact="cn=gosa,ou=gosa,dc=intern" manage
+       by * break
+
+
+access to attrs=userPassword
+       by anonymous auth
+       by self write
+       by * none
+
+################# Kerberos-KDC access ##################
+access to dn.subtree="cn=kerberos,dc=intern"
+       by dn.exact="cn=kdc,cn=kerberos,dc=intern"    read
+       by dn.exact="cn=kadmin,cn=kerberos,dc=intern" write
+       by * none
+
+access to attrs=krbPrincipalName,krbLastPwdChange,krbPrincipalKey,krbExtraData
+       by dn.exact="cn=kdc,cn=kerberos,dc=intern"     read
+       by dn.exact="cn=kadmin,cn=kerberos,dc=intern"  write
+       by self read
+       by *    auth
+
+## Default access; kadmin needs full access:
+access to *
+       by dn.exact="cn=kadmin,cn=kerberos,dc=intern" write
+       by * read

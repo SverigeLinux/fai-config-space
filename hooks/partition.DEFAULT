@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+#  Wipe old partition table.
+#
+
+set -e
+
+# FIXME:  This is needed because of #693701
+
+VG=$(vgscan | grep -o '".*"' | sed "s/\"//g")
+if [ -n "$VG" ] ; then
+    echo "Deactivating volume group \"$VG\"."
+    lvchange -a n $VG
+fi
+
+for DEV in $(lsblk -n -o NAME,TYPE | grep disk | cut -d ' ' -f 1) ; do
+    echo "Wiping MBR of /dev/${DEV}."
+    parted -s /dev/${DEV} mklabel msdos
+done

@@ -1,0 +1,20 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 30000 )
+
+editfiles:
+   any::
+	{ ${target}/etc/default/nfs-common
+	  ## Start the idmapd daemon:
+	  ReplaceAll "NEED_IDMAPD=$" With "NEED_IDMAPD=yes"
+	  ## Start the gssd daemon:
+	  ReplaceAll "NEED_GSSD=$" With "NEED_GSSD=yes"
+	}
+
+     	{ ${target}/etc/idmapd.conf
+	  ## Needed for correct ID mapping:
+	  HashCommentLinesStarting "Domain ="
+	}

@@ -1,0 +1,73 @@
+#!/bin/bash
+
+set -e
+
+## Switch on apt-cacher-ng:
+ainsl -a /etc/apt/apt.conf 'Acquire::http::Proxy "http://aptcache.intern:3128/";'
+
+## Add a local user account.
+## You need to define USERNAME in class/SERVER_A.var to enable:
+
+if [ -n "$ROOTPW" ] && [ -n $USERNAME ] && ! $ROOTCMD getent passwd $USERNAME ; then
+    $ROOTCMD adduser --disabled-login \
+	--gecos "local system administrator" $USERNAME
+    $ROOTCMD usermod --password "$ROOTPW" $USERNAME
+    $ROOTCMD usermod --groups adm,sudo  $USERNAME
+fi
+
+## Prepare ssh key pair for root:
+KEY="/root/.ssh/id_rsa"
+if [ ! -e $KEY ]; then
+    $ROOTCMD ssh-keygen -t rsa -N '' -f $KEY
+fi
+if ifclass FAISERVER ; then
+    ## Add public key to fai config space:
+    DIR="/srv/fai/config/files/root/.ssh/authorized_keys/"
+    $ROOTCMD mkdir -pv $DIR
+    $ROOTCMD cp -v ${KEY}.pub $DIR/CLIENT_A
+fi
+
+## Make debian-lan-scripts available:
+fcopy -m root,root,0700 /usr/local/sbin/debian-lan
+fcopy -m root,root,0700 /usr/local/sbin/dhcpd-keytab
+
+
+if [ "$FAI_ACTION" != "install" ] && [ "$CONVERT" != "true" ] ; then
+    exit 0
+fi
+
+## Generate '/etc/network/interfaces':
+
+cat > $target/etc/network/interfaces <<EOF
+# The loopback network interface
+auto lo
+iface lo inet loopback
+      dns-search intern
+
+# The internal network interface
+auto eth0
+iface eth0 inet static
+      address   ${MAINSERVER_IPADDR}
+      netmask   ${NETMASK}
+      broadcast ${BROADCAST_LAN}
+EOF
+
+if [ "$MAINSERVER_IPADDR" != "$GATEWAY" ] ; then
+    cat >> $target/etc/network/interfaces <<EOF
+      gateway   ${GATEWAY}
+EOF
+else
+    if $ROOTCMD which dansguardian > /dev/null ; then
+	cat >> $target/etc/network/interfaces <<EOF
+      ## Redirect port 80 to dansguardian:
+      post-up iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
+EOF
+    fi
+    cat >> $target/etc/network/interfaces <<EOF
+
+# The external network interface
+allow-hotplug eth1
+auto eth1
+iface eth1 inet dhcp
+EOF
+fi

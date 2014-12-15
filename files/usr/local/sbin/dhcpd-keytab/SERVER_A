@@ -1,0 +1,78 @@
+#!/bin/bash
+#
+#  Send kerberos keytab to machines during PXE installation.
+#  Called by dhcpd on lease.
+#
+
+set -e
+
+DATADIR="/root/installation/"
+NFSROOT="/srv/fai/nfsroot/live/filesystem.dir/"
+
+MACHINE=$1
+WAIT=60
+
+if [ ! -e $DATADIR/${MACHINE}.keytab ] ; then
+    ## The keytab is missing or in use already, exit.
+    exit 0
+elif [ "$2" != "go" ]; then
+    ## Fork to the background and run script.
+    $0 "$1" go >> /var/log/`basename ${0}`.log 2>&1 &
+    exit 0
+fi
+
+## Only one process:
+STAMP=/tmp/`basename ${0}`_$MACHINE
+if [ -e $STAMP ] ; then
+    exit 0
+else
+    touch $STAMP
+    trap "rm -f $STAMP" ERR SIGHUP SIGINT SIGTERM
+fi
+
+cleanup(){
+    echo $1
+    rm -f $STAMP
+    exit 0
+}
+
+activated(){
+    echo "$DATADIR/${MACHINE}.keytab copied to ${MACHINE}."
+    DATE=`date +%Y%m%d`
+    mv -v $DATADIR/${MACHINE}.keytab $DATADIR/${MACHINE}.keytab_$DATE
+    cleanup "Success! ${MACHINE} activated."
+}
+
+## Make chroot accessible to root:
+if [ ! -e ${NFSROOT}/root/.ssh/authorized_keys ] ; then
+    echo $MACHINE `date`
+    mkdir -vp ${NFSROOT}/root/.ssh/
+    for KEY in `ls /root/.ssh/*.pub` ; do
+	cat $KEY >> ${NFSROOT}/root/.ssh/authorized_keys
+    done
+fi
+
+echo "==================== $MACHINE `date` ===================="
+echo "Trying to copy keytab to $MACHINE in $WAIT seconds."
+sleep $WAIT
+for i in `seq 8` ; do
+    echo $MACHINE `date`
+    echo "Copying keytab to $MACHINE: $i try."
+    ## Do not check host ID and do not add the host ID to known_hosts,
+    ## as the host will have a differen ID after installation.
+    if ERR=$(LC_ALL=C scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=\"$STAMP\" -p \
+        $DATADIR/${MACHINE}.keytab root@${MACHINE}:/target/etc/krb5.keytab 2>&1) ; then
+        activated
+    elif echo "$ERR" | grep -q "scp: /target/etc/krb5.keytab: No such file or directory" ; then
+        echo "Copying to '/target/etc/krb5.key' failed, try already installed machine."
+        if scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=\"$STAMP\" -p \
+            $DATADIR/${MACHINE}.keytab root@${MACHINE}:/etc/krb5.keytab ; then
+            activated
+        fi
+    fi
+    echo "Copying failed, sleeping $WAIT s."
+    sleep $WAIT
+    ping -c 2 $MACHINE > /dev/null || cleanup "Cannot ping $MACHINE, exiting."
+done
+
+cleanup "Failed to activate ${MACHINE}.  Run 'debian-lan key2machine ${MACHINE}' manually."

@@ -1,0 +1,20 @@
+#! /bin/bash
+#
+#  Disable services when converting a minimal installation.
+#  Create necessary directories if missing.
+
+
+POLICYFILE="/usr/sbin/policy-rc.d"
+
+## Only when converting:
+if [ "$CONVERT" == "true" ] && [ "$target" == "/" ] && [ ! -e $POLICYFILE ] ; then
+    cat > $POLICYFILE <<EOF
+#!/bin/sh
+exit 101
+EOF
+    chmod a+rx $POLICYFILE
+    mkdir -p /var/lib/fai/config
+    mkdir -p /lan/mainserver/home0
+else
+    unset POLICYFILE
+fi

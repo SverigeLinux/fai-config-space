@@ -1,0 +1,29 @@
+############### Root of tree and admin ##############
+dn: dc=intern
+objectClass: top
+objectClass: dcObject
+objectClass: labeledURIObject
+ObjectClass: organization
+objectClass: gosaAcl
+description: Debian-LAN
+dc: intern
+o: Debian-LAN
+labeledURI: http://www/ LDAP for Debian-LAN
+gosaAclEntry: 0:subtree:Y249YWRtaW4sb3U9YWNscm9sZXMsZGM9aW50ZXJu:dWlkPWFkbWluLG91PXBlb3BsZSxkYz1pbnRlcm4=
+
+dn: cn=admin,dc=intern
+objectClass: organizationalRole
+objectClass: simpleSecurityObject
+cn: admin
+description: LDAP Administrator
+userPassword: @LDAP_ADMIN_PW_HASH@
+
+dn: ou=people,dc=intern
+objectClass: top
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,dc=intern
+objectClass: top
+objectClass: organizationalUnit
+ou: groups

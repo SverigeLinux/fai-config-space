@@ -1,0 +1,7 @@
+# See fai.conf(5) for detailed information.
+
+# Account for saving log files and calling fai-chboot.
+LOGUSER=
+
+# URL to access the fai config space.
+FAI_CONFIG_SRC=nfs://faiserver/srv/fai/config

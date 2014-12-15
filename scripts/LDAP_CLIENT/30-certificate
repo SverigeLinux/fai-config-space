@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ifclass LDAP_SERVER || fcopy /etc/ldap/slapd.crt

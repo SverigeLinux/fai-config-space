@@ -1,0 +1,10 @@
+## Only list packages that are essential for the ROAMING class.
+## Put all setup-dependent packages in the SETUP_* class.
+PACKAGES aptitude
+libpam-sss
+libnss-sss
+sssd
+libpam-script
+## force the use of sss:
+libpam-krb5-
+nscd-

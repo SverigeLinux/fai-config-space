@@ -1,0 +1,4 @@
+## access controls for the Kerberos KDC
+root/admin@INTERN *
+*@INTERN cil
+*/*@INTERN i

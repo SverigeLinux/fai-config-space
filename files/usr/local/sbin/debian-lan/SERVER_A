@@ -1,0 +1,293 @@
+#!/bin/bash
+#
+# Manage users, pricipals and keytabs.  Add machines to dhcpd.conf.
+#
+
+set -e
+
+DATADIR="/root/installation/"
+#KADMINOPTION="-force"
+HOSTNAME=`hostname -s`
+HOME="/lan/$HOSTNAME/home0"
+DHCPCONF="/etc/dhcp/dhcpd.conf"
+DATE=`date +%Y%m%d`
+
+## Password restrictions (compliant with kerberos policy):
+MINLEN=4  # minimal password length (max 8 with slappasswd as password generator)
+MINCLS=2  # minimal number of character classes
+
+usage(){
+    echo "Usage: debian-lan  adduser|deluser|purgehomes|key2machine  argument"
+    echo "       debian-lan  add2dhcp"
+    echo
+    echo "The corresponding argument can be one of the following:"
+    echo
+    echo "  adduser (list|file)"
+    echo "   \"list\" is a list of user (login) names.  If instead a file"
+    echo "   is provided, it must contain lines of the form 'name [password]'."
+    echo "   If the password is omitted, a random password will be generated and"
+    echo "   appended to the corresponding login name in the file given."
+    echo
+    echo "  deluser (list|file)"
+    echo "   \"list\" is a list of user (login) names.  If instead a file"
+    echo "   is provided, the first word in each lines is taken as a login name."
+    echo
+    echo "  purgehomes age"
+    echo "   \"age\" is the number of days since the (former) user has been deleted."
+    echo
+    echo "  key2machine list"
+    echo "   \"list\" is a list of host names."
+    echo
+    echo "  add2dhcp"
+    echo "   All non-local hardware MAC addresses found in the syslog may be added"
+    echo "   to '$DHCPCONF', either as workstation or diskless machine."
+    echo
+    exit 1
+}
+
+sync_nscd(){
+    if pidof nscd 1>&2 > /dev/null ; then
+        ## Clear tables to have database up to date:
+        nscd -i passwd
+        nscd -i group
+    fi
+}
+
+adduserLDAP(){
+    echo "Creating LDAP account for \"$1\": "
+    if ! getent group $1 > /dev/null ; then
+        ldapaddgroup $1
+    else
+        echo "Group \"$1\" already exists!"
+    fi
+    if ! getent passwd $1 > /dev/null ; then
+        ldapadduser  $1 $1
+    else
+        echo "User \"$1\" already exists!"
+    fi
+}
+
+deluserLDAP(){
+    if getent passwd $1 ; then
+        ## First, fetch user's home directory and tagg it for removal:
+        HOMEDIR=`getent passwd $1 | cut -d : -f 6`
+        RM_HOMEDIR=`dirname $HOMEDIR`"/rm_"`date "+%Y%m%d"`"_"`basename $HOMEDIR`
+        echo "Tagging $1's home directory $HOMEDIR for removal:"
+        if mv -v $HOMEDIR $RM_HOMEDIR;  then
+            chown root:root $RM_HOMEDIR
+            chmod go-rwx $RM_HOMEDIR
+        else
+            echo "ERROR: Tagging $1's home directory failed!"
+        fi
+        ## Then, remove user from LDAP:
+        echo "Deleting LDAP account for \"$1\": "
+        ldapdeleteuser  $1 || true
+        ldapdeletegroup $1 || true
+    else
+        echo "User \"$1\" not found in LDAP database!"
+    fi
+}
+
+add2log () {
+    MACHINE=$1
+    ## munin:
+    CONFDIR='/etc/munin/munin-conf.d/'
+    if [ -d $CONFDIR ] && ! grep -sq ${MACHINE} $CONFDIR/nodes.conf ; then
+        cat >> $CONFDIR/nodes.conf <<EOF
+[${MACHINE}.intern]
+     address ${MACHINE}
+
+EOF
+        echo "${MACHINE} will be monitored by munin from now on. "
+    else
+        echo "$CONFDIR does not exist or machine already present in $CONFDIR/nodes.conf. "
+    fi
+
+    ## icinga:
+    CONF='/etc/icinga/objects/hosts.cfg'
+    if ! grep -sq ${MACHINE} $CONF ; then
+        cat >> $CONF <<EOF
+
+define host{
+        use                    client-host
+        host_name              ${MACHINE}
+        hostgroups             ${MACHINE%%[0-9]*}
+}
+EOF
+        echo "${MACHINE} will be monitored by icinga from now on. "
+    else
+        echo "Machine ${MACHINE} already present in '${CONF}'. "
+    fi
+}
+
+checkPASSWD (){
+    PASSWD="$1"
+    local NUM=0
+    if [ $(expr length "$PASSWD") -ge $MINLEN ] ; then
+	[ -n "${PASSWD//[![:lower:]]/}" ] && NUM=$(($NUM+1))
+	[ -n "${PASSWD//[![:upper:]]/}" ] && NUM=$(($NUM+1))
+	[ -n "${PASSWD//[![:digit:]]/}" ] && NUM=$(($NUM+1))
+	[ -n "${PASSWD//[![:punct:]]/}" ] && NUM=$(($NUM+1))
+    fi
+    echo $NUM
+}
+
+createPASSWD (){
+    local NUM=0
+    while [ $NUM -lt $MINCLS ] ; do
+        PASSWD=$(slappasswd -g)
+        NUM=$(checkPASSWD "$PASSWD")
+    done
+    echo "$PASSWD"
+}
+
+
+##############################
+
+COMMAND=$1
+if [ $# -lt 1 ] && [ "$COMMAND" != "add2dhcp" ] ; then
+    usage
+fi
+shift
+
+case $COMMAND in
+    adduser)
+        sync_nscd
+        if [ -r $1 ] ; then
+            ## We have a file, one user per line.
+            chmod 600 $1
+            IFS=$'\n'
+            for LINE in $(grep -Ev "^(#|[[:space:]]*$)" $1 | sed "s/\#.*//g" | awk '{print $1, $2}') ; do
+                USERID=`echo "$LINE" | cut -d " " -f1`
+                PASSWD=`echo "$LINE" | cut -d " " -f2`
+                echo "---------------- $USERID ----------------"
+                NUM=$(checkPASSWD "$PASSWD")
+                if [ $NUM -lt $MINCLS ] ;  then
+                    PASSWD=$(createPASSWD)
+		    echo "Password replaced/created!"
+                    sed -i "s%$USERID%\# $USERID\t ${PASSWD} <-- new password | %" $1
+                fi
+                adduserLDAP $USERID
+                USERDN="dn=uid=$USERID,ou=people,dc=intern"
+                kadmin.local -q "add_principal -pw "$PASSWD" -x $USERDN $USERID"
+		echo
+            done
+            echo
+            echo "   =========== IMPORTANT NOTICE ==========="
+            echo "Make sure to keep $1 save or remove it!"
+            echo "    Advice users to change their password "
+            echo "    immediately using the kpasswd command."
+            echo "   ========================================"
+        else
+            ## List of users on the command line.
+            echo "Creating accounts for: \"$@\""
+            for USERID in $@ ; do
+                echo "---------------- $USERID ----------------"
+                adduserLDAP $USERID
+                USERDN="dn=uid=$USERID,ou=people,dc=intern"
+                kadmin.local -q "add_principal -x $USERDN $USERID"
+            done
+        fi
+        ;;
+    deluser)
+        sync_nscd
+        if [ -r $1 ] ; then
+            ## We have a file, one user per line.
+            IFS=$'\n'
+            for LINE in $(grep -Ev "^(#|[[:space:]]*$)" $1 | sed "s/\#.*//g" | awk '{print $1, $2}') ; do
+                USERID=`echo "$LINE" | cut -d " " -f1`
+                echo "---------------- $USERID ----------------"
+                ## re-redirect standard input for kadmin:
+                kadmin.local -q "delete_principal $KADMINOPTION $USERID" <&2 || true
+                deluserLDAP $USERID
+		echo
+            done
+        else
+            echo "Deleting accounts for: \"$@\""
+            for USERID in $@ ; do
+                echo "---------------- $USERID ----------------"
+                kadmin.local -q "delete_principal $USERID" || true
+                deluserLDAP $USERID
+            done
+        fi
+        ;;
+    purgehomes)
+        MAXAGE_DAYS=$1
+        MAXAGE_SEC=$(( $MAXAGE_DAYS*24*60*60 ))
+        echo "Scanning all home directories tagged, remove them if older than $MAXAGE_DAYS days:"
+        for DIR in `find $HOME -maxdepth 1 -type d -regextype posix-egrep -regex ".*/rm_[0-9]{8}_[^/]+"` ; do
+            RMDATE=`echo $DIR | sed "s/.*rm_\([0-9]\{8\}\)_.*/\1/"`
+            AGE=$(( `date +"%s"`-`date +"%s" -d $RMDATE` ))
+            AGE_DAYS=$(( $AGE/24/60/60 ))
+            if [ $AGE -gt $MAXAGE_SEC ] ; then
+                rm -rf $DIR
+                echo "Home directory $DIR purged, $AGE_DAYS days old."
+            else
+                echo "Not purging $DIR, $AGE_DAYS days old."
+            fi
+        done
+        ;;
+    key2machine)
+        for MACHINE in $@ ; do
+            if [ -f $DATADIR/${MACHINE}.keytab ] ; then
+                scp -p $DATADIR/${MACHINE}.keytab root@${MACHINE}:/etc/krb5.keytab
+                mv -v $DATADIR/${MACHINE}.keytab $DATADIR/${MACHINE}.keytab_$DATE
+            elif [ -f $DATADIR/${MACHINE}.keytab* ] ; then
+                FILE=$(basename $DATADIR/${MACHINE}.keytab*)
+                echo "The keytab '$DATADIR/${MACHINE}.keytab' has been used before!"
+                read -e -n 1 -p "Use '$FILE' again? [y|N]: " inp
+                if [ "$inp" = "y" ] ; then
+                    scp -p $DATADIR/$FILE root@${MACHINE}:/etc/krb5.keytab
+                    mv -v $DATADIR/$FILE $DATADIR/${FILE}_$DATE
+                fi
+            else
+                echo "Warning:  No keytab for '${MACHINE}' available!"
+            fi
+        done
+        echo
+        ;;
+    add2dhcp)
+        ## GW: gateway hardware address
+        GW=`ip route show | grep default | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'`
+        ## locHW: all local hardware addresses
+        locHW=`ip addr show | grep -o "\w\{2\}:\w\{2\}:\w\{2\}:\w\{2\}:\w\{2\}:\w\{2\}" | sort -u | sed '1d;$d'`
+        ## allHW: all known hardware addresses with gateway address removed
+        allHW=`ip neigh show | sed "/$GW/d" | grep -o "\w\{2\}:\w\{2\}:\w\{2\}:\w\{2\}:\w\{2\}:\w\{2\}" | sort -u`
+        for HWaddr in $allHW ; do
+            if echo $locHW | grep -q $HWaddr ; then
+                echo "Skipping local MAC address: ${HWaddr}"
+                echo
+                continue
+            elif grep $HWaddr $DHCPCONF; then
+                echo "--->  MAC address already present in ${DHCPCONF}."
+            else
+                echo "Add ${HWaddr} to ${DHCPCONF}?"
+                read -e -n 1 -p "Choose d (diskless), w (workstation) or press RETURN to ignore [d|w|N]: " inp
+                inp=${inp:-N}
+                case $inp in
+                    d)
+                        NAME="diskless"
+                        ;;
+                    w)
+                        NAME="workstation"
+                        ;;
+                    *)
+                        echo "MAC address $HWaddr ignored."
+                        echo
+                        continue
+                        ;;
+                esac
+                sed -i "0,/\(host ${NAME}.*\) A1:B2:C3:D4:E5:\w\{2\};/s//\1 ${HWaddr};/" ${DHCPCONF}
+                MACHINE=$(grep $HWaddr ${DHCPCONF} | awk -F " " '{print $2}')
+                echo "MAC address $HWaddr added as: ${MACHINE}"
+                add2log ${MACHINE}
+            fi
+            echo
+        done
+        /etc/init.d/isc-dhcp-server restart
+        /etc/init.d/icinga reload
+        ;;
+    *)
+        usage
+        ;;
+esac

@@ -1,0 +1,67 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 300000 )
+
+editfiles:
+   any::
+	{ ${target}/etc/adzapper.conf
+	  ## Configure adzapper:
+	  ReplaceAll 'ZAP_MODE=""' With 'ZAP_MODE="CLEAR"'
+	}
+
+	{ ${target}/etc/squid3/squid.conf
+	  ## Define local network:
+	  ReplaceAll "#acl localnet src 10.0.0.0/8" With "acl localnet src ${SUBNETMASK}"
+
+	  ## Allow CUPS access:
+	  BeginGroupIfNoSuchLine 'acl SSL_ports port 631$(tab)$(tab)# cups'
+	    LocateLineMatching 'acl SSL_ports port 443.*'
+	    InsertLine 'acl SSL_ports port 631$(tab)$(tab)# cups'
+	    LocateLineMatching 'acl Safe_ports port 443.*'
+	    InsertLine 'acl Safe_ports port 631$(tab)$(tab)# cups'
+	  EndGroup
+
+	  ## Allow local network:
+	  BeginGroupIfNoSuchLine "http_access allow localnet"
+	    LocateLineMatching "http_access allow localhost"
+	    InsertLine "http_access allow localnet"
+	  EndGroup
+
+	  ## Package cache:
+	  BeginGroupIfNoSuchLine 'maximum_object_size_in_memory 10240 KB'
+	    LocateLineMatching '# maximum_object_size_in_memory .*'
+	    InsertLine 'maximum_object_size_in_memory 10240 KB'
+	  EndGroup
+
+	  ## Use disk cache:
+	  BeginGroupIfNoSuchLine 'cache_dir aufs /var/spool/squid3 20000 16 256'
+	    LocateLineMatching '#cache_dir .*'
+	    InsertLine 'cache_dir aufs /var/spool/squid3 20000 16 256'
+	  EndGroup
+
+	  ## Package cache:
+	  BeginGroupIfNoSuchLine 'maximum_object_size 512 MB'
+	    LocateLineMatching '# maximum_object_size .*'
+	    InsertLine 'maximum_object_size 512 MB'
+	  EndGroup
+
+	  ## Define url_rewrite_program:
+	  BeginGroupIfNoSuchLine "url_rewrite_program /usr/bin/adzapper.wrapper"
+	     LocateLineMatching "#  TAG: url_rewrite_program"
+	     InsertLine "url_rewrite_program /usr/bin/adzapper.wrapper"
+	  EndGroup
+
+	  ## Package cache:
+	  BeginGroupIfNoSuchLine 'refresh_pattern deb$(dollar)   129600 100% 129600'
+            LocateLineMatching "#  TAG: refresh_pattern"
+            InsertLine 'refresh_pattern deb$(dollar)   129600 100% 129600'
+            InsertLine 'refresh_pattern udeb$(dollar)   129600 100% 129600'
+            InsertLine 'refresh_pattern tar.gz$(dollar)  129600 100% 129600'
+            InsertLine 'refresh_pattern \/(Packages|Sources)(|\.bz2|\.gz|\.xz)$(dollar) 0 0% 0'
+            InsertLine 'refresh_pattern \/Release(|\.gpg)$(dollar) 0 0% 0'
+            InsertLine 'refresh_pattern \/InRelease$(dollar) 0 0% 0'
+	  EndGroup
+	}

@@ -1,0 +1,5 @@
+PACKAGES aptitude DEBIAN
+xorg xserver-xorg-video-all xserver-xorg-input-all
+ttf-freefont
+xscreensaver
+xterm

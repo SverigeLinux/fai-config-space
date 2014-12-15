@@ -1,0 +1,22 @@
+<?php
+$CONFIG = array (
+  'instanceid' => 'oca9c02792fa',
+  'passwordsalt' => '53e4216743cd504a5f504cef0877d4',
+  'secret' => 'a954e61d5851f5c29d374425f4edc28736bd3e34bb654caf8355b49403518300570b5b21c6ce7d9a77853e8e0c703d23',
+  'trusted_domains' => 
+  array (
+    0 => '192.168.122.21',
+  ),
+  'datadirectory' => '/var/www/owncloud/data',
+  'overwrite.cli.url' => 'https://192.168.122.21/owncloud',
+  'dbtype' => 'mysql',
+  'version' => '7.0.4.2',
+  'dbname' => 'owncloud',
+  'dbhost' => 'localhost',
+  'dbtableprefix' => 'oc_',
+  'dbuser' => 'oc_ocadmin',
+  'dbpassword' => 'fai',
+//  'dbpassword' => '9075e3fa81913107bf7c90d8637056',
+  'installed' => true,
+  'ldapIgnoreNamingRules' => false,
+);

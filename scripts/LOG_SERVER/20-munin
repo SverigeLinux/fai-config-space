@@ -1,0 +1,16 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( editfiles files )
+   EditFileSize = ( 30000 )
+
+editfiles:
+   any::
+      { ${target}/etc/munin/munin.conf
+	  ReplaceAll "\[localhost\.localdomain\]" With "[mainserver.intern]"
+      }
+
+files:
+   any::
+	${target}/etc/munin/munin-conf.d/nodes.conf mode=0644 action=create

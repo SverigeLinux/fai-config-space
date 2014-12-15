@@ -1,0 +1,64 @@
+PACKAGES aptitude
+nbd-client
+libpam-script
+
+## minimal gnome+lxde+xfce desktop:
+lxde
+lxtask
+desktop-base
+gnome-session
+gnome-session-fallback
+gnome-applets
+xfce4
+
+## gnome desktop:
+#task-gnome-desktop
+#gnome
+
+## xfce desktop:
+#xfce4-goodies
+#task-xfce4-desktop
+
+## other packages:
+lightdm policykit-1
+#gdm3
+menu
+eog
+evince
+gcalctool
+gnome-screenshot
+
+iceweasel
+mozilla-plugin-gnash
+icedove
+enigmail
+
+inkscape
+gimp
+
+libreoffice
+#lyx
+
+krb5-auth-dialog
+
+## From FAIBASE:
+fai-client
+cfengine2
+debconf-utils
+file
+less
+nfs-common
+nscd
+rsync
+openssh-client
+strace
+time
+procinfo
+nullmailer
+eject
+locales
+console-common
+pciutils usbutils
+#heirloom-mailx
+mutt
+acpi-support-base

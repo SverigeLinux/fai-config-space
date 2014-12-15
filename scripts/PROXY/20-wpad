@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+
+set -e
+
+if $ROOTCMD which dansguardian > /dev/null ; then
+    PORT="8080"
+else
+    PORT="3128"
+fi
+
+cat > $target/var/www/wpad.dat <<EOF
+function FindProxyForURL(url, host)
+{
+        return "PROXY webcache:$PORT; DIRECT";
+}
+EOF

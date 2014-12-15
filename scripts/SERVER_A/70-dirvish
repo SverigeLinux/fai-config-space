@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# configure dirvish
+
+set -e
+
+BACKUP_DIR="/backup/"
+MISC_DIR="${BACKUP_DIR}/tmp/misc/"
+
+## all backed up directories:
+BANK_DIRS="/etc /srv/fai/config /root /lan/mainserver/home0 $MISC_DIR"
+
+fcopy -v /etc/cron.daily/backup
+rm -vf   $target/etc/cron.d/dirvish
+
+## create dirvish' master.conf:
+cat > $target/etc/dirvish/master.conf <<EOF
+bank:
+   $BACKUP_DIR
+exclude:
+   lost+found/
+   core
+   *~
+   .nfs*
+Runall:
+EOF
+for DIR in $BANK_DIRS ; do
+    ID=`basename $DIR`
+    echo "   $ID  22:00" >> $target/etc/dirvish/master.conf
+done
+cat >> $target/etc/dirvish/master.conf <<EOF
+expire-default: +15 days
+expire-rule:
+#       MIN HR    DOM MON       DOW  STRFTIME_FMT
+        *   *     *   *         1    +3 months
+        *   *     1-7 *         1    +1 year
+        *   *     1-7 1,4,7,10  1
+        *   10-20 *   *         *    +4 days
+#       *   *     *   *         2-7  +15 days
+EOF
+
+
+## Do the following only when $BACKUP_DIR is mounted (if needed):
+if ! grep -q "${BACKUP_DIR%/}" $target/etc/fstab || \
+    mount | grep -q "${BACKUP_DIR%/}" ; then
+    mkdir -vp $target/$MISC_DIR
+    chmod 750 $target/$MISC_DIR
+    for DIR in $BANK_DIRS ; do
+	ID=`basename $DIR`
+	if [ ! -f $target/$BACKUP_DIR/$ID/dirvish/default.conf ] ; then
+	    echo "Creating dirvish config $ID for $DIR."
+	    mkdir -v -p  $target/$BACKUP_DIR/$ID/dirvish/
+	    chmod 750 $target/$BACKUP_DIR/$ID
+	    cat >     $target/$BACKUP_DIR/$ID/dirvish/default.conf <<EOF
+client: $HOSTNAME
+tree: $DIR
+xdev: 1
+index: gzip
+image-default: %Y%m%d
+exclude:
+*.bak
+EOF
+	    echo "Initialize dirvish vault $ID for $DIR:"
+	    $ROOTCMD dirvish --vault $ID --init
+	fi
+    done
+    ## do not mount backup partition on boot (noauto):
+    sed -i "s#\(.\+${BACKUP_DIR%/}.\+\)defaults\(.\+\)#\1noauto\2#" $target/etc/fstab
+fi

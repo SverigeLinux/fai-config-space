@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -e
+
+## Switch apache userdir module on:
+$ROOTCMD a2enmod userdir
+
+## Create certificate and enable ssl (cf. make-ssl-cert):
+CERT="/etc/ssl/certs/ssl-cert-snakeoil.pem"
+KEY="/etc/ssl/private/ssl-cert-snakeoil.key"
+CONF="/etc/apache2/ssl-crt.cnf"
+TEMPLATE="${target}/usr/share/ssl-cert/ssleay.cnf"
+HostName="${HOSTNAME}.intern"
+
+## Overwrite existing certificate only when installing:
+if [ "$FAI_ACTION" != "install" ] && [ "$CONVERT" != "true" ] ; then
+    if [ -f $target/$CERT ] && [ -f $target/$KEY ]; then
+        echo "$CERT and $KEY exists, exiting!"
+        exit 0
+    fi
+fi
+
+sed -e s#@HostName@#"$HostName"# $TEMPLATE > ${target}/$CONF
+echo "subjectAltName=DNS:$HostName,DNS:www.intern,DNS:syslog.intern,DNS:print.intern" >> ${target}/$CONF
+
+$ROOTCMD openssl req -config $CONF -new -x509 -days 7000 -nodes -out $CERT -keyout $KEY
+
+$ROOTCMD chmod 644 $CERT
+$ROOTCMD chmod 640 $KEY $CONF
+$ROOTCMD chown root:ssl-cert $KEY
+
+HASHNAME=$(dirname $CERT)/$($ROOTCMD openssl x509 -hash -noout -in $CERT)
+$ROOTCMD ln -vsf $CERT $HASHNAME
+
+$ROOTCMD a2enmod ssl
+$ROOTCMD a2ensite default-ssl

@@ -1,0 +1,122 @@
+#!/bin/bash
+#
+# Prepare anything needed to set up a local APT repository.
+# cf. <URL:http://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_small_public_package_archive>
+#
+
+set -e
+
+if [ -z "$APT_REPO_DIR" ] ; then
+    exit 0
+fi
+
+mkdir -p $target$APT_REPO_DIR/pool/main
+mkdir -p $target$APT_REPO_DIR/dists/stable/main/binary-i386
+mkdir -p $target$APT_REPO_DIR/dists/stable/main/binary-amd64
+mkdir -p $target$APT_REPO_DIR/dists/stable/main/source
+
+cat > $target$APT_REPO_DIR/dists/stable/main/binary-i386/Release << EOF
+Archive: stable
+Version: 6.0
+Component: main
+Origin: Debian
+Label: DebianLAN
+Architecture: i386
+EOF
+
+sed "s/i386/amd64/" $target$APT_REPO_DIR/dists/stable/main/binary-i386/Release > \
+    $target$APT_REPO_DIR/dists/stable/main/binary-amd64/Release
+
+sed "s/i386/source/" $target$APT_REPO_DIR/dists/stable/main/binary-i386/Release > \
+    $target$APT_REPO_DIR/dists/stable/main/source/Release
+
+cat > $target$APT_REPO_DIR/aptftp.conf <<EOF
+APT::FTPArchive::Release {
+  Origin "Debian";
+  Label "DebianLAN";
+  Suite "stable";
+  Architectures "i386 amd64 source";
+  Components "main";
+  Description "DebianLAN site specific packages";
+};
+EOF
+
+cat > $target$APT_REPO_DIR/aptgenerate.conf <<EOF
+Dir::ArchiveDir ".";
+Dir::CacheDir ".";
+TreeDefault::Directory "pool/";
+TreeDefault::SrcDirectory "pool/";
+Default::Packages::Extensions ".deb";
+Default::Packages::Compress ". gzip";
+Default::Sources::Compress "gzip";
+Default::Contents::Compress "gzip";
+
+BinDirectory "dists/stable/main/binary-amd64" {
+  Packages "dists/stable/main/binary-amd64/Packages";
+  Contents "dists/stable/Contents-amd64";
+  SrcPackages "dists/stable/main/source/Sources";
+};
+
+BinDirectory "dists/stable/main/binary-i386" {
+  Packages "dists/stable/main/binary-i386/Packages";
+  Contents "dists/stable/Contents-i386";
+  SrcPackages "dists/stable/main/source/Sources";
+};
+
+Tree "dists/stable" {
+  Sections "main";
+  Architectures "i386 amd64 source";
+};
+EOF
+
+cat > $target$DATADIR/GPGkey.conf <<EOF
+%echo Generating a key for APT signing ...
+Key-Type: DSA
+Key-Length: 1024
+Key-Usage: sign
+Name-Real: DebianLAN
+Name-Comment: ARCHIVE KEY
+Name-Email: root@mainserver.intern
+Expire-Date: 0
+%commit
+%echo done
+EOF
+
+cat > $target$APT_REPO_DIR/create_archive.sh <<EOF
+#!/bin/bash
+#
+#   HowTo set up a local package repository
+#   ---------------------------------------
+#
+#    * Drop all customized and needed packages into './pool/main/'.
+#
+#    * Execute this script or run the commands below manually.
+#
+
+set -e
+
+## Prepare GPG key:
+
+if [ ! -d /root/.gnupg/ ] ; then
+    gpg --batch --gen-key $DATADIR/GPGkey.conf
+    gpg --export --armor > DebianLAN.pubkey
+elif [ ! -e DebianLAN.pubkey ] ; then
+    gpg --export --armor > DebianLAN.pubkey
+fi
+
+## Create archive, make sure all packages are readable by www-data:
+
+chgrp www-data pool/main/*.deb DebianLAN.pubkey
+chmod g+r      pool/main/*.deb DebianLAN.pubkey
+
+FILE=dists/stable/Release
+apt-ftparchive generate -c=aptftp.conf aptgenerate.conf
+apt-ftparchive release  -c=aptftp.conf dists/stable > \$FILE
+
+rm -f \${FILE}.gpg
+gpg -vv -u DebianLAN -b -o \${FILE}.gpg \$FILE
+chgrp www-data \${FILE}
+chgrp www-data \${FILE}.gpg
+EOF
+
+chmod 0700 $target$APT_REPO_DIR/create_archive.sh

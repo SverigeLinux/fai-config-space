@@ -1,0 +1,17 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 30000 )
+
+editfiles:
+   any::
+      { ${target}/etc/dovecot/conf.d/10-auth.conf
+          ReplaceAll "#auth_krb5_keytab =.*" With "auth_krb5_keytab = /etc/krb5.keytab.imap"
+          ReplaceAll "auth_mechanisms = plain" With "auth_mechanisms = gssapi plain"
+      }
+      { ${target}/etc/dovecot/conf.d/10-mail.conf
+          ReplaceAll "^mail_location = mbox:~/mail:INBOX=/var/mail/%u"
+          With "mail_location = maildir:~/Maildir"
+      }

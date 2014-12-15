@@ -1,0 +1,13 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 30000 )
+
+editfiles:
+   any::
+        { ${target}/etc/default/bind9
+       	  # Disable IPv6 (to silence IPv6 lookup failure messages): 
+	  ReplaceAll 'OPTIONS=\"-u bind\"' With 'OPTIONS=\"-4 -u bind\"'
+        }

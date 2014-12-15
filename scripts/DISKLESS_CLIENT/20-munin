@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+#  munin-node creates links for the mainserver when installing the
+#  chroot for diskless clients.
+#  Remove all links and create only useful ones.
+#  Use 'munin-node-configure  --shell' on a diskless clients to create
+#  the list.
+#
+
+set -e
+
+if [ "$FAI_ACTION" != "dirinstall" ] ; then
+    exit 0
+fi
+
+rm $target/etc/munin/plugins/*
+
+$ROOTCMD ln -s '/usr/share/munin/plugins/cpu' '/etc/munin/plugins/cpu'
+$ROOTCMD ln -s '/usr/share/munin/plugins/entropy' '/etc/munin/plugins/entropy'
+$ROOTCMD ln -s '/usr/share/munin/plugins/forks' '/etc/munin/plugins/forks'
+$ROOTCMD ln -s '/usr/share/munin/plugins/fw_packets' '/etc/munin/plugins/fw_packets'
+$ROOTCMD ln -s '/usr/share/munin/plugins/if_' '/etc/munin/plugins/if_eth0'
+$ROOTCMD ln -s '/usr/share/munin/plugins/if_err_' '/etc/munin/plugins/if_err_eth0'
+$ROOTCMD ln -s '/usr/share/munin/plugins/interrupts' '/etc/munin/plugins/interrupts'
+$ROOTCMD ln -s '/usr/share/munin/plugins/irqstats' '/etc/munin/plugins/irqstats'
+$ROOTCMD ln -s '/usr/share/munin/plugins/load' '/etc/munin/plugins/load'
+$ROOTCMD ln -s '/usr/share/munin/plugins/memory' '/etc/munin/plugins/memory'
+$ROOTCMD ln -s '/usr/share/munin/plugins/nfs4_client' '/etc/munin/plugins/nfs4_client'
+$ROOTCMD ln -s '/usr/share/munin/plugins/nfs_client' '/etc/munin/plugins/nfs_client'
+$ROOTCMD ln -s '/usr/share/munin/plugins/ntp_kernel_err' '/etc/munin/plugins/ntp_kernel_err'
+$ROOTCMD ln -s '/usr/share/munin/plugins/ntp_kernel_pll_freq' '/etc/munin/plugins/ntp_kernel_pll_freq'
+$ROOTCMD ln -s '/usr/share/munin/plugins/ntp_kernel_pll_off' '/etc/munin/plugins/ntp_kernel_pll_off'
+$ROOTCMD ln -s '/usr/share/munin/plugins/ntp_offset' '/etc/munin/plugins/ntp_offset'
+$ROOTCMD ln -s '/usr/share/munin/plugins/open_files' '/etc/munin/plugins/open_files'
+$ROOTCMD ln -s '/usr/share/munin/plugins/open_inodes' '/etc/munin/plugins/open_inodes'
+$ROOTCMD ln -s '/usr/share/munin/plugins/proc_pri' '/etc/munin/plugins/proc_pri'
+$ROOTCMD ln -s '/usr/share/munin/plugins/processes' '/etc/munin/plugins/processes'
+$ROOTCMD ln -s '/usr/share/munin/plugins/swap' '/etc/munin/plugins/swap'
+$ROOTCMD ln -s '/usr/share/munin/plugins/threads' '/etc/munin/plugins/threads'
+$ROOTCMD ln -s '/usr/share/munin/plugins/uptime' '/etc/munin/plugins/uptime'
+$ROOTCMD ln -s '/usr/share/munin/plugins/users' '/etc/munin/plugins/users'
+$ROOTCMD ln -s '/usr/share/munin/plugins/vmstat' '/etc/munin/plugins/vmstat'

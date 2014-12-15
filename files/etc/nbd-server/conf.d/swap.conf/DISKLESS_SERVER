@@ -1,0 +1,4 @@
+[swap]
+exportname = /tmp/nbd-swap/%s
+prerun = /usr/local/sbin/nbdswapd %s
+postrun = rm -f %s

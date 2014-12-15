@@ -1,0 +1,188 @@
+#! /bin/bash
+
+## Setup script run at boot time.
+
+set -e
+umask 0022
+export http_proxy="http://aptcache:3128"
+
+############################
+TIMEOUT=120
+URL="http.debian.net"
+INSTALLER="/usr/lib/debian-installer/images/*/*/text/debian-installer/"
+
+DLROOT="/opt/live"
+. /etc/fai/fai.conf
+. /etc/fai/nfsroot.conf
+
+##########
+
+check_network () {
+    ## Check if package repository is accessible:
+    if ! wget --quiet --output-document=/tmp/fai-setup $URL ; then
+        echo "Error accessing '$URL', check network and internet access."
+        exit 1
+    fi
+}
+
+setup_nfsroot () {
+    echo "Creating the nfsroot for FAI."
+    trap "rc=$?; rm -rf $NFSROOT; exit $rc" ERR SIGHUP SIGINT SIGTERM
+    if [ ! -d $NFSROOT ] ; then
+        fai-setup -e -v -l
+    else
+        ## Update nfsroot:
+        fai-make-nfsroot -v -l -k
+    fi
+    trap - ERR SIGHUP SIGINT SIGTERM
+    ## Create pxelinux boot configuration for workstationXX.
+    ## The seq range is sed from the corresponding variable
+    ## when fcopy'd:
+    echo -n "Creating pxelinux boot configurations: "
+    NUM=0
+    for IPADDR in `seq WS_RANGE` ; do
+        fai-chboot -IFvu $FAI_CONFIG_SRC PREFIX.$IPADDR &>> /var/log/fai/fai-chboot.log
+        echo -n "."
+        NUM=$(($NUM+1))
+    done
+    echo -e " Done.\nCreated $NUM workstation configurations."
+
+    if [ -d $DLROOT ] ; then
+        fai-chboot -vc diskless.tmpl default &>> /var/log/fai/fai-chboot.log
+    else
+        ## create default configuration (sysinfo):
+        fai-chboot -Svu $FAI_CONFIG_SRC default &>> /var/log/fai/fai-chboot.log
+        sed -i "s/fai-generated/FAI System Information/g" $TFTPROOT/pxelinux.cfg/default
+    fi
+}
+
+
+setup_diskless () {
+    export LC_ALL=C
+    trap "rc=$?; rm -rf $DLROOT; exit $rc" ERR SIGHUP SIGINT SIGTERM
+    if [ ! -d $DLROOT ] ; then
+        fai -vNu diskless dirinstall $DLROOT/filesystem.dir/
+    else
+        chroot $DLROOT/filesystem.dir/ fai -vNu diskless softupdate
+    fi
+    trap - ERR SIGHUP SIGINT SIGTERM
+
+    DL_TEMPLATE=$TFTPROOT/pxelinux.cfg/diskless.tmpl
+    if [ -e $DL_TEMPLATE ]; then
+        cp -v $DL_TEMPLATE ${DL_TEMPLATE}_$(date +%Y%m%d%H%M)
+    fi
+    KERNEL=`basename $(ls $TFTPROOT/vmlinuz*)`
+    INITRD=`basename $(ls $TFTPROOT/initrd.img*)`
+
+    echo "Creating template with $KERNEL and $INITRD."
+    cat > $DL_TEMPLATE <<EOF
+# template for diskless
+default Debian-LAN/FAI Live System
+
+label Debian-LAN/FAI Live System
+kernel $KERNEL
+append initrd=$INITRD ip=dhcp root=/dev/nfs nfsroot=/opt boot=live
+EOF
+
+    ## Create pxelinux boot configuration for disklessXX.
+    ## The seq range is sed from the corresponding variable
+    ## when fcopy'd:
+    echo -n "Creating pxelinux boot configurations: "
+    NUM=0
+    for IPADDR in `seq DL_RANGE` ; do
+        fai-chboot -vc diskless.tmpl PREFIX.$IPADDR &>> /var/log/fai/fai-chboot.log
+        echo -n "."
+        NUM=$(($NUM+1))
+    done
+    echo -e " Done.\nCreated $NUM diskless machine configurations."
+
+    ## Boot unknown machines as diskless:
+    fai-chboot -vc diskless.tmpl default &>> /var/log/fai/fai-chboot.log
+}
+
+
+setup_PXEinstaller () {
+    ## Add Debian PXE Installer.
+    ## Copy stuff, symlinks do not work (chroot environment):
+    cp -ru $INSTALLER $TFTPROOT
+
+    if [ -d $TFTPROOT/debian-installer/i386 ] ; then
+        KERNEL=`basename $(ls $TFTPROOT/vmlinuz*)`
+        INITRD=`basename $(ls $TFTPROOT/initrd.img*)`
+        ## add installer menu
+        cat >> $TFTPROOT/pxelinux.cfg/default <<EOF
+
+label Debian-LAN/FAI Roaming Machine
+kernel $KERNEL
+append initrd=$INITRD ip=dhcp root=/dev/nfs nfsroot=/srv/fai/nfsroot boot=live FAI_FLAGS=verbose,sshd,createvt FAI_CONFIG_SRC=nfs://faiserver/srv/fai/config FAI_ACTION=install
+
+menu title Boot menu
+menu background debian-installer/i386/boot-screens/splash.png
+menu color title        * #FFFFFFFF *
+menu color border       * #00000000 #00000000 none
+menu color sel          * #ffffffff #76a1d0ff *
+menu color hotsel       1;7;37;40 #ffffffff #76a1d0ff *
+menu color tabmsg       * #ffffffff #00000000 *
+menu color help         37;40 #ffdddd00 #00000000 none
+menu vshift 16
+menu rows 7
+menu helpmsgrow 12
+menu cmdlinerow 12
+menu tabmsgrow 13
+default debian-installer/i386/boot-screens/vesamenu.c32
+timeout 150
+prompt 0
+noescape 1
+
+label Debian Installer i386
+        config debian-installer/i386/pxelinux.cfg/default
+
+label Debian Installer amd64
+        config debian-installer/amd64/pxelinux.cfg/default
+EOF
+    fi
+}
+
+
+#########################
+## Add missing plugins to munin, the line will be commented afterwards:
+munin-node-configure --shell 2>/dev/null | sh && sed -i "s%\(^munin-node-configure\)%\#\1%" $0
+
+## Setup/update nfsroot for FAI:
+cat <<EOF
+================================================================================
+The nfsroot for FAI may be created/updated by executing $0.
+This can be done now, later or manually.
+Internet access is needed to download packages.
+If unanswered, this script will exit after $TIMEOUT seconds.
+
+EOF
+read -e -t $TIMEOUT -n 1 -p "Install/update the nfsroot for FAI now? [y|N]: " inp
+if [ "$inp" = "y" ] ; then
+    check_network
+    setup_nfsroot
+    setup_PXEinstaller
+fi
+
+## The following code is activated if diskless machines
+## are to be served.  Do not change the following line:
+exit 0  ##DISKLESS_SERVER##
+
+if [ -d $NFSROOT ] ; then
+    ## Setup/update chroot for diskless machines:
+    cat <<EOF
+================================================================================
+The chroot for diskless clients may be installed/updated.
+This can be done right now, later or manually by executing $0.
+If unanswered, this script will exit after $TIMEOUT seconds.
+
+EOF
+    read -e -t $TIMEOUT -n 1 -p "Install/update the chroot for diskless clients now? [y|N]: " inp
+    if [ "$inp" = "y" ] ; then
+        check_network
+        setup_diskless
+        setup_PXEinstaller
+    fi
+fi
+
+exit 0

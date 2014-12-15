@@ -1,0 +1,6 @@
+## Network interfaces on which the DHCP server should listen:
+isc-dhcp-server isc-dhcp-server/interfaces string eth0
+## Do you want system-wide readable home directories?
+adduser adduser/homedir-permission boolean false
+## Automatically download and install stable updates?
+unattended-upgrades unattended-upgrades/enable_auto_updates boolean true

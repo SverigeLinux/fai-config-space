@@ -1,0 +1,7 @@
+PACKAGES aptitude
+task-french
+
+PACKAGES aptitude DESKTOP
+iceweasel-l10n-fr
+icedove-l10n-fr
+libreoffice-l10n-fr

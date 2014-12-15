@@ -1,0 +1,131 @@
+## GOsa ou, full access for the GOsa admin:
+dn: ou=gosa,dc=intern
+objectClass: top
+objectClass: organizationalUnit
+objectClass: gosaAcl
+objectClass: gosaDepartment
+description: Debian-LAN
+ou: gosa
+gosaAclEntry: 0:psub:dWlkPWFkbWluLG91PXBlb3BsZSxvdT1nb3NhLGRjPWludGVybg==:all/all;cmdrw
+gosaAclEntry: 1:psub:Kg==:users/user;s#sn;r#givenName;r#uid;r#gosaUserDefinedFilter;r#personalTitle;w#academicTitle;w#dateOfBirth;w#gender;w#preferredLanguage;w#base;r#userPicture;w#gosaLoginRestriction;r#o;r#ou;r#departmentNumber;r#manager;r#employeeNumber;r#employeeType;r#roomNumber;w#telephoneNumber;w#pager;w#mobile;w#facsimileTelephoneNumber;w#st;r#l;r#postalAddress;r#homePostalAddress;w#homePhone;w#labeledURI;w#userPassword;r#Certificate;r,users/posixAccount;sr,users/password;sw
+
+
+## GOsa access to LDAP:
+dn: cn=gosa,ou=gosa,dc=intern
+objectClass: organizationalRole
+objectClass: simpleSecurityObject
+description: GOsa access to LDAP ou=gosa
+cn: gosa
+userPassword: @LDAP_ADMIN_PW_HASH@
+
+
+## people and groups:
+dn: ou=people,ou=gosa,dc=intern
+objectClass: top
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,ou=gosa,dc=intern
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+
+
+## First user 'admin':
+dn: uid=admin,ou=people,ou=gosa,dc=intern
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: gosaAccount
+objectClass: posixAccount
+objectClass: shadowAccount
+sn: Administrator
+givenName: System
+cn: System  Administrator
+gecos: System  Administrator
+uid: admin
+homeDirectory: /lan/mainserver/home0/admin
+loginShell: /bin/bash
+uidNumber: 10000
+gidNumber: 10000
+userPassword: @ADMIN_PW_HASH@
+
+dn: cn=admin,ou=groups,ou=gosa,dc=intern
+cn: admin
+description: Group of user admin
+gidNumber: 10000
+objectClass: top
+objectClass: posixGroup
+
+
+## User template:
+dn: uid=default_user,ou=people,ou=gosa,dc=intern
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: gosaAccount
+objectClass: gosaUserTemplate
+objectClass: posixAccount
+objectClass: shadowAccount
+sn: default_user
+givenName: default_user
+uid: default_user
+cn: default_user default_user
+userPassword: {ssha}N0T$3T4N0W
+homeDirectory: /lan/mainserver/home0/%uid
+loginShell: /bin/bash
+uidNumber: 9999
+gidNumber: 2147483647
+
+
+## sudo-ldap (allow www-data to run /usr/sbin/gosa-*)
+dn: ou=sudoers,ou=gosa,dc=intern
+objectClass: top
+objectClass: organizationalUnit
+ou: sudoers
+
+dn: cn=defaults,ou=sudoers,ou=gosa,dc=intern
+objectClass: top
+objectClass: sudoRole
+description: default sudo options
+cn: defaults
+sudoOption: env_reset
+
+dn: cn=DebianLAN,ou=sudoers,ou=gosa,dc=intern
+objectClass: top
+objectClass: sudoRole
+description: propagate GOsa's changes to the system
+cn: DebianLAN
+sudoOption: !authenticate
+sudoOption: !syslog
+sudoOption: env_keep=USERPASSWORD
+sudoHost: mainserver
+sudoRunAs: ALL
+sudoCommand: /usr/local/sbin/gosa-sync
+sudoCommand: /usr/local/sbin/gosa-remove
+sudoCommand: /usr/local/sbin/gosa-create
+sudoUser: www-data
+
+## some admin roles: give admin(s) sudo access
+dn: cn=Admins,ou=sudoers,ou=gosa,dc=intern
+objectClass: top
+objectClass: sudoRole
+description: sudo access all machines
+cn: Admins
+sudoHost: ALL
+sudoRunAs: ALL
+sudoCommand: ALL
+sudoUser: admin
+
+dn: cn=ClientAdmins,ou=sudoers,ou=gosa,dc=intern
+objectClass: top
+objectClass: sudoRole
+description: sudo access all clients
+cn: ClientAdmins
+sudoHost: workstation*
+sudoHost: diskless*
+sudoRunAs: ALL
+sudoCommand: ALL
+sudoUser: admin

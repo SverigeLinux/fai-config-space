@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+#  Create user's local home directory if it does not exist.
+#  Use Kerberos key as machine key if machine key is unavailable.
+#
+
+set -e
+
+FILE="/tmp/krb5cc_roaming"
+NFSHOMES="/lan/mainserver/home0/"
+## Find path of user's local home directory:
+HOMEDIR=$(getent passwd "$PAM_USER" | cut -d : -f 6 | sed "s:$NFSHOMES:/home/:")
+
+if [ "$PAM_USER" = "root" ] ; then
+    exit 0
+elif [ -n "$HOMEDIR" ] && [ ! -d "$HOMEDIR" ] ; then
+    ## Create local home directory if it does not exist:
+    umask 0022
+    mkdir -p $(dirname "$HOMEDIR")
+    cp -pR /etc/skel "$HOMEDIR"
+    chmod 750 "$HOMEDIR"
+    chown -R $PAM_USER:$PAM_USER "$HOMEDIR"
+    echo "Successfully created off-line home directory '$HOMEDIR' for user '$PAM_USER'."
+fi
+
+#  Use Kerberos key as machine key if machine key is unavailable:
+if [ ! -e /etc/krb5.keytab ] && [ ! -e "$FILE" ] ; then
+    ID=$(id -u "$PAM_USER")
+    cp -v /tmp/krb5cc_${ID}_* $FILE
+    /etc/init.d/autofs restart > /dev/null
+fi
+
+exit 0

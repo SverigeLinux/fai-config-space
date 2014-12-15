@@ -1,0 +1,34 @@
+#!/usr/sbin/cfagent -f
+#
+#  Kerberize access to icinga.
+#
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 30000 )
+
+editfiles:
+   any::
+      { ${target}/etc/icinga/apache2.conf
+          ReplaceAll "AuthType Basic" With "AuthType Kerberos"
+          ReplaceAll "AuthUserFile .*" With "Krb5Keytab /etc/krb5.keytab.http"
+          # ReplaceAll "Require valid-user" With "Require user admin@INTERN"
+      }
+      { ${target}/etc/icinga/cgi.cfg
+          ReplaceAll "authorized_for_system_information=icingaadmin"
+                With "authorized_for_system_information=*"
+          ReplaceAll "authorized_for_configuration_information=icingaadmin"
+                With "authorized_for_configuration_information=*"
+          ReplaceAll "authorized_for_all_services=icingaadmin"
+                With "authorized_for_all_services=*"
+          ReplaceAll "authorized_for_all_hosts=icingaadmin"
+                With "authorized_for_all_hosts=*"
+      }
+      { ${target}/etc/munin/apache.conf
+          ReplaceAll "^[[:space:]]*Allow from localhost .*" With "$(tab)Allow from All"
+          ReplaceAll "# AuthUserFile .*" With "Krb5Keytab /etc/krb5.keytab.http"
+          ReplaceAll '# AuthName "Munin"' With 'AuthName "Munin Access"'
+          ReplaceAll "# AuthType Basic" With "AuthType Kerberos"
+          ReplaceAll "# require valid-user" With "Require valid-user"
+      }

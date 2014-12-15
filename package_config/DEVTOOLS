@@ -1,0 +1,16 @@
+## Optional packages for development.
+PACKAGES aptitude-r
+## General purpose:
+emacs
+git
+gitk
+
+## Diagnostics:
+gdb
+lsof
+ltrace
+nmap
+
+## Documentation
+#texlive
+#auctex

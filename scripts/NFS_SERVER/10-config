@@ -1,0 +1,45 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( directories editfiles )
+   EditFileSize = ( 30000 )
+
+directories:
+   any::
+	# Make sure /srv/nfs4/home0 exists:
+	${target}/srv/nfs4/home0 mode=755 owner=root group=root
+
+editfiles:
+   any::
+	{ ${target}/etc/default/nfs-common
+	  ## start the idmapd daemon:
+	  ReplaceAll "NEED_IDMAPD=$" With "NEED_IDMAPD=yes"
+	  ## start the gssd daemon:
+	  ReplaceAll "NEED_GSSD=$" With "NEED_GSSD=yes"
+	}
+
+     	{ ${target}/etc/idmapd.conf
+	  ## Needed for correct ID mapping:
+	  HashCommentLinesStarting "Domain ="
+	}
+
+	{ ${target}/etc/exports
+	  ## kerberized NFS4:
+	  AppendIfNoSuchLine "/srv/nfs4         ${SUBNETMASK}(sec=krb5p:krb5i,rw,fsid=0,crossmnt,no_subtree_check)"
+	  AppendIfNoSuchLine "/srv/nfs4/home0   ${SUBNETMASK}(sec=krb5p:krb5i,rw,no_subtree_check)"
+	}
+
+	{ ${target}/etc/fstab
+          ## Bind the shared directory to the exported tree:
+	  AppendIfNoSuchLine "/lan/mainserver/home0    /srv/nfs4/home0	none	bind	0	0"
+	}
+
+	{ ${target}/etc/default/nfs-kernel-server
+          ## Start the svcgssd daemon:
+	  ReplaceAll "NEED_SVCGSSD=$" With "NEED_SVCGSSD=yes"
+	}
+
+        { ${target}/etc/default/autofs
+          AppendIfNoSuchLine "exit 0"
+        }

@@ -1,0 +1,18 @@
+#!/usr/sbin/cfagent -f
+
+## This modification is needed because diskless clients do not
+## use the ntp-server declaration of the DHCP server.
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 30000 )
+
+editfiles:
+   any::
+	{ ${target}/etc/ntp.conf
+	  BeginGroupIfNoSuchLine "server ntp iburst"
+	    HashCommentLinesStarting "server "
+	    AppendIfNoSuchLine "server ntp iburst"
+	  EndGroup
+	}

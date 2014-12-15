@@ -1,0 +1,181 @@
+#!/bin/bash
+#
+
+set -e
+
+if [ "$FAI_ACTION" != "install" ] && [ "$CONVERT" != "true" ] ; then
+    exit 0
+fi
+
+CONFDIR="${target}/etc/shorewall/"
+
+prepare_shorewall(){
+    ## Use shorewall's "two-interfaces" example as base setup:
+    for FILE in interfaces masq policy routestopped rules zones ; do
+        cp -v ${target}/usr/share/doc/shorewall/examples/two-interfaces/$FILE $CONFDIR
+    done
+
+    ## Enable forwarding:
+    sed -i "s/IP_FORWARDING=Keep/IP_FORWARDING=on/" $CONFDIR/shorewall.conf
+
+    ## Define interfaces and use parameters:
+    sed -i -e 's/eth0/\$NET_IF/' -e 's/eth1/\$LOC_IF/' $CONFDIR/interfaces $CONFDIR/masq $CONFDIR/routestopped
+    sed -i -e '$i LOC_IF=eth0' -e '$i NET_IF=eth1' $CONFDIR/params
+
+    ## Limited ssh access:
+    sed -i -e 's%^\(SSH(ACCEPT).*\)$%\1  -  -  -  -  s:1/min:1%' $CONFDIR/rules
+}
+
+if [ "$HOSTNAME" = "mainserver" ] ; then
+    if [ "$MAINSERVER_IPADDR" = "$GATEWAY" ] ; then
+        ## mainserver = gateway, use shorewall's "two-interfaces" example as base setup:
+        prepare_shorewall
+        ## Allow access from the LAN to the firewall and from the firewall to LAN and internet:
+        sed -i -e '/.*MUST BE LAST/i \
+\#\# Debian-LAN policy:\
+loc             $FW             ACCEPT\
+$FW             loc             ACCEPT\
+$FW             net             ACCEPT' $CONFDIR/policy
+
+        ## Comment all rules where traffic is allowed already:
+        sed -i -e "s/^\(.*ACCEPT)\?\s\+loc\s\+\$FW.*\)$/\#\# Allowed by Debian-LAN policy:\n\#\1/" \
+            -e "s/^\(.*ACCEPT)\?\s\+\$FW\s\+loc.*\)$/\#\# Allowed by Debian-LAN policy:\n\#\1/" \
+            -e "s/^\(.*ACCEPT)\?\s\+\$FW\s\+net.*\)$/\#\# Allowed by Debian-LAN policy:\n\#\1/" $CONFDIR/rules
+
+        ## Debian-LAN rules:
+        cat >> $CONFDIR/rules <<EOF
+##
+##  Debian-LAN
+##
+SSH(ACCEPT)     net             \$FW  -  -  -  -  s:1/min:1
+Limit(SSH,1,60):info  loc       \$FW  tcp  22
+EOF
+
+    else
+        ## mainserver != gateway, use shorewall's "Universal" example as base setup:
+        for FILE in interfaces policy rules zones ; do
+            cp -v ${target}/usr/share/doc/shorewall/examples/Universal/$FILE $CONFDIR
+        done
+
+        ## Allow access from the LAN to the firewall:
+        sed -i -e 's%^\(net.*\)$%\
+\#\# Debian-LAN policy:\
+\#\1\
+net     $FW     ACCEPT%' $CONFDIR/policy
+
+        ## Comment rules where traffic is allowed already and limit ssh access:
+        sed -i -e "s/^\(.*ACCEPT)\?\s\+net\s\+\$FW.*\)$/\#\# Allowed by Debian-LAN policy:\n\#\1/" $CONFDIR/rules
+        echo 'Limit(SSH,1,60):info  net       $FW  tcp  22' >> $CONFDIR/rules
+    fi
+
+elif [ "$HOSTNAME" = "gateway" ] ; then
+    prepare_shorewall
+
+    ## Allow access from firewall to LAN:
+    sed -i -e '/.*MUST BE LAST/i \
+\#\# Debian-LAN policy:\
+$FW             loc             ACCEPT' $CONFDIR/policy
+
+    ## Comment all rules where traffic is allowed already:
+    sed -i -e "s/^\(.*ACCEPT)\?\s\+\$FW\s\+loc.*\)$/\#\# Allowed by Debian-LAN policy:\n\#\1/" $CONFDIR/rules
+
+    ## Debian-LAN rules:
+    cat >> $CONFDIR/rules <<EOF
+##
+##  Debian-LAN
+##
+SSH(ACCEPT)     net             \$FW  -  -  -  -  s:1/min:1
+HTTP(ACCEPT)    \$FW             net
+NTP(ACCEPT)     \$FW             net
+DNS(ACCEPT)     loc             \$FW
+EOF
+
+fi
+
+## Enable shorewall:
+sed -i "s/startup=0/startup=1/" ${target}/etc/default/shorewall
+
+
+
+## C.f. http://lists.alioth.debian.org/pipermail/debian-lan-devel/2013q2/000357.html
+## More restrictive rules (if traffic loc <--> $FW --> net is not allowed by default)
+
+#HTTP(ACCEPT)    \$FW             net
+#HTTP(ACCEPT)    loc             \$FW
+#HTTPS(ACCEPT)   \$FW             net
+#HTTPS(ACCEPT)   loc             \$FW
+#
+#LDAP(ACCEPT)    loc             \$FW
+#LDAPS(ACCEPT)   loc             \$FW
+#
+#SMTP(ACCEPT)    loc             \$FW
+#IMAP(ACCEPT)    loc             \$FW
+#
+#SSH(ACCEPT)     loc             \$FW
+#SSH(ACCEPT)     \$FW             loc
+#SSH(ACCEPT)     \$FW             net
+#
+#NTP(ACCEPT)     \$FW             net
+#NTP(ACCEPT)     loc             \$FW
+#
+##
+## Allow CUPS
+##
+#IPPserver(ACCEPT)  loc             \$FW
+#IPPserver(ACCEPT)  \$FW             loc
+#Jetdirect(ACCEPT)  \$FW             loc
+#
+##
+## Allow TFTP
+##
+#TFTP(ACCEPT)    loc             \$FW
+#TFTP(ACCEPT)    \$FW             loc
+#
+##
+## Allow Nagios NRPE
+##
+#ACCEPT          \$FW             loc             tcp     5666
+#
+##
+## Allow Munin
+##
+#Munin(ACCEPT)   \$FW             loc
+#
+##
+## Allow Syslog server
+##
+#Syslog(ACCEPT)  loc             \$FW
+#
+##
+## Kerberos v5 KDC
+##
+#ACCEPT          loc             \$FW             tcp     88
+#ACCEPT          loc             \$FW             udp     88
+## kpasswd
+#ACCEPT          loc             \$FW             udp     464
+#
+##
+## Allow NFSv4
+##
+#ACCEPT          loc             \$FW             udp     111
+#ACCEPT          loc             \$FW             tcp     111
+#ACCEPT          loc             \$FW             tcp     2049
+#ACCEPT          loc             \$FW             udp     2049
+#ACCEPT          loc             \$FW             tcp     32764:32769
+#ACCEPT          loc             \$FW             udp     32764:32769
+#
+##
+## SQUID Manual Proxy (http://www.shorewall.net/Shorewall_Squid_Usage.html#Manual)
+##
+#Squid(ACCEPT)     loc             \$FW
+#Webcache(ACCEPT)  loc             \$FW
+#
+### below rules must be checked ## mostly triggered during FAI installation
+#ACCEPT          loc             \$FW             tcp     51105
+#ACCEPT          loc             \$FW             udp     55850
+#ACCEPT          loc             \$FW             tcp     36174
+#ACCEPT          loc             \$FW             tcp     4711
+#ACCEPT          \$FW             loc             tcp     39233
+#ACCEPT          \$FW             loc             tcp     53615
+##### pay extra attention ####
+#EOF

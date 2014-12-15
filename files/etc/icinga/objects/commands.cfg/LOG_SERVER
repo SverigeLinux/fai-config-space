@@ -1,0 +1,19 @@
+define command{
+        command_name    debian-lan_check_swap
+        command_line    /usr/lib/nagios/plugins/check_swap -w 50% -c 20%
+}
+
+define command{
+        command_name    debian-lan_check_ldap
+        command_line    /usr/lib/nagios/plugins/check_ldap -H '$HOSTNAME$' -b '$ARG1$' -T
+}
+
+define command{
+        command_name    debian-lan_check_nfs
+        command_line    /usr/lib/nagios/plugins/check_rpc -H '$HOSTADDRESS$' -C nfs -c2,3,4
+}
+
+define command{
+        command_name    debian-lan_check_internet
+        command_line    /usr/lib/nagios/plugins/check_ping -H '$ARG1$' -w 50,10% -c 100,100% -p 5
+}

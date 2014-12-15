@@ -1,0 +1,30 @@
+## Example package selection for educational institutions.
+## Take a look at the software-center educational section,
+## the Debian education-* packages and
+## <URL:http://blends.alioth.debian.org/edu/tasks/packagelist>.
+
+PACKAGES aptitude-r
+
+## Primary education:
+gcompris
+childsplay
+tuxmath
+tuxtype
+
+## Secondary education:
+klavaro
+stellarium
+geogebra
+arduino
+fritzing
+scribus
+audacity
+viking
+gvrng
+scratch
+
+## High school (consider also the DEVTOOLS class):
+octave3.2
+eclipse
+blender
+librecad

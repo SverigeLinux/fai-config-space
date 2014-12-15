@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+#  Compare with the corresponding FAIBASE script.
+#
+
+set -e
+
+fcopy -Mv /etc/hosts
+
+## use hostname offered by dhcp server:
+rm -fv $target/etc/hostname
+
+## fetch template and fill in nameserver's IP address:
+fcopy -Mv /etc/resolv.conf
+IP=`host ns | tail -n 1 | awk '{print $NF}'`
+sed -i "s/NAMESERVER/$IP/" $target/etc/resolv.conf
+
+## timezone
+echo $TIMEZONE > $target/etc/timezone
+cp -f /usr/share/zoneinfo/${TIMEZONE} $target/etc/localtime
+
+# create keyboard layout table
+$ROOTCMD bash -c "echo 'console-data console-data/keymap/full select $KEYMAP' | debconf-set-selections"
+$ROOTCMD install-keymap $KEYMAP || true
+
+## Configure PAM to add users to the dialout group:
+ainsl -q /etc/security/group.conf "*;*;*;Al0000-2400;dialout"
+ainsl -q /etc/pam.d/common-auth "auth    optional        pam_group.so"
+
+## Choose the default desktop:
+#$ROOTCMD update-alternatives --set x-session-manager /usr/bin/startlxde
+$ROOTCMD update-alternatives --set x-session-manager /usr/bin/startxfce4

@@ -1,0 +1,10 @@
+disk_config  disk1  fstabkey:uuid
+primary  /boot       64-512    ext4    rw
+primary  swap        64-2096   swap    sw
+logical  -           0-        -       -
+
+disk_config lvm
+vg  vg_system  disk1.5
+vg_system-root  /      500M-10G  ext4  errors=remount-ro
+vg_system-usr   /usr   3G-20G    ext4  defaults
+vg_system-var   /var   1G-70%    ext4  defaults

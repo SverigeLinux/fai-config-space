@@ -1,0 +1,130 @@
+#!/bin/bash
+#
+set -e
+
+## Generate the DNS configuration.
+## Use variables from corresponding class/*.var file.
+
+# FIXME: make this more general for different subnet masks.
+
+PREFIX1=`echo $SUBNET | cut -d "." --fields=1`
+PREFIX2=`echo $SUBNET | cut -d "." --fields=2`
+FILE="/etc/bind/db.${PREFIX1}.${PREFIX2}"
+JOURNAL="/var/lib/bind/db.${PREFIX1}.${PREFIX2}.jnl"
+
+if [ -e $target$FILE ]; then
+    exit 0
+fi
+
+ainsl /etc/bind/named.conf.local "include \"/etc/bind/localzones\";"
+
+cat > $target/etc/bind/localzones <<EOF
+include "/etc/bind/ddns.key";
+
+zone "${PREFIX2}.${PREFIX1}.in-addr.arpa" {
+        type master;
+        notify no;
+        file "$FILE";
+        allow-update { key DHCP_UPDATER; };
+        journal "$JOURNAL";
+};
+
+zone "intern" {
+        type master;
+        notify no;
+        file "/etc/bind/db.intern";
+        allow-update { key DHCP_UPDATER; };
+        journal "/var/lib/bind/db.intern.jnl";
+};
+EOF
+
+###################
+
+REV=`echo $MAINSERVER_IPADDR | cut -d "." --fields=4`
+
+cat > $target$FILE <<EOF
+\$TTL 500
+@               IN      SOA     mainserver.intern. root.mail.intern. (
+                                1 ; Serialnumber
+                                3600    ; Refresh
+                                1800    ; Retry
+                                720000  ; Expire
+                                6400 )  ; Minimum TTL
+                        NS      mainserver.intern.
+                        MX      10 mainserver.intern.
+$REV.0                    PTR     mainserver.intern.
+EOF
+## Uncomment if you prefere hardcoded DNS entries:
+# NUM=0
+# for IPADDR in `seq $WS_RANGE` ; do
+#     NUMSTR=`printf "%02d" $NUM`
+#     echo "${IPADDR}.0                    PTR     workstation${NUMSTR}.intern." \
+#         >> $target$FILE
+#     NUM=$(($NUM+1))
+# done
+# NUM=0
+# for IPADDR in `seq $DL_RANGE` ; do
+#     NUMSTR=`printf "%02d" $NUM`
+#     echo "${IPADDR}.0                    PTR     diskless${NUMSTR}.intern." \
+#         >> $target$FILE
+#     NUM=$(($NUM+1))
+# done
+
+###################
+
+cat > $target/etc/bind/db.intern <<EOF
+\$TTL 500
+@               IN      SOA     mainserver.intern. root.mail.intern. (
+                                1 ; Serialnumber
+                                3600    ; Refresh
+                                1800    ; Retry
+                                720000  ; Expire
+                                6400 )  ; Minimum TTL
+                        NS      mainserver.intern.
+                        MX      10 mainserver.intern.
+mainserver              A       ${MAINSERVER_IPADDR}
+_ldap._tcp              SRV     100 0 389 mainserver.intern.
+_syslog._udp            SRV     100 0 514 mainserver.intern.
+_kerberos._udp          SRV     100 0 88  mainserver.intern.
+_kerberos-adm._tcp      SRV     100 0 749 mainserver.intern.
+_kpasswd._udp           SRV     100 0 464 mainserver.intern.
+ns                      CNAME   mainserver.intern.
+dns                     CNAME   mainserver.intern.
+www                     CNAME   mainserver.intern.
+ntp                     CNAME   mainserver.intern.
+aptcache                CNAME   mainserver.intern.
+webcache                CNAME   mainserver.intern.
+cfengine                CNAME   mainserver.intern.
+bootps                  CNAME   mainserver.intern.
+homes                   CNAME   mainserver.intern.
+wpad                    CNAME   mainserver.intern.
+db                      CNAME   mainserver.intern.
+backup                  CNAME   mainserver.intern.
+ssh                     CNAME   mainserver.intern.
+print                   CNAME   mainserver.intern.
+domain                  CNAME   mainserver.intern.
+ldap                    CNAME   mainserver.intern.
+kerberos                CNAME   mainserver.intern.
+mail                    CNAME   mainserver.intern.
+syslog                  CNAME   mainserver.intern.
+faiserver               CNAME   mainserver.intern.
+swapserver              CNAME   mainserver.intern.
+EOF
+
+## Uncomment if you prefere hardcoded DNS entries:
+# PREFIX=`echo $SUBNET | cut -d "." --fields=1,2,3`
+#
+# NUM=0
+# for IPADDR in `seq $WS_RANGE` ; do
+#     NUMSTR=`printf "%02d" $NUM`
+#     echo "workstation${NUMSTR}           A       $PREFIX.$IPADDR" \
+#         >> $target/etc/bind/db.intern
+#     NUM=$(($NUM+1))
+# done
+# NUM=0
+# for IPADDR in `seq $DL_RANGE` ; do
+#     NUMSTR=`printf "%02d" $NUM`
+#     echo "diskless${NUMSTR}              A       $PREFIX.$IPADDR" \
+#         >> $target/etc/bind/db.intern
+#     NUM=$(($NUM+1))
+# done

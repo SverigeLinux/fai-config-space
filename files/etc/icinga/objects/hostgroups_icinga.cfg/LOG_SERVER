@@ -1,0 +1,78 @@
+#### all machines ####
+define hostgroup {
+       hostgroup_name    all
+       alias             All Servers
+       members           *
+}
+
+define hostgroup {
+       hostgroup_name    debian-servers
+       alias             Debian GNU/Linux Servers
+       members           *
+}
+
+#### server ####
+define hostgroup {
+       hostgroup_name    ssh-servers
+       alias             SSH servers
+       members           mainserver
+}
+
+define hostgroup {
+       hostgroup_name    http-servers
+       alias             HTTP servers
+       members           mainserver
+}
+
+define hostgroup {
+       hostgroup_name    ldap-servers
+       alias             LDAP servers
+       members           mainserver
+}
+
+define hostgroup {
+       hostgroup_name    nfs-servers
+       alias             NFS servers
+       members           mainserver
+}
+
+define hostgroup {
+       hostgroup_name    smtp-servers
+       alias             SMTP servers
+       members           mainserver
+}
+
+define hostgroup {
+       hostgroup_name    imap-servers
+       alias             IMAP servers
+       members           mainserver
+}
+
+define hostgroup {
+       hostgroup_name    cups-servers
+       alias             CUPS servers
+       members           mainserver
+}
+
+define hostgroup {
+       hostgroup_name    dns-servers
+       alias             DNS
+       members           mainserver
+}
+
+#### workstations and diskless ####
+define hostgroup {
+       hostgroup_name    workstation
+       alias             Debian GNU/Linux Workstation
+}
+
+define hostgroup {
+       hostgroup_name    diskless
+       alias             Debian GNU/Linux Diskless
+}
+
+define hostgroup {
+       hostgroup_name    client-ssh-servers
+       alias             Client SSH servers
+       hostgroup_members workstation
+}

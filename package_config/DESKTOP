@@ -1,0 +1,48 @@
+PACKAGES aptitude
+
+## minimal gnome+lxde+xfce desktop:
+lxde
+lxtask
+desktop-base
+gnome-session
+gnome-session-fallback
+gnome-applets
+xfce4
+
+## gnome desktop:
+#task-gnome-desktop
+#gnome
+
+## xfce desktop:
+#xfce4-goodies
+#task-xfce4-desktop
+#xfce4-mailwatch-plugin
+#xfprint4
+
+## other packages:
+lightdm policykit-1
+#gdm3
+menu
+eog
+evince
+gcalctool
+gnome-screenshot
+#vlc
+
+iceweasel
+mozilla-plugin-gnash
+icedove
+enigmail
+
+inkscape
+gimp
+
+libreoffice
+#lyx
+
+krb5-auth-dialog
+
+## non-free packages, if you need those, make sure you add 'contrib'
+## and 'non-free' to the 'main' repository in
+## 'files/etc/apt/sources.list/*':
+#flashplugin-nonfree

@@ -1,0 +1,214 @@
+#### servers ####
+define service{
+        host                   mainserver
+        service_description    APT
+        check_command          check_apt
+        use                    generic-service
+}
+
+define service{
+        hostgroup_name         cups-servers
+        service_description    CUPS
+        check_command          check_cups
+        use                    generic-service
+}
+
+define service{
+        host                   mainserver
+        service_description    Current Load
+        check_command          check_load!5.0!4.0!3.0!10.0!6.0!4.0
+        use                    generic-service
+}
+
+define service{
+        host                   mainserver
+        service_description    Current Users
+        check_command          check_users!20!50
+        use                    generic-service
+}
+
+define service{
+        hostgroup_name         dns-servers
+        service_description    DNS extern
+        check_command          check_dns
+        use                    generic-service
+}
+
+define service{
+        hostgroup_name         dns-servers
+        service_description    DNS intern
+        check_command          check_dig!'domain.intern'
+        use                    generic-service
+}
+
+define service{
+        host                   mainserver
+        service_description    Disk Space
+        check_command          check_all_disks!20%!10%
+        use                    generic-service
+}
+
+define service {
+        hostgroup_name         http-servers
+        service_description    HTTP
+        check_command          check_http
+        use                    generic-service
+}
+
+define service{
+        hostgroup_name         imap-servers
+        service_description    IMAP
+        check_command          check_imap
+        use                    generic-service
+}
+
+define service{
+        hostgroup_name         ldap-servers
+        service_description    LDAP
+        check_command          debian-lan_check_ldap!dc=intern
+        use                    generic-service
+}
+
+define service{
+        hostgroup_name         nfs-servers
+        service_description    NFS
+        check_command          debian-lan_check_nfs
+        use                    generic-service
+}
+
+define service{
+        host                   mainserver
+        service_description    NTP Server
+        check_command          check_ntp_ntpq
+        use                    generic-service
+}
+
+define service{
+        hostgroup_name         smtp-servers
+        service_description    SMTP
+        check_command          check_smtp
+        use                    generic-service
+}
+
+define service {
+        hostgroup_name         ssh-servers
+        service_description    SSH
+        check_command          check_ssh
+        use                    generic-service
+}
+
+define service{
+        host                   mainserver
+        service_description    Squid
+        check_command          check_squid!3128!'http://www.intern'
+        use                    generic-service
+}
+
+define service{
+        host                   mainserver
+        service_description    Swap
+        check_command          debian-lan_check_swap
+        use                    generic-service
+}
+
+define service{
+        host                   mainserver
+        service_description    Total Procs
+        check_command          check_procs!250!400
+        use                    generic-service
+}
+
+define service{
+        host                   mainserver
+        service_description    Zombie Procs
+        check_command          check_procs_zombie!5!10
+        use                    generic-service
+}
+
+
+#### gateway
+define service{
+        host                   gateway
+        service_description    Alive
+        check_command          check-host-alive
+        use                    generic-service
+}
+
+define service{
+        host                   gateway
+        service_description    Internet
+        check_command          debian-lan_check_internet!8.8.8.8
+        use                    generic-service
+}
+
+
+#### nrpe (remote) machines
+define service {
+        hostgroup_name         client-ssh-servers
+        service_description    SSH
+        check_command          check_ssh
+        use                    client-service
+}
+
+define service{
+        hostgroup_name         workstation,diskless
+        service_description    APT
+        check_command          check_nrpe_1arg!check_apt
+        use                    client-service
+}
+
+define service{
+        hostgroup_name         workstation,diskless
+        service_description    Current Load
+        check_command          check_nrpe_1arg!debian-lan_check_load
+        use                    client-service
+}
+
+define service{
+        hostgroup_name         workstation,diskless
+        service_description    Current Users
+        check_command          check_nrpe_1arg!debian-lan_check_users
+        use                    client-service
+}
+
+define service{
+        hostgroup_name         workstation
+        service_description    Disk Space
+        check_command          check_nrpe_1arg!debian-lan_check_all_disks
+        use                    client-service
+}
+
+define service{
+        hostgroup_name         workstation
+        service_description    Kerberos Key
+        check_command          check_nrpe_1arg!debian-lan_check_file_age
+        use                    client-service
+}
+
+define service{
+        hostgroup_name         workstation,diskless
+        service_description    Swap
+        check_command          check_nrpe_1arg!debian-lan_check_swap
+        use                    client-service
+}
+
+define service{
+        hostgroup_name         workstation,diskless
+        service_description    Time
+        check_command          check_nrpe_1arg!debian-lan_check_ntp_time
+        use                    client-service
+}
+
+define service{
+        hostgroup_name         workstation,diskless
+        service_description    Total Procs
+        check_command          check_nrpe_1arg!debian-lan_check_procs
+        use                    client-service
+}
+
+define service{
+        hostgroup_name         workstation,diskless
+        service_description    Zombie Procs
+        check_command          check_nrpe_1arg!debian-lan_check_procs_zombie
+        use                    client-service
+}

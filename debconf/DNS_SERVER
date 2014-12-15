@@ -1,0 +1,2 @@
+# Should resolv.conf settings be overridden?
+bind9 bind9/run-resolvconf boolean true

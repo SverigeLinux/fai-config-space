@@ -1,0 +1,67 @@
+#! /bin/bash
+#
+#   Check if network is available.
+#
+
+URL="http://http.debian.net/"
+while ! wget --quiet --output-document=/tmp/network-check $URL ; do
+    echo "Error accessing '$URL', check network and internet access."
+    if ! { dialog --stdout --backtitle " No network/internet access! " \
+        --yes-label "Try again" --no-label "Cancel installation" \
+        --title " No network/internet access! " \
+        --yesno "Could not access '$URL'.\n\
+Please make sure the network is available.\n\n\
+Fix this problem (Ctrl-Alt-F2) and try again." 8 49; } ; then
+        exit 1
+    fi
+done
+
+
+#
+#  Prompt for the root password if $ROOTPW is empty.
+#
+
+if [ -n "$ROOTPW" ] ; then
+    echo "Root password hash is set."
+else
+    while [ -z "$ROOTPW" ] ; do
+        if ! { inp1=$(dialog --insecure --stdout --backtitle " Root Password " --passwordbox \
+            "There is no password hash for root available. \nPlease enter a root password:" 10 49) &&
+                inp2=$(dialog --insecure --stdout --backtitle " Root Password " --passwordbox \
+                    "Please enter the root password again:" 9 41); } ; then
+            dialog --stdout --msgbox "Entering passwords canceled, please try again." 5 50
+        elif [ "$inp1" == "$inp2" ] ; then
+            ROOTPW=`mkpasswd -Hsha-256 "$inp1"`
+            echo "Password hash for root set."
+        else
+            dialog --stdout --msgbox "Passwords do not match, please try again." 5 45
+        fi
+        unset inp1 inp2
+    done
+fi
+
+
+#
+#  Prompt for the hostname if $HOSTNAME is empty.
+#
+
+ValidHostnameRegex="^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"
+
+if [ -z "$HOSTNAME" ] || ifclass ROAMING ; then
+    HOSTNAME=''
+    while [ -z "$HOSTNAME" ] ; do
+        if ! { inp=$(dialog --insecure --stdout --backtitle " Hostname " --inputbox \
+            "There is no hostname available. \nPlease enter a hostname:" 10 36); } ; then
+            dialog --stdout --msgbox "Entering hostname canceled, please try again." 5 50
+        elif [[ $inp =~ $ValidHostnameRegex ]] ; then
+            HOSTNAME="$inp"
+            ## Make 'hostname' and 'hostname -d' succeed, important for sssd installation:
+            hostname "$HOSTNAME"
+            sed -i "1 a127.0.1.1       ${HOSTNAME}.intern  ${HOSTNAME}" /etc/hosts
+            echo "Hostname set to '$HOSTNAME'."
+        else
+            dialog --stdout --msgbox "Hostname '$inp' invalid, please try again." 6 55
+        fi
+        unset inp
+    done
+fi

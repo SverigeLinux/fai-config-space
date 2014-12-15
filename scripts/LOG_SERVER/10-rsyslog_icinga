@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+#  Configure rsyslog and icinga
+#
+
+set -e
+
+fcopy -r /etc/rsyslog.d/
+fcopy /etc/icinga/objects/hostgroups_icinga.cfg
+fcopy /etc/icinga/objects/services_icinga.cfg
+fcopy /etc/icinga/objects/commands.cfg
+
+if [ "$FAI_ACTION" == "install" ] || [ "$CONVERT" == "true" ] ; then
+    ## Machines are added here, so do not overwrite them on softupdate:
+    fcopy /etc/icinga/objects/hosts.cfg
+    sed -i "s#\$GATEWAY#$GATEWAY#" $target/etc/icinga/objects/hosts.cfg
+    mv $target/etc/icinga/objects/localhost_icinga.cfg $target/etc/icinga/objects/localhost_icinga.cfg_orig || true
+    ## Prepare templates with notifications disabled for the client machines:
+    sed -e "s/generic/client/" -e "s/Generic/Client/" \
+        -e "s/\(notifications_enabled[[:space:]]*\)1.*/\10       ; Host notifications are disabled/" \
+        $target/etc/icinga/objects/generic-host_icinga.cfg > $target/etc/icinga/objects/client-host_icinga.cfg
+    sed -e "s/generic/client/" -e "s/Generic/Client/" \
+        -e "s/\(notifications_enabled[[:space:]]*\)1.*/\10       ; Service notifications are disabled/" \
+        $target/etc/icinga/objects/generic-service_icinga.cfg > $target/etc/icinga/objects/client-service_icinga.cfg
+fi

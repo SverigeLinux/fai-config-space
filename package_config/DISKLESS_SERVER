@@ -1,0 +1,4 @@
+## Only list packages that are essential for the SWAP_SERVER class.
+## Put all setup-dependent packages in the SETUP_* class.
+PACKAGES aptitude
+nbd-server

@@ -1,0 +1,4 @@
+## Only list packages that are essential for the NFS_CLIENT class.
+## Put all setup-dependent packages in the CLIENT_* class.
+PACKAGES aptitude
+autofs-ldap

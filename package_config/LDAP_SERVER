@@ -1,0 +1,9 @@
+## Only list packages that are essential for the LDAP_SERVER class.
+## Put all setup-dependent packages in the SETUP_* class.
+PACKAGES aptitude
+slapd
+autofs-ldap  # needed for the autofs.schema
+openssl
+ldap-utils
+ldapscripts
+ldapvi

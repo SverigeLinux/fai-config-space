@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+## The following is is needed if you need to have group membership
+## assigned to users on login.
+
+## Example:  Configure PAM to add users to the dialout group (needed
+## to access /dev/tty*):
+
+ainsl -q /etc/security/group.conf "*;*;*;Al0000-2400;dialout"
+ainsl -q /etc/pam.d/common-auth "auth    optional        pam_group.so"

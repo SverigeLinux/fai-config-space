@@ -1,0 +1,156 @@
+# Default values for installation SERVER_A.
+
+# allow installation of packages from unsigned repositories
+FAI_ALLOW_UNSIGNED=1
+
+CONSOLEFONT=
+if [ -z "$KEYMAP" ] || [ -z "$TIMEZONE" ] ; then
+    # Dialog to choose IP-setup:
+    inp=$(dialog --insecure --stdout --backtitle "Language settings" --radiolist \
+        "Please choose your keyboard layout" 20 63 2 \
+         ENGLISH " English keyboard " on \
+         SVENSKA " Svenskt tangentbord " off )
+
+    if [ "$inp" = "SVENSKA" ] ; then
+        KEYMAP=se-latin1
+        TIMEZONE=Europe/Stockholm
+    else
+        KEYMAP=us-latin1
+        TIMEZONE=Europe/Stockholm
+    fi
+    unset inp
+fi
+
+
+# Set UTC=yes if your system clock is set to UTC (GMT), and UTC=no if not.
+UTC=yes
+
+# Local user and root password for the new installed linux system
+# Leave empty if no local user apart from root is needed.
+USERNAME="fai"
+
+# Use: 'mkpasswd -Hsha-256 <PASSWORD>' to create the password hash
+# pw is "fai":
+#ROOTPW='$1$kBnWcO.E$djxB128U7dMkrltJHPf6d1'
+# If $ROOTPW is empty, you will be prompted during installation:
+ROOTPW=${ROOTPW:-''}
+# If $ADMINPW is empty, you will be prompted during installation:
+ADMINPW=${ADMINPW:-''}
+
+## All sensible data will end up here (see below):
+DATADIR=/root/installation/
+
+## The Kerberos KDC master password in clear text (!).  If undefined
+## or empty, a random password will be created and saved in $DATADIR.
+KDC_MASTER_PW=
+
+## The password for the LDAP admin and root's principals in clear
+## text (!!!).  If undefined or empty, a random password will be
+## created and saved in $DATADIR.
+LDAP_ADMIN_PW=
+
+## Variables that define the network.  You can choose the same IP
+## address for mainserver ($MAINSERVER_IPADDR) and gateway ($GATEWAY)
+## interactively during installation, see below.
+
+SETDOMAIN="intern"
+#LDAP_DOMAIN="dc=sverigelinux,dc=local"
+#KRB_REALM="SVERIGELINUX"
+
+MAINSERVER_IPADDR=""
+GATEWAY=""
+BROADCAST_LAN=${BROADCAST_LAN:-'10.0.255.255'}
+NAMESERVER_IPADDR=""  # leave empty to use mainserver's IP address
+
+if [ -z "$GATEWAY" ] || [ -z "$MAINSERVER_IPADDR" ] ; then
+    # Dialog to choose IP-setup:
+    inp=$(dialog --insecure --stdout --backtitle "Nätverksinställningar" --radiolist \
+        "Två alternativ finns:\n\n
+STANDARD: Servern konfigureras som gateway till\n
+          externa nätverket. IP-adressen blir\n
+          10.0.0.1, externa nätverkskortet adresseras\n 
+          med DHCP. (kräver 2 nätverkskort)\n\n
+SPECIAL: Du väljer själv nätverk och serveradresser." 20 63 2 \
+         STANDARD " mainserver: 10.0.0.1, gateway: 10.0.0.1 " on \
+         SPECIAL " Skräddarsy inställningarna.. " off )
+
+    if [ "$inp" = "STANDARD" ] ; then
+        MAINSERVER_IPADDR='10.0.0.1'
+        GATEWAY='10.0.0.1'
+        SUBNET='10.0.0.0'
+        NETMASK='255.255.0.0'
+        SUBNETMASK='10.0.0.0/16'
+        DOMAIN='intern'
+    else
+        MAINSERVER_IPADDR=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "mainserver IP-adress (ex. 10.0.0.10): " 8 40)
+        GATEWAY=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Gateway IP-adress (ex. 10.0.0.1): " 8 40)
+##        SUBNET=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Subnät IP-adress (ex. 10.0.0.0): " 8 40)
+        NETMASK=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Nätmask (ex. 255.255.0.0): " 8 40)
+##        SUBNETMASK=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Subnätmask (ex. 10.0.0.0/16): " 8 40)
+#        SETDOMAIN=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Domännamn (ex. sverigelinux.local): " 8 40)
+    fi
+    unset inp
+fi
+
+# Convert domain name to Kerberos Realm in uppercase
+#KRB_REALM=`echo $SETDOMAIN | cut -d "." --fields=1 | awk '{print toupper($0)}'`
+
+# Ugly hack to convert domain name to LDAP string
+# sverigelinux.local => dc=sverigelinux,dc=local
+#LDAP_DOMAIN=`echo $SETDOMAIN | cut -d "." --fields=1,2,3 --output-delimiter=',dc=' | awk '{print "dc=" $0}'`
+
+# Function calculates number of bit in a netmask
+#
+mask2cidr() {
+    nbits=0
+    IFS=.
+    for dec in $1 ; do
+        case $dec in
+            255) let nbits+=8;;
+            254) let nbits+=7;;
+            252) let nbits+=6;;
+            248) let nbits+=5;;
+            240) let nbits+=4;;
+            224) let nbits+=3;;
+            192) let nbits+=2;;
+            128) let nbits+=1;;
+            0);;
+            *) echo "Error: $dec is not recognised"; exit 1
+        esac
+    done
+    echo "$nbits"
+}
+ 
+IFS=. read -r i1 i2 i3 i4 <<< "$MAINSERVER_IPADDR"
+IFS=. read -r m1 m2 m3 m4 <<< "$NETMASK"
+ 
+# Calculate network using bitwise AND operator
+SUBNET=$(printf "%d.%d.%d.%d\n" "$((i1 & m1))" "$((i2 & m2))" "$((i3 & m3))" "$((i4 & m4))")
+
+# Set CIDR-mask (e.g. 10.0.0.0/16)
+numbits=$(mask2cidr $NETMASK)
+SUBNETMASK=$SUBNET/$numbits
+
+## NETMASK for FAI config space access:
+FAINETMASK=$SUBNETMASK
+#FAINETMASK=${FAINETMASK:-'10.0.0.0/16'}
+
+## DHCP range for unknown clients (cf. dhcpd.conf):
+PREFIX=`echo $SUBNET | cut -d "." --fields=1,2,3`
+RANGE="$PREFIX.40 $PREFIX.49"
+
+## IP address-endings for workstations and diskless machines (the list
+## is generated using 'seq $WS_RANGE' respectively 'seq $DL_RANGE'):
+WS_RANGE="50 149"
+DL_RANGE="150 249"
+
+## Local APT repository for the site (accessible via http).
+## Set empty to skip this feature.
+APT_REPO_DIR="/var/www/debian/"
+## URL of the local site's APT repository.
+## Set empty to skip this feature.
+APT_URL="http://www.intern/debian/"
+#APT_URL="http://www.${SETDOMAIN}/debian/"
+
+# errors in tasks greater than this value will cause the installation to stop
+STOP_ON_ERROR=700

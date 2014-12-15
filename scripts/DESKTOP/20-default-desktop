@@ -1,0 +1,6 @@
+#!/bin/bash
+
+## Choose the default desktop:
+
+#$ROOTCMD update-alternatives --set x-session-manager /usr/bin/startlxde
+$ROOTCMD update-alternatives --set x-session-manager /usr/bin/startxfce4

@@ -1,0 +1,32 @@
+[libdefaults]
+        default_realm = INTERN
+
+[realms]
+        INTERN = {
+                kdc = kerberos
+                admin_server = kerberos
+                database_module = LDAP
+        }
+
+[domain_realm]
+        .intern = INTERN
+        intern = INTERN
+
+[logging]
+        kdc = FILE:/var/log/kdc.log
+        kadmin = FILE:/var/log/kadmin.log
+        default = FILE:/var/log/krb5.log
+
+[dbdefaults]
+        ldap_kerberos_container_dn = @DN_KRB_CONT@
+
+[dbmodules]
+        LDAP = {
+              db_library = kldap
+              ldap_kerberos_container_dn = @DN_KRB_CONT@
+              ldap_kdc_dn = @DN_KDC@
+              ldap_kadmind_dn = @DN_KADMIN@
+              ldap_service_password_file = /etc/krb5kdc/service.keyfile
+              ldap_servers = ldapi://
+              ldap_conns_per_server = 5
+       }

@@ -1,0 +1,4 @@
+PACKAGES aptitude
+
+mysql-server
+mysql-client

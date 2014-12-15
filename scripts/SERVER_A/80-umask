@@ -1,0 +1,20 @@
+#!/usr/sbin/cfagent -f
+
+control:
+   any::
+   actionsequence = ( editfiles )
+   EditFileSize = ( 30000 )
+
+editfiles:
+   any::
+	{ ${target}/etc/pam.d/common-session
+	  ## Set default umask:
+	  AppendIfNoSuchLine "session  optional  pam_umask.so"
+	}
+	{ ${target}/etc/login.defs
+	  ## Modify default umask for more privacy:
+	  BeginGroupIfNoSuchLine "UMASK$(tab)$(tab)027"
+	    ReplaceAll "^UMASK.*" With "UMASK$(tab)$(tab)027"
+	  EndGroup
+
+	}

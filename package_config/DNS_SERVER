@@ -1,0 +1,5 @@
+## Only list packages that are essential for the DNS_SERVER class.
+## Put all setup-dependent packages in the SETUP_* class.
+PACKAGES aptitude
+bind9
+resolvconf
