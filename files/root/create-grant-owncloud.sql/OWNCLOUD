@@ -1,0 +1,3 @@
+CREATE DATABASE owncloud;
+GRANT ALL PRIVILEGES ON owncloud.* TO 'oc_ocadmin'@'localhost' IDENTIFIED BY 'fai';
+

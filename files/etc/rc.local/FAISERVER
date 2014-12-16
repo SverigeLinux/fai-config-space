@@ -148,6 +148,14 @@ EOF
 ## Add missing plugins to munin, the line will be commented afterwards:
 munin-node-configure --shell 2>/dev/null | sh && sed -i "s%\(^munin-node-configure\)%\#\1%" $0
 
+
+#########################
+## Setup OwnCloud database
+if [ -e /etc/init.d/owncloud-setup ] ; then
+    /etc/init.d/owncloud-setup
+    rm /etc/init.d/owncloud-setup
+fi
+
 ## Setup/update nfsroot for FAI:
 cat <<EOF
 ================================================================================

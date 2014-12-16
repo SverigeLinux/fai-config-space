@@ -2,6 +2,9 @@
 
 set -vx
 
+fcopy -m root,root,0777 /etc/init.d/owncloud-setup
+# $ROOTCMD update-rc.d owncloud-setup defaults
+fcopy -m root,root,0700 /root/create-grant-owncloud.sql
 fcopy -m root,root,0700 /root/owncloud_start.sql
 fcopy -v -m www-data,www-data,0700 /var/www/owncloud/config/config.php
 touch $target/var/www/owncloud/data/.ocdata

@@ -1,0 +1,16 @@
+#!/bin/bash
+# /etc/init.d/owncloud-setup
+#
+
+# Some things that run always
+
+
+echo "Starting script owncloud-setup"
+mysql -u root -pfai < /root/create-grant-owncloud.sql
+mysql -u root -pfai owncloud < /root/owncloud_start.sql
+
+rm /root/create-grant-owncloud.sql
+rm /root/owncloud_start.sql
+
+exit 0
+
