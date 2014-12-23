@@ -49,7 +49,7 @@ CLIENT_A"
 # Use a list of classes for your machine:
 case $HOSTNAME in
 ## The following hosts are kept for reference only (FAI project).
-## They are not tested and probably do not work with Debian-LAN:
+## They are not tested and probably do not work with SverigeLinux:
     faiserver)
        echo "FAIBASE DEBIAN DEMO FAISERVER" ;;
     demohost|client*)
@@ -65,7 +65,7 @@ case $HOSTNAME in
     puma)
        echo "FAIBASE DEBIAN DHCPC RAID_XEN_VIRTUAL" ;;
 ##
-## These hosts are part of the Debian-LAN:
+## These hosts are part of the SverigeLinux setup:
 ##
     gateway)
         echo "FAIBASE DEBIAN DHCPC FIREWALL GATEWAY_A" ;;

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+USERID=$1
+PASSWORD=$2
+
+logger -t fd-create -p notice Changing password for user: $USERID
+kadmin.local -q "change_password -pw $PASSWORD $USERID" > /tmp/kadmin
+
+
+
+
+
+
+

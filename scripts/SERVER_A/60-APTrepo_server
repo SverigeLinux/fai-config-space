@@ -20,7 +20,7 @@ Archive: stable
 Version: 6.0
 Component: main
 Origin: Debian
-Label: DebianLAN
+Label: SverigeLinux
 Architecture: i386
 EOF
 
@@ -33,11 +33,11 @@ sed "s/i386/source/" $target$APT_REPO_DIR/dists/stable/main/binary-i386/Release 
 cat > $target$APT_REPO_DIR/aptftp.conf <<EOF
 APT::FTPArchive::Release {
   Origin "Debian";
-  Label "DebianLAN";
+  Label "SverigeLinux";
   Suite "stable";
   Architectures "i386 amd64 source";
   Components "main";
-  Description "DebianLAN site specific packages";
+  Description "SverigeLinux site specific packages";
 };
 EOF
 
@@ -74,7 +74,7 @@ cat > $target$DATADIR/GPGkey.conf <<EOF
 Key-Type: DSA
 Key-Length: 1024
 Key-Usage: sign
-Name-Real: DebianLAN
+Name-Real: SverigeLinux
 Name-Comment: ARCHIVE KEY
 Name-Email: root@mainserver.intern
 Expire-Date: 0
@@ -99,22 +99,22 @@ set -e
 
 if [ ! -d /root/.gnupg/ ] ; then
     gpg --batch --gen-key $DATADIR/GPGkey.conf
-    gpg --export --armor > DebianLAN.pubkey
-elif [ ! -e DebianLAN.pubkey ] ; then
-    gpg --export --armor > DebianLAN.pubkey
+    gpg --export --armor > SverigeLinux.pubkey
+elif [ ! -e SverigeLinux.pubkey ] ; then
+    gpg --export --armor > SverigeLinux.pubkey
 fi
 
 ## Create archive, make sure all packages are readable by www-data:
 
-chgrp www-data pool/main/*.deb DebianLAN.pubkey
-chmod g+r      pool/main/*.deb DebianLAN.pubkey
+chgrp www-data pool/main/*.deb SverigeLinux.pubkey
+chmod g+r      pool/main/*.deb SverigeLinux.pubkey
 
 FILE=dists/stable/Release
 apt-ftparchive generate -c=aptftp.conf aptgenerate.conf
 apt-ftparchive release  -c=aptftp.conf dists/stable > \$FILE
 
 rm -f \${FILE}.gpg
-gpg -vv -u DebianLAN -b -o \${FILE}.gpg \$FILE
+gpg -vv -u SverigeLinux -b -o \${FILE}.gpg \$FILE
 chgrp www-data \${FILE}
 chgrp www-data \${FILE}.gpg
 EOF

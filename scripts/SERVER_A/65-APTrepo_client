@@ -10,9 +10,9 @@ if [ -z "$APT_URL" ] ; then
 fi
 
 echo "Check if public key is available:"
-if $ROOTCMD wget -O /tmp/DebianLAN.pubkey $APT_URL/DebianLAN.pubkey ; then
+if $ROOTCMD wget -O /tmp/SverigeLinux.pubkey $APT_URL/SverigeLinux.pubkey ; then
     echo -n "Run apt-key and add key: "
-    $ROOTCMD apt-key add /tmp/DebianLAN.pubkey
+    $ROOTCMD apt-key add /tmp/SverigeLinux.pubkey
     ## Key is available, add repository to sources.list.d/.
     FILE=/etc/apt/sources.list.d/local.list
     ainsl -a $FILE "## Local APT repository for site-specific packages:"

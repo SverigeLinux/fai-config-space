@@ -32,20 +32,20 @@ if [ "$HOSTNAME" = "mainserver" ] ; then
         prepare_shorewall
         ## Allow access from the LAN to the firewall and from the firewall to LAN and internet:
         sed -i -e '/.*MUST BE LAST/i \
-\#\# Debian-LAN policy:\
+\#\# SverigeLinux policy:\
 loc             $FW             ACCEPT\
 $FW             loc             ACCEPT\
 $FW             net             ACCEPT' $CONFDIR/policy
 
         ## Comment all rules where traffic is allowed already:
-        sed -i -e "s/^\(.*ACCEPT)\?\s\+loc\s\+\$FW.*\)$/\#\# Allowed by Debian-LAN policy:\n\#\1/" \
-            -e "s/^\(.*ACCEPT)\?\s\+\$FW\s\+loc.*\)$/\#\# Allowed by Debian-LAN policy:\n\#\1/" \
-            -e "s/^\(.*ACCEPT)\?\s\+\$FW\s\+net.*\)$/\#\# Allowed by Debian-LAN policy:\n\#\1/" $CONFDIR/rules
+        sed -i -e "s/^\(.*ACCEPT)\?\s\+loc\s\+\$FW.*\)$/\#\# Allowed by SverigeLinux policy:\n\#\1/" \
+            -e "s/^\(.*ACCEPT)\?\s\+\$FW\s\+loc.*\)$/\#\# Allowed by SverigeLinux policy:\n\#\1/" \
+            -e "s/^\(.*ACCEPT)\?\s\+\$FW\s\+net.*\)$/\#\# Allowed by SverigeLinux policy:\n\#\1/" $CONFDIR/rules
 
-        ## Debian-LAN rules:
+        ## SverigeLinux rules:
         cat >> $CONFDIR/rules <<EOF
 ##
-##  Debian-LAN
+##  SverigeLinux
 ##
 SSH(ACCEPT)     net             \$FW  -  -  -  -  s:1/min:1
 Limit(SSH,1,60):info  loc       \$FW  tcp  22
@@ -59,12 +59,12 @@ EOF
 
         ## Allow access from the LAN to the firewall:
         sed -i -e 's%^\(net.*\)$%\
-\#\# Debian-LAN policy:\
+\#\# SverigeLinux policy:\
 \#\1\
 net     $FW     ACCEPT%' $CONFDIR/policy
 
         ## Comment rules where traffic is allowed already and limit ssh access:
-        sed -i -e "s/^\(.*ACCEPT)\?\s\+net\s\+\$FW.*\)$/\#\# Allowed by Debian-LAN policy:\n\#\1/" $CONFDIR/rules
+        sed -i -e "s/^\(.*ACCEPT)\?\s\+net\s\+\$FW.*\)$/\#\# Allowed by SverigeLinux policy:\n\#\1/" $CONFDIR/rules
         echo 'Limit(SSH,1,60):info  net       $FW  tcp  22' >> $CONFDIR/rules
     fi
 
@@ -73,16 +73,16 @@ elif [ "$HOSTNAME" = "gateway" ] ; then
 
     ## Allow access from firewall to LAN:
     sed -i -e '/.*MUST BE LAST/i \
-\#\# Debian-LAN policy:\
+\#\# SverigeLinux policy:\
 $FW             loc             ACCEPT' $CONFDIR/policy
 
     ## Comment all rules where traffic is allowed already:
-    sed -i -e "s/^\(.*ACCEPT)\?\s\+\$FW\s\+loc.*\)$/\#\# Allowed by Debian-LAN policy:\n\#\1/" $CONFDIR/rules
+    sed -i -e "s/^\(.*ACCEPT)\?\s\+\$FW\s\+loc.*\)$/\#\# Allowed by SverigeLinux policy:\n\#\1/" $CONFDIR/rules
 
-    ## Debian-LAN rules:
+    ## SverigeLinux rules:
     cat >> $CONFDIR/rules <<EOF
 ##
-##  Debian-LAN
+##  SverigeLinux
 ##
 SSH(ACCEPT)     net             \$FW  -  -  -  -  s:1/min:1
 HTTP(ACCEPT)    \$FW             net
@@ -97,7 +97,7 @@ sed -i "s/startup=0/startup=1/" ${target}/etc/default/shorewall
 
 
 
-## C.f. http://lists.alioth.debian.org/pipermail/debian-lan-devel/2013q2/000357.html
+## C.f. http://lists.alioth.debian.org/pipermail/SverigeLinux-devel/2013q2/000357.html
 ## More restrictive rules (if traffic loc <--> $FW --> net is not allowed by default)
 
 #HTTP(ACCEPT)    \$FW             net

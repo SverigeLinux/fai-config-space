@@ -77,9 +77,9 @@ setup_diskless () {
     echo "Creating template with $KERNEL and $INITRD."
     cat > $DL_TEMPLATE <<EOF
 # template for diskless
-default Debian-LAN/FAI Live System
+default SverigeLinux/FAI Live System
 
-label Debian-LAN/FAI Live System
+label SverigeLinux/FAI Live System
 kernel $KERNEL
 append initrd=$INITRD ip=dhcp root=/dev/nfs nfsroot=/opt boot=live
 EOF
@@ -112,7 +112,7 @@ setup_PXEinstaller () {
         ## add installer menu
         cat >> $TFTPROOT/pxelinux.cfg/default <<EOF
 
-label Debian-LAN/FAI Roaming Machine
+label SverigeLinux/FAI Roaming Machine
 kernel $KERNEL
 append initrd=$INITRD ip=dhcp root=/dev/nfs nfsroot=/srv/fai/nfsroot boot=live FAI_FLAGS=verbose,sshd,createvt FAI_CONFIG_SRC=nfs://faiserver/srv/fai/config FAI_ACTION=install
 

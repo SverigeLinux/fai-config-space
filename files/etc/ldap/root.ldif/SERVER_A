@@ -5,10 +5,10 @@ objectClass: dcObject
 objectClass: labeledURIObject
 ObjectClass: organization
 objectClass: gosaAcl
-description: Debian-LAN
+description: SverigeLinux
 dc: intern
-o: Debian-LAN
-labeledURI: http://www/ LDAP for Debian-LAN
+o: SverigeLinux
+labeledURI: http://www/ LDAP for SverigeLinux
 gosaAclEntry: 0:subtree:Y249YWRtaW4sb3U9YWNscm9sZXMsZGM9aW50ZXJu:dWlkPWFkbWluLG91PXBlb3BsZSxkYz1pbnRlcm4=
 
 dn: cn=admin,dc=intern

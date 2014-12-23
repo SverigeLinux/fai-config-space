@@ -7,9 +7,8 @@ fcopy -m root,root,0777 /etc/init.d/owncloud-setup
 fcopy -m root,root,0700 /root/create-grant-owncloud.sql
 fcopy -m root,root,0700 /root/owncloud_start.sql
 fcopy -v -m www-data,www-data,0700 /var/www/owncloud/config/config.php
+sed -i s/@MAINSERVER_IPADDR@/$MAINSERVER_IPADDR/ ${target}/var/www/owncloud/config/config.php
 touch $target/var/www/owncloud/data/.ocdata
-
-#echo "blahablaha" >> ${target}/root/installation/LDAPadminPW
 
 # if [ -e ${target}/root/installation/LDAPadminPW ] ; then
 PW=`cat $target/root/installation/LDAPadminPWD`

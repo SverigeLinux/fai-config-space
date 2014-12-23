@@ -1,38 +1,79 @@
-## GOsa ou, full access for the GOsa admin:
-dn: ou=gosa,dc=intern
-objectClass: top
+# configs, intern
+dn: ou=configs,dc=intern
 objectClass: organizationalUnit
-objectClass: gosaAcl
-objectClass: gosaDepartment
-description: Debian-LAN
-ou: gosa
-gosaAclEntry: 0:psub:dWlkPWFkbWluLG91PXBlb3BsZSxvdT1nb3NhLGRjPWludGVybg==:all/all;cmdrw
-gosaAclEntry: 1:psub:Kg==:users/user;s#sn;r#givenName;r#uid;r#gosaUserDefinedFilter;r#personalTitle;w#academicTitle;w#dateOfBirth;w#gender;w#preferredLanguage;w#base;r#userPicture;w#gosaLoginRestriction;r#o;r#ou;r#departmentNumber;r#manager;r#employeeNumber;r#employeeType;r#roomNumber;w#telephoneNumber;w#pager;w#mobile;w#facsimileTelephoneNumber;w#st;r#l;r#postalAddress;r#homePostalAddress;w#homePhone;w#labeledURI;w#userPassword;r#Certificate;r,users/posixAccount;sr,users/password;sw
+ou: configs
 
+# fusiondirectory, configs, intern
+dn: cn=fusiondirectory,ou=configs,dc=intern
+fdPasswordDefaultHash: ssha
+fdUserRDN: ou=people
+fdGroupRDN: ou=groups
+fdAclRoleRDN: ou=aclroles
+fdGidNumberBase: 10000
+fdUidNumberBase: 10000
+fdAccountPrimaryAttribute: uid
+fdLoginAttribute: uid
+fdTimezone: Europe/Stockholm
+fdRfc2307bis: FALSE
+fdStrictNamingRules: TRUE
+fdHandleExpiredAccounts: FALSE
+fdEnableSnapshots: TRUE
+fdSnapshotBase: ou=snapshots,dc=intern
+fdLanguage: sv_SE
+fdPrimaryGroupFilter: FALSE
+fdModificationDetectionAttribute: entryCSN
+fdCopyPaste: TRUE
+fdListSummary: TRUE
+fdLdapStats: FALSE
+fdWarnSSL: TRUE
+fdForceSSL: FALSE
+fdSchemaCheck: TRUE
+fdLogging: TRUE
+fdDisplayErrors: FALSE
+fdSessionLifeTime: 1800
+fdDebugLevel: 0
+cn: fusiondirectory
+fusionConfigMd5: 23277aab0b824ee45dd8a610c6e3bec9
+fdForcePasswordDefaultHash: FALSE
+fdLdapSizeLimit: 200
+fdDisplayHookOutput: FALSE
+fdShells: /bin/ash
+fdShells: /bin/bash
+fdShells: /bin/csh
+fdShells: /bin/sh
+fdShells: /bin/ksh
+fdShells: /bin/tcsh
+fdShells: /bin/dash
+fdShells: /bin/zsh
+fdMinId: 100
+fdIdAllocationMethod: traditional
+objectClass: fusionDirectoryConf
+objectClass: fusionDirectoryPluginsConf
+fdOGroupRDN: ou=groups
+fdTheme: oxygen
 
-## GOsa access to LDAP:
-dn: cn=gosa,ou=gosa,dc=intern
-objectClass: organizationalRole
-objectClass: simpleSecurityObject
-description: GOsa access to LDAP ou=gosa
-cn: gosa
-userPassword: @LDAP_ADMIN_PW_HASH@
+# people, intern
+# dn: ou=people,dc=intern
+# objectClass: organizationalUnit
+# ou: people
 
-
-## people and groups:
-dn: ou=people,ou=gosa,dc=intern
-objectClass: top
-objectClass: organizationalUnit
-ou: people
-
-dn: ou=groups,ou=gosa,dc=intern
-objectClass: top
-objectClass: organizationalUnit
-ou: groups
-
+### Original user - removed by matfri
+## fd-admin, people, intern
+#dn: uid=fd-admin,ou=people,dc=intern
+#objectClass: top
+#objectClass: person
+#objectClass: gosaAccount
+#objectClass: organizationalPerson
+#objectClass: inetOrgPerson
+#givenName: System
+#sn: Administrator
+#cn: System Administrator-fd-admin
+#uid: fd-admin
+#userPassword: @ADMIN_PW_HASH@
+## userPassword:: e1NTSEF9NnR4WGVyT2N4eGMvTUdLYzhpZzlNUWNFSkhmbCtwQi8=
 
 ## First user 'admin':
-dn: uid=admin,ou=people,ou=gosa,dc=intern
+dn: uid=admin,ou=people,dc=intern
 objectClass: top
 objectClass: person
 objectClass: organizationalPerson
@@ -51,16 +92,91 @@ uidNumber: 10000
 gidNumber: 10000
 userPassword: @ADMIN_PW_HASH@
 
-dn: cn=admin,ou=groups,ou=gosa,dc=intern
+dn: cn=admin,ou=groups,dc=intern
 cn: admin
 description: Group of user admin
 gidNumber: 10000
 objectClass: top
 objectClass: posixGroup
 
+# aclroles, intern
+dn: ou=aclroles,dc=intern
+objectClass: organizationalUnit
+ou: aclroles
+
+# admin, aclroles, intern
+dn: cn=admin,ou=aclroles,dc=intern
+cn: admin
+description: Give all rights on all objects
+objectClass: top
+objectClass: gosaRole
+gosaAclTemplate: 0:all;cmdrw
+
+# manager, aclroles, intern
+dn: cn=manager,ou=aclroles,dc=intern
+cn: manager
+description: Give all rights on users in the given branch
+objectClass: top
+objectClass: gosaRole
+gosaAclTemplate: 0:user/password;cmdrw,user/user;cmdrw,user/posixAccount;cmdrw
+
+# editowninfos, aclroles, intern
+dn: cn=editowninfos,ou=aclroles,dc=intern
+cn: editowninfos
+description: Allow users to edit their own information (main tab and posix use
+  only on base)
+objectClass: top
+objectClass: gosaRole
+gosaAclTemplate: 0:user/posixAccount;srw,user/user;srw
+
+# systems, intern
+dn: ou=systems,dc=intern
+objectClass: organizationalUnit
+ou: systems
+
+# configs, systems, intern
+dn: ou=configs,ou=systems,dc=intern
+objectClass: organizationalUnit
+ou: configs
+
+# fusiondirectory, configs, systems, intern
+dn: ou=fusiondirectory,ou=configs,ou=systems,dc=intern
+objectClass: organizationalUnit
+ou: fusiondirectory
+
+# snapshots, intern
+dn: ou=snapshots,dc=intern
+objectClass: organizationalUnit
+ou: snapshots
+
+# tokens, intern
+dn: ou=tokens,dc=intern
+objectClass: organizationalUnit
+ou: tokens
+
+# config, tokens, intern
+dn: cn=config,ou=tokens,dc=intern
+objectClass: recoveryConfig
+passwordRecoveryActivated: TRUE
+passwordRecoveryEmail: to.be@chang.ed
+passwordRecoveryValidity: 10
+passwordRecoverySalt: SomethingSecretAndVeryLong
+passwordRecoveryMailSubject:: W0Z1c2lvbkRpcmVjdG9yeV0gTMOkbmsgZsO2ciDDpXRlcnNr
+ YXBhbmRlIGF2IGzDtnNlbm9yZA==
+passwordRecoveryMailBody:: SGVqLA0KDQpIw6RyIMOkciBpbmZvcm1hdGlvbmVuIGbDtnIgw6V
+ 0ZXJzdMOkbGxuaW5nOg0KIC0gSW5sb2dnbmluZyA6ICVzDQogLSBMw6RuayA6ICVzDQoNCkRlbiBo
+ w6RyIGzDpG5rZW4gw6RyIGJhcmEgZ2lsdGlnIGkgMTAgbWludXRlci4=
+passwordRecoveryMail2Subject:: W0Z1c2lvbkRpcmVjdG9yeV0gw4V0ZXJzdMOkbGxuaW5nIGF
+ 2IGzDtnNlbm9yZCBseWNrYWRlcw==
+passwordRecoveryMail2Body:: SGVqLA0KDQpEaXR0IGzDtnNlbm9yZCBoYXIgw6RuZHJhdHMuDQ
+ pEaXR0IGFudsOkbmRhci1JRCDDpHIgZm9ydGZhcmFuZGUgJXMu
+passwordRecoveryUseAlternate: FALSE
+cn: config
+
+#### Added
 
 ## User template:
-dn: uid=default_user,ou=people,ou=gosa,dc=intern
+dn: uid=default_user,ou=people,dc=intern
 objectClass: top
 objectClass: person
 objectClass: organizationalPerson
@@ -81,19 +197,19 @@ gidNumber: 2147483647
 
 
 ## sudo-ldap (allow www-data to run /usr/sbin/gosa-*)
-dn: ou=sudoers,ou=gosa,dc=intern
+dn: ou=sudoers,dc=intern
 objectClass: top
 objectClass: organizationalUnit
 ou: sudoers
 
-dn: cn=defaults,ou=sudoers,ou=gosa,dc=intern
+dn: cn=defaults,ou=sudoers,dc=intern
 objectClass: top
 objectClass: sudoRole
 description: default sudo options
 cn: defaults
 sudoOption: env_reset
 
-dn: cn=DebianLAN,ou=sudoers,ou=gosa,dc=intern
+dn: cn=DebianLAN,ou=sudoers,dc=intern
 objectClass: top
 objectClass: sudoRole
 description: propagate GOsa's changes to the system
@@ -109,7 +225,7 @@ sudoCommand: /usr/local/sbin/gosa-create
 sudoUser: www-data
 
 ## some admin roles: give admin(s) sudo access
-dn: cn=Admins,ou=sudoers,ou=gosa,dc=intern
+dn: cn=Admins,ou=sudoers,dc=intern
 objectClass: top
 objectClass: sudoRole
 description: sudo access all machines
@@ -119,7 +235,7 @@ sudoRunAs: ALL
 sudoCommand: ALL
 sudoUser: admin
 
-dn: cn=ClientAdmins,ou=sudoers,ou=gosa,dc=intern
+dn: cn=ClientAdmins,ou=sudoers,dc=intern
 objectClass: top
 objectClass: sudoRole
 description: sudo access all clients

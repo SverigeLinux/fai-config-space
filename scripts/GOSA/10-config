@@ -13,6 +13,7 @@ fcopy -m root,www-data,0660 $GOSACONF
 fcopy -m root,root,0770 /usr/local/sbin/gosa-create
 fcopy -m root,root,0770 /usr/local/sbin/gosa-sync
 fcopy -m root,root,0770 /usr/local/sbin/gosa-remove
+fcopy -m root,root,0770 /usr/local/sbin/fd-sync
 fcopy -m root,root,0770 /usr/local/sbin/add2gosa
 
 fcopy /var/www/index.html

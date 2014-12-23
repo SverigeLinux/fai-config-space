@@ -51,6 +51,9 @@ objectClass: fusionDirectoryConf
 objectClass: fusionDirectoryPluginsConf
 fdOGroupRDN: ou=groups
 fdTheme: oxygen
+fdTabHook: posixAccount|postcreate|sudo /usr/local/sbin/gosa-create %uid%
+fdPasswordHook: sudo /usr/local/sbin/fd-sync
+
 
 # people, intern
 # dn: ou=people,dc=intern
@@ -209,11 +212,11 @@ description: default sudo options
 cn: defaults
 sudoOption: env_reset
 
-dn: cn=DebianLAN,ou=sudoers,dc=intern
+dn: cn=SverigeLinux,ou=sudoers,dc=intern
 objectClass: top
 objectClass: sudoRole
-description: propagate GOsa's changes to the system
-cn: DebianLAN
+description: propagate FusionDirectory's changes to the system
+cn: SverigeLinux
 sudoOption: !authenticate
 sudoOption: !syslog
 sudoOption: env_keep=USERPASSWORD
@@ -222,6 +225,7 @@ sudoRunAs: ALL
 sudoCommand: /usr/local/sbin/gosa-sync
 sudoCommand: /usr/local/sbin/gosa-remove
 sudoCommand: /usr/local/sbin/gosa-create
+sudoCommand: /usr/local/sbin/fd-sync
 sudoUser: www-data
 
 ## some admin roles: give admin(s) sudo access
