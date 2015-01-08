@@ -1,4 +1,4 @@
-krb5-config krb5-config/default_realm string INTERN
+krb5-config krb5-config/default_realm string @KRB_REALM@
 krb5-config krb5-config/dns_for_default boolean true
 krb5-config krb5-config/add_servers boolean false
 krb5-config krb5-config/kerberos_servers string kerberos

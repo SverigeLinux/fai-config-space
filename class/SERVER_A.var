@@ -53,9 +53,9 @@ LDAP_ADMIN_PW=
 ## address for mainserver ($MAINSERVER_IPADDR) and gateway ($GATEWAY)
 ## interactively during installation, see below.
 
-SETDOMAIN="intern"
-#LDAP_DOMAIN="dc=sverigelinux,dc=local"
-#KRB_REALM="SVERIGELINUX"
+SETDOMAIN="sverigelinux.local"
+LDAP_DOMAIN="dc=sverigelinux,dc=local"
+KRB_REALM="SVERIGELINUX"
 
 MAINSERVER_IPADDR=""
 GATEWAY=""

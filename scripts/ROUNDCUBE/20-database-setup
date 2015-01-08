@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -vx
+
+fcopy -m root,root,0777 /etc/init.d/roundcube-setup
+fcopy -m root,root,0700 /root/create-grant-roundcube.sql
+fcopy -m root,root,0700 /root/roundcube_start.sql
+

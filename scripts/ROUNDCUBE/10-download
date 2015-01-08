@@ -1,3 +1,13 @@
 #!/bin/bash
 
 wget -O $target/var/www/roundcubemail-1.0.4.tar.gz http://downloads.sourceforge.net/project/roundcubemail/roundcubemail/1.0.4/roundcubemail-1.0.4.tar.gz
+
+tar zxvf $target/var/www/roundcubemail-1.0.4.tar.gz -C $target/var/www/
+
+fcopy /var/www/roundcubemail-1.0.4/config/config.inc.php
+
+ROUNDCUBE_DESKEY=`date +%s | sha256sum | base64 | head -c 24`
+
+sed -i s:@ROUNDCUBE_DESKEY@:$ROUNDCUBE_DESKEY:g $target/var/www/roundcubemail-1.0.4/config/config.inc.php
+sed -i s:@SETDOMAIN@:$SETDOMAIN:g $target/var/www/roundcubemail-1.0.4/config/config.inc.php
+sed -i s:@ROUNDCUBE_DBPASS@:$ROUNDCUBE_DBPASS:g $target/var/www/roundcubemail-1.0.4/config/config.inc.php

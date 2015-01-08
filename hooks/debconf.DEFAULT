@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -vx
+
+FILEDIR=/tmp/debconf
+
+mkdir $FILEDIR
+cp -r $FAI/debconf /tmp/
+
+# cd /tmp/debconf
+for file in $FILEDIR/*; do
+    sed -i s#@LDAP_DOMAIN@#$LDAP_DOMAIN#g "$file"
+    sed -i s#@KRB_REALM@#$KRB_REALM#g "$file"
+    sed -i s#@SETDOMAIN@#$SETDOMAIN#g "$file"
+done
+
+# Run fai-debconf from the temporary directory
+fai-debconf -v /tmp/debconf
+
+# Skip the regular debconf-task
+skiptask debconf

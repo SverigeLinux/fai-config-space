@@ -193,7 +193,7 @@ givenName: default_user
 uid: default_user
 cn: default_user default_user
 userPassword: {ssha}N0T$3T4N0W
-homeDirectory: /lan/mainserver/home0/%uid
+homeDirectory: /lan/mainserver/home0/%uid%
 loginShell: /bin/bash
 uidNumber: 9999
 gidNumber: 2147483647
