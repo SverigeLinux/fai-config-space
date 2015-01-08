@@ -5,7 +5,7 @@ Config space for Fully Automatic Installation (FAI).
 
 This is the config that installs the mainserver. NOT FOR PRODUCTION USE, contains loads of ugly hacks!
 
-Grab an .iso of it here: https://www.dropbox.com/s/yvcapxj3aaedzsm/sverigelinux-0.0.1-prealpha.iso?dl=0
+Grab an .iso of it here: https://www.dropbox.com/s/x3kts37vcsw0ow3/sverigelinux-0.0.2-prealpha.iso?dl=0
 
 SverigeLinux is a deployment system for Linux servers and clients. It is based on Thomas Langes Fully Automatic Installation (FAI) and Debian-LAN by Andi Mundt et al. 
 It has fully implemented LDAP+Kerberos authentication.
