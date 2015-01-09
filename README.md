@@ -32,8 +32,6 @@ Known issues:
 
 * After specifying admin password, the process might seem to halt. Have patience.
 
-* In this pre-alpha version, there is no possibility to choose domain and LDAP-domain. This functionality is developed but not yet implemented in the master branch.
-
 * The home-directory is not the same as the owncloud directory.
 
 * Lots of ugly hacks for MySQL-database setup which makes this version very insecure and not suited for production use. This is a proof-of-concept and will be refined at a later stage.
