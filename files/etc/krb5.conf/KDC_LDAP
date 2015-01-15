@@ -1,16 +1,16 @@
 [libdefaults]
-        default_realm = INTERN
+        default_realm = @KRB_REALM@
 
 [realms]
-        INTERN = {
+        @KRB_REALM@ = {
                 kdc = kerberos
                 admin_server = kerberos
                 database_module = LDAP
         }
 
 [domain_realm]
-        .intern = INTERN
-        intern = INTERN
+        .@SETDOMAIN@ = @KRB_REALM@
+        @SETDOMAIN@ = @KRB_REALM@
 
 [logging]
         kdc = FILE:/var/log/kdc.log

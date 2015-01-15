@@ -16,6 +16,19 @@ for file in $LDIFS /etc/ldap/slapd.conf; do
     [ -e $target/$file ] || fcopy -m openldap,openldap,660 $file
 done
 
+DOMCOMP=`echo $SETDOMAIN | cut -d "." --fields=1`
+GOSA_ACL_ENCODED=$(/bin/echo -n "cn=admin,ou=aclroles,${LDAP_DOMAIN}" | /usr/bin/base64 -w 0)
+GOSA_ADMIN_DN_ENCODED=$(/bin/echo -n "uid=admin,ou=people,${LDAP_DOMAIN}" | /usr/bin/base64 -w 0)
+
+$ROOTCMD sed -i s:@DOMCOMP@:$DOMCOMP:g /etc/ldap/root.ldif
+$ROOTCMD sed -i s#@GOSA_ACL_ROLE@#$GOSA_ACL_ENCODED:$GOSA_ADMIN_DN_ENCODED#g /etc/ldap/root.ldif
+$ROOTCMD sed -i s:@LDAP_DOMAIN@:$LDAP_DOMAIN:g /etc/ldap/root.ldif
+$ROOTCMD sed -i s:@LDAP_DOMAIN@:$LDAP_DOMAIN:g /etc/ldap/krb5.ldif
+$ROOTCMD sed -i s:@LDAP_DOMAIN@:$LDAP_DOMAIN:g /etc/ldap/autofs.ldif
+$ROOTCMD sed -i s:@SETDOMAIN@:$SETDOMAIN:g /etc/ldap/autofs.ldif
+$ROOTCMD sed -i s:@LDAP_DOMAIN@:$LDAP_DOMAIN:g /etc/ldap/gosa.ldif
+$ROOTCMD sed -i s:@LDAP_DOMAIN@:$LDAP_DOMAIN:g /etc/ldap/slapd.conf
+
 DN_KRB_CONT=`$ROOTCMD awk '/^dn: cn=kerberos,/ {print $2}' /etc/ldap/krb5.ldif`
 DN_KDC="cn=kdc,$DN_KRB_CONT"
 DN_KADMIN="cn=kadmin,$DN_KRB_CONT"
@@ -26,8 +39,14 @@ fcopy /etc/krb5.conf
 $ROOTCMD sed -i s:@DN_KRB_CONT@:$DN_KRB_CONT:g /etc/krb5.conf
 $ROOTCMD sed -i s:@DN_KDC@:$DN_KDC:g /etc/krb5.conf
 $ROOTCMD sed -i s:@DN_KADMIN@:$DN_KADMIN:g /etc/krb5.conf
+$ROOTCMD sed -i s:@KRB_REALM@:$KRB_REALM:g /etc/krb5.conf
+$ROOTCMD sed -i s:@SETDOMAIN@:$SETDOMAIN:g /etc/krb5.conf
+
 fcopy /etc/krb5kdc/kdc.conf
+$ROOTCMD sed -i s:@KRB_REALM@:$KRB_REALM:g /etc/krb5kdc/kdc.conf
+
 fcopy /etc/krb5kdc/kadm5.acl
+$ROOTCMD sed -i s:@KRB_REALM@:$KRB_REALM:g /etc/krb5kdc/kadm5.acl
 
 ## Stop now, if LDAP database is already present:
 if [ -f /var/lib/ldap/__db.001 ] ;  then
@@ -163,7 +182,7 @@ init_KDC() {
 
     ## Create kerberos subtree in ldap database:
     $ROOTCMD kdb5_ldap_util -s -D $DN_LDAP_ADMIN -w $LDAP_ADMIN_PW \
-	create -subtrees dc=intern -H ldapi:// -P $KDC_MASTER_PW
+	create -subtrees $LDAP_DOMAIN -H ldapi:// -P $KDC_MASTER_PW
 
     ## Create default policy, start with no restrictions for the random password.
     ## Add -minlength and -minclasses later (cf. below).
@@ -173,38 +192,38 @@ init_KDC() {
     $ROOTCMD kadmin.local -q "addprinc -pw $LDAP_ADMIN_PW root"
 
     ## Create machine principals and add them to the keytab:
-    $ROOTCMD kadmin.local -q "addprinc -randkey host/mainserver.intern"
-    $ROOTCMD kadmin.local -q "ktadd host/mainserver.intern"
+    $ROOTCMD kadmin.local -q "addprinc -randkey host/mainserver.$SETDOMAIN"
+    $ROOTCMD kadmin.local -q "ktadd host/mainserver.$SETDOMAIN"
 
-    $ROOTCMD kadmin.local -q "addprinc -randkey nfs/mainserver.intern"
-    $ROOTCMD kadmin.local -q "ktadd nfs/mainserver.intern"
+    $ROOTCMD kadmin.local -q "addprinc -randkey nfs/mainserver.$SETDOMAIN"
+    $ROOTCMD kadmin.local -q "ktadd nfs/mainserver.$SETDOMAIN"
 
     for i in `seq 0 9` ; do
 	for j in `seq 0 9` ; do
 	    ## NFS principal:
-	    $ROOTCMD kadmin.local -q "addprinc -randkey nfs/workstation${i}${j}.intern"
-	    $ROOTCMD kadmin.local -q "ktadd -k $DATADIR/workstation${i}${j}.keytab nfs/workstation${i}${j}.intern"
+	    $ROOTCMD kadmin.local -q "addprinc -randkey nfs/workstation${i}${j}.$SETDOMAIN"
+	    $ROOTCMD kadmin.local -q "ktadd -k $DATADIR/workstation${i}${j}.keytab nfs/workstation${i}${j}.$SETDOMAIN"
 	    ## Host principal:
-	    $ROOTCMD kadmin.local -q "addprinc -randkey host/workstation${i}${j}.intern"
-	    $ROOTCMD kadmin.local -q "ktadd -k $DATADIR/workstation${i}${j}.keytab host/workstation${i}${j}.intern"
+	    $ROOTCMD kadmin.local -q "addprinc -randkey host/workstation${i}${j}.$SETDOMAIN"
+	    $ROOTCMD kadmin.local -q "ktadd -k $DATADIR/workstation${i}${j}.keytab host/workstation${i}${j}.$SETDOMAIN"
 	done
     done
 
-    $ROOTCMD kadmin.local -q "addprinc -randkey ldap/mainserver.intern"
-    $ROOTCMD kadmin.local -q "ktadd -k /etc/krb5.keytab.ldap ldap/mainserver.intern"
+    $ROOTCMD kadmin.local -q "addprinc -randkey ldap/mainserver.$SETDOMAIN"
+    $ROOTCMD kadmin.local -q "ktadd -k /etc/krb5.keytab.ldap ldap/mainserver.$SETDOMAIN"
     $ROOTCMD chown -v openldap:openldap /etc/krb5.keytab.ldap
 
-    $ROOTCMD kadmin.local -q "addprinc -randkey HTTP/mainserver.intern"
-    $ROOTCMD kadmin.local -q "ktadd -k /etc/krb5.keytab.http HTTP/mainserver.intern"
+    $ROOTCMD kadmin.local -q "addprinc -randkey HTTP/mainserver.$SETDOMAIN"
+    $ROOTCMD kadmin.local -q "ktadd -k /etc/krb5.keytab.http HTTP/mainserver.$SETDOMAIN"
     $ROOTCMD chown -v www-data:www-data /etc/krb5.keytab.http
 
     if ifclass MAIL_SERVER ; then
-	$ROOTCMD kadmin.local -q "addprinc -randkey smtp/mainserver.intern"
-	$ROOTCMD kadmin.local -q "ktadd -k /etc/krb5.keytab.smtp smtp/mainserver.intern"
+	$ROOTCMD kadmin.local -q "addprinc -randkey smtp/mainserver.$SETDOMAIN"
+	$ROOTCMD kadmin.local -q "ktadd -k /etc/krb5.keytab.smtp smtp/mainserver.$SETDOMAIN"
 	$ROOTCMD chown Debian-exim:Debian-exim /etc/krb5.keytab.smtp
 
-	$ROOTCMD kadmin.local -q "addprinc -randkey imap/mainserver.intern"
-	$ROOTCMD kadmin.local -q "ktadd -k /etc/krb5.keytab.imap imap/mainserver.intern"
+	$ROOTCMD kadmin.local -q "addprinc -randkey imap/mainserver.$SETDOMAIN"
+	$ROOTCMD kadmin.local -q "ktadd -k /etc/krb5.keytab.imap imap/mainserver.$SETDOMAIN"
 	$ROOTCMD chown dovecot:dovecot /etc/krb5.keytab.imap
     fi
 

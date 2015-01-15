@@ -1,29 +1,30 @@
 ############### Root of tree and admin ##############
-dn: dc=intern
+dn: @LDAP_DOMAIN@
 objectClass: top
 objectClass: dcObject
 objectClass: labeledURIObject
 ObjectClass: organization
 objectClass: gosaAcl
 description: SverigeLinux
-dc: intern
+dc: @DOMCOMP@
 o: SverigeLinux
 labeledURI: http://www/ LDAP for SverigeLinux
-gosaAclEntry: 0:subtree:Y249YWRtaW4sb3U9YWNscm9sZXMsZGM9aW50ZXJu:dWlkPWFkbWluLG91PXBlb3BsZSxkYz1pbnRlcm4=
+# gosaAclEntry: 0:subtree:Y249YWRtaW4sb3U9YWNscm9sZXMsZGM9aW50ZXJu:dWlkPWFkbWluLG91PXBlb3BsZSxkYz1pbnRlcm4=
+gosaAclEntry: 0:subtree:@GOSA_ACL_ROLE@
 
-dn: cn=admin,dc=intern
+dn: cn=admin,@LDAP_DOMAIN@
 objectClass: organizationalRole
 objectClass: simpleSecurityObject
 cn: admin
 description: LDAP Administrator
 userPassword: @LDAP_ADMIN_PW_HASH@
 
-dn: ou=people,dc=intern
+dn: ou=people,@LDAP_DOMAIN@
 objectClass: top
 objectClass: organizationalUnit
 ou: people
 
-dn: ou=groups,dc=intern
+dn: ou=groups,@LDAP_DOMAIN@
 objectClass: top
 objectClass: organizationalUnit
 ou: groups

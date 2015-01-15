@@ -8,10 +8,12 @@ echo $TIMEZONE    > $target/etc/timezone
 cp -f /usr/share/zoneinfo/${TIMEZONE} $target/etc/localtime
 
 if [ -n "$IPADDR" ]; then
-    ifclass DHCPC || ainsl -s /etc/hosts "$IPADDR $HOSTNAME.$DOMAIN $HOSTNAME"
+    ifclass DHCPC || ainsl -s /etc/hosts "$IPADDR $HOSTNAME.$SETDOMAIN $HOSTNAME"
 fi
 
 fcopy -iM /etc/hosts /etc/motd
+
+sed -i s#@SETDOMAIN@#$SETDOMAIN#g $target/etc/hosts
 
 # make /root accessible only by root
 chmod -c 0700 $target/root

@@ -9,10 +9,10 @@ editfiles:
    any::
 	{ ${target}/etc/ldapscripts/ldapscripts.conf
 	  ReplaceAll '#SERVER="ldap://localhost"' With 'SERVER="ldapi://"'
-	  ReplaceAll '#BINDDN="cn=Manager,dc=example,dc=com"' With 'BINDDN="cn=admin,dc=intern"'
+	  ReplaceAll '#BINDDN="cn=Manager,dc=example,dc=com"' With 'BINDDN="cn=admin,${LDAP_DOMAIN}"'
 	  ReplaceAll '#BINDPWDFILE=' With 'BINDPWDFILE='
 
-	  ReplaceAll '#SUFFIX="dc=example,dc=com"' With 'SUFFIX="dc=intern"'
+	  ReplaceAll '#SUFFIX="dc=example,dc=com"' With 'SUFFIX="${LDAP_DOMAIN}"'
 	  ReplaceAll '#GSUFFIX="ou=Groups"'        With 'GSUFFIX="ou=groups"'
 	  ReplaceAll '#USUFFIX="ou=Users"' 	   With 'USUFFIX="ou=people"'
 

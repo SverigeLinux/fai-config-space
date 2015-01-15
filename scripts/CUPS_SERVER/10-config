@@ -14,7 +14,7 @@ editfiles:
 	    LocateLineMatching '#.*Listen localhost:631'
 	    InsertLine '# Allow remote access'
 	    InsertLine 'Port 631'
-	    InsertLine 'ServerAlias print.intern'
+	    InsertLine 'ServerAlias print.${SETDOMAIN}'
 
 	    LocateLineMatching 'BrowseAllow all'
 	    InsertLine 'BrowseRemoteProtocols cups dnssd'

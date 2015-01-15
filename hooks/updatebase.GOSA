@@ -1,0 +1,17 @@
+#! /bin/bash
+# Import custom apt sources.list and apt keys.
+
+echo "Adding FusionDirectory repository"
+if [ -x $target/etc/apt/sources.list.d ]; then
+  echo 'deb http://repos.fusiondirectory.org/debian wheezy main' >> $target/etc/apt/sources.list.d/fusiondirectory.list
+fi
+
+# Initialize apt-key before apt is called the first time
+if [ -x $target/usr/bin/apt-key ]; then
+  echo "Apt: list of keys"
+  $ROOTCMD /usr/bin/apt-key list
+  $ROOTCMD gpg --keyserver keys.gnupg.net --recv-key 62B4981F
+  $ROOTCMD gpg --export -a "Fusiondirectory Archive Manager <contact@fusiondirectory.org>" > $target/tmp/FD-archive-key
+  $ROOTCMD apt-key add /tmp/FD-archive-key
+fi
+

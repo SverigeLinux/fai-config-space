@@ -3,7 +3,7 @@
 set -e
 
 ## Switch on apt-cacher-ng:
-ainsl -a /etc/apt/apt.conf 'Acquire::http::Proxy "http://aptcache.intern:3128/";'
+ainsl -a /etc/apt/apt.conf 'Acquire::http::Proxy "http://aptcache:3128/";'
 
 ## Add a local user account.
 ## You need to define USERNAME in class/SERVER_A.var to enable:
@@ -42,7 +42,7 @@ cat > $target/etc/network/interfaces <<EOF
 # The loopback network interface
 auto lo
 iface lo inet loopback
-      dns-search intern
+      dns-search $SETDOMAIN
 
 # The internal network interface
 auto eth0

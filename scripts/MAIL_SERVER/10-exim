@@ -17,7 +17,7 @@ editfiles:
 	    AppendIfNoSuchLine "auth_gssapi:"
 	    AppendIfNoSuchLine "  driver = cyrus_sasl"
 	    AppendIfNoSuchLine "  server_hostname = mail"
-	    AppendIfNoSuchLine "  server_realm = INTERN"
+	    AppendIfNoSuchLine "  server_realm = ${KRB_REALM}"
 	    AppendIfNoSuchLine "  server_mech = gssapi"
 	    AppendIfNoSuchLine "  public_name = GSSAPI"
 	    AppendIfNoSuchLine "  server_set_id = $auth1"
@@ -30,7 +30,7 @@ editfiles:
 	    LocateLineMatching "  # Deny unless the sender address can be verified."
 	    InsertLine "  # Compare sender and kerberos ticket:"
 	    InsertLine "  deny"
-	    InsertLine "    condition = $(dollar){if eq{$authenticated_id}{$sender_address_local_part@INTERN}{false}{true}}"
+	    InsertLine "    condition = $(dollar){if eq{$authenticated_id}{$sender_address_local_part@${KRB_REALM}}{false}{true}}"
 	    InsertLine "    message = Not authenticated or sender address $sender_address in conflict with authentication $authenticated_id"
 	    InsertLine ""
 	  EndGroup

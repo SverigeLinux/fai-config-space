@@ -1,9 +1,5 @@
 PACKAGES aptitude
 
-#gosa
-#gosa-schema
-#gosa-plugin-sudo
-
 fusiondirectory
 fusiondirectory-schema
 fusiondirectory-plugin-sudo
@@ -13,4 +9,5 @@ fusiondirectory-plugin-asterisk-schema
 fusiondirectory-plugin-database-connector 
 fusiondirectory-plugin-systems 
 fusiondirectory-plugin-systems-schema 
-
+fusiondirectory-plugin-autofs
+fusiondirectory-plugin-autofs-schema

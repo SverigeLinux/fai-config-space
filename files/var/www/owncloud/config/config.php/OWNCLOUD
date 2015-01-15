@@ -6,6 +6,8 @@ $CONFIG = array (
   'trusted_domains' => 
   array (
     0 => '@MAINSERVER_IPADDR@',
+    1 => 'oc.@SETDOMAIN@',
+    2 => 'owncloud.@SETDOMAIN@',
   ),
   'datadirectory' => '/var/www/owncloud/data',
   'overwrite.cli.url' => 'https://@MAINSERVER_IPADDR@/owncloud',

@@ -9,7 +9,7 @@ CERT="/etc/ldap/slapd.crt"
 KEY="/etc/ldap/slapd.key"
 CONF="/etc/ldap/slapd.cnf"
 TEMPLATE="${target}/usr/share/ssl-cert/ssleay.cnf"
-HostName="${HOSTNAME}.intern"
+HostName="${HOSTNAME}.${SETDOMAIN}"
 
 if [ -f $target/$CERT ] && [ -f $target/$KEY ]; then
   echo "$CERT and $KEY exists, exiting!"
@@ -17,7 +17,7 @@ if [ -f $target/$CERT ] && [ -f $target/$KEY ]; then
 fi
 
 sed -e s#@HostName@#"$HostName"# $TEMPLATE > ${target}/$CONF
-echo "subjectAltName=DNS:$HostName,DNS:$HOSTNAME,DNS:ldap.intern,DNS:ldap" >> ${target}/$CONF
+echo "subjectAltName=DNS:$HostName,DNS:$HOSTNAME,DNS:ldap.${SETDOMAIN},DNS:ldap" >> ${target}/$CONF
 
 $ROOTCMD openssl req -config $CONF -new -x509 -days 7000 -nodes -out $CERT -keyout $KEY
 

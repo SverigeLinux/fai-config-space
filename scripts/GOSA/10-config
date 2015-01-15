@@ -18,6 +18,16 @@ fcopy -m root,root,0770 /usr/local/sbin/add2gosa
 
 fcopy /var/www/index.html
 
+# set variables for files
+
+FILES="/usr/local/sbin/gosa-create /usr/local/sbin/debian-lan /usr/local/sbin/add2gosa /var/www/index.html $GOSACONF"
+
+for file in $FILES; do
+    $ROOTCMD sed -i s#@LDAP_DOMAIN@#$LDAP_DOMAIN#g "$file"
+    $ROOTCMD sed -i s#@SETDOMAIN@#$SETDOMAIN#g "$file"
+    $ROOTCMD sed -i s#@KRB_REALM@#$KRB_REALM#g "$file"
+done
+
 ## Insert password:
 PWFILE="$DATADIR/LDAPadminPWD"
 PW=`cat $target/$PWFILE`
@@ -27,4 +37,4 @@ sed -i "s#@LDAP_ADMIN_PW@#$PW#" $target/$GOSACONF
 # $ROOTCMD fusiondirectory-setup --check-config --yes
 
 ## needed for sudo-ldap:
-ainsl /etc/ldap/ldap.conf "sudoers_base ou=sudoers,dc=intern"
+ainsl /etc/ldap/ldap.conf "sudoers_base ou=sudoers,$LDAP_DOMAIN"

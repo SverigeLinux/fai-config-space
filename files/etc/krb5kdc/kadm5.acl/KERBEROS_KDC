@@ -1,4 +1,4 @@
 ## access controls for the Kerberos KDC
-root/admin@INTERN *
-*@INTERN cil
-*/*@INTERN i
+root/admin@@KRB_REALM@ *
+*@@KRB_REALM@ cil
+*/*@@KRB_REALM@ i

@@ -21,7 +21,7 @@ eval $(grep "^DIR_MODE" /etc/adduser.conf)
 # One ide might be to look for objects without the krbPasswordExpiration attributes.
 
 ## lookup user and create home directory and principal:
-ldapsearch -b "dc=intern" -xLLL "(&(uid=$USERID)(objectClass=posixAccount))" \
+ldapsearch -b "@LDAP_DOMAIN@" -xLLL "(&(uid=$USERID)(objectClass=posixAccount))" \
     cn homeDirectory gidNumber 2>/dev/null | perl -p0e 's/\n //g' | \
 while read KEY VALUE ; do
     case "$KEY" in
@@ -53,7 +53,7 @@ welcome to the mail-system.
 Your userID is $USERID, and your email
 address is:
 
-      $USERID@mail.intern
+      $USERID@mail.@SETDOMAIN@
 
 Regards,
 

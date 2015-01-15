@@ -53,9 +53,9 @@ LDAP_ADMIN_PW=
 ## address for mainserver ($MAINSERVER_IPADDR) and gateway ($GATEWAY)
 ## interactively during installation, see below.
 
-SETDOMAIN="sverigelinux.local"
-LDAP_DOMAIN="dc=sverigelinux,dc=local"
-KRB_REALM="SVERIGELINUX"
+# SETDOMAIN="sverigelinux.local"
+# LDAP_DOMAIN="dc=sverigelinux,dc=local"
+# KRB_REALM="SVERIGELINUX"
 
 MAINSERVER_IPADDR=""
 GATEWAY=""
@@ -87,17 +87,17 @@ SPECIAL: Du väljer själv nätverk och serveradresser." 20 63 2 \
 ##        SUBNET=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Subnät IP-adress (ex. 10.0.0.0): " 8 40)
         NETMASK=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Nätmask (ex. 255.255.0.0): " 8 40)
 ##        SUBNETMASK=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Subnätmask (ex. 10.0.0.0/16): " 8 40)
-#        SETDOMAIN=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Domännamn (ex. sverigelinux.local): " 8 40)
+        SETDOMAIN=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Domännamn (ex. sverigelinux.local): " 8 40)
     fi
     unset inp
 fi
 
 # Convert domain name to Kerberos Realm in uppercase
-#KRB_REALM=`echo $SETDOMAIN | cut -d "." --fields=1 | awk '{print toupper($0)}'`
+KRB_REALM=`echo $SETDOMAIN | cut -d "." --fields=1 | awk '{print toupper($0)}'`
 
 # Ugly hack to convert domain name to LDAP string
 # sverigelinux.local => dc=sverigelinux,dc=local
-#LDAP_DOMAIN=`echo $SETDOMAIN | cut -d "." --fields=1,2,3 --output-delimiter=',dc=' | awk '{print "dc=" $0}'`
+LDAP_DOMAIN=`echo $SETDOMAIN | cut -d "." --fields=1,2,3 --output-delimiter=',dc=' | awk '{print "dc=" $0}'`
 
 # Function calculates number of bit in a netmask
 #

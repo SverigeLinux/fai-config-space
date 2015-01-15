@@ -1,19 +1,23 @@
 #!/bin/bash
 
-set -vx
+set -e
 
 fcopy -m root,root,0777 /etc/init.d/owncloud-setup
 # $ROOTCMD update-rc.d owncloud-setup defaults
 fcopy -m root,root,0700 /root/create-grant-owncloud.sql
 fcopy -m root,root,0700 /root/owncloud_start.sql
 fcopy -v -m www-data,www-data,0700 /var/www/owncloud/config/config.php
-sed -i s/@MAINSERVER_IPADDR@/$MAINSERVER_IPADDR/ ${target}/var/www/owncloud/config/config.php
+
+sed -i s/@LDAP_DOMAIN@/$LDAP_DOMAIN/g ${target}/root/owncloud_start.sql
+sed -i s/@MAINSERVER_IPADDR@/$MAINSERVER_IPADDR/g ${target}/var/www/owncloud/config/config.php
+sed -i s/@SETDOMAIN@/$SETDOMAIN/g ${target}/var/www/owncloud/config/config.php
+
 touch $target/var/www/owncloud/data/.ocdata
 
 # if [ -e ${target}/root/installation/LDAPadminPW ] ; then
 PW=`cat $target/root/installation/LDAPadminPWD`
 LDAP_ADMIN_PW_BASE64=$(echo -n $PW | base64 -w 0)
-sed -i s/@LDAP_ADMIN_PW_BASE64@/$LDAP_ADMIN_PW_BASE64/ ${target}/root/owncloud_start.sql
+sed -i s/@LDAP_ADMIN_PW_BASE64@/$LDAP_ADMIN_PW_BASE64/g ${target}/root/owncloud_start.sql
 # fi
 
 # Rename skeleton folders for owncloud for swedish users

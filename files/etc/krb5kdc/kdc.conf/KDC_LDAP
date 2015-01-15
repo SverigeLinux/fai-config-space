@@ -2,7 +2,7 @@
     kdc_ports = 750,88
 
 [realms]
-    INTERN = {
+    @KRB_REALM@ = {
         admin_keytab = FILE:/etc/krb5kdc/kadm5.keytab
         acl_file = /etc/krb5kdc/kadm5.acl
         key_stash_file = /etc/krb5kdc/stash

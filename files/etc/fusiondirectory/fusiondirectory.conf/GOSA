@@ -17,7 +17,7 @@
        the FusionDirectory.conf(5) manual page.
   -->
   <main default="default"
-        SASLRealm="INTERN"
+        SASLRealm="@KRB_REALM@"
         logging="TRUE"
         displayErrors="FALSE"
         forceSSL="FALSE"
@@ -28,10 +28,10 @@
     <!-- Location definition -->
     <location name="default"
         ldapTLS="true"
-        config="ou=fusiondirectory,ou=configs,ou=systems,dc=intern">
+        config="ou=fusiondirectory,ou=configs,ou=systems,@LDAP_DOMAIN@">
 
-        <referral URI="ldap://localhost:389/dc=intern"
-                        adminDn="cn=admin,dc=intern"
+        <referral URI="ldap://localhost:389/@LDAP_DOMAIN@"
+                        adminDn="cn=admin,@LDAP_DOMAIN@"
                         adminPassword="@LDAP_ADMIN_PW@" />
     </location>
   </main>

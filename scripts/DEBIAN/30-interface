@@ -29,6 +29,11 @@ fi
 # here fcopy is mostly used, when installing a client for running in a
 # different subnet than during the installation
 fcopy -iUM /etc/resolv.conf
+
+if [ -e $target/etc/resolv.conf ];
+    sed -i s#@SETDOMAIN@#$SETDOMAIN#g $target/etc/resolv.conf
+fi
+
 fcopy -iUM /etc/network/interfaces /etc/networks
 
 exit $error

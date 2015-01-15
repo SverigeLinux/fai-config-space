@@ -10,7 +10,7 @@ fcopy -ir /root
 
 ## Fetch proxy information from wpad.dat:
 WPAD=/tmp/wpad.dat
-http_proxy=""; wget --output-document=$WPAD http://wpad.intern/wpad.dat
+http_proxy=""; wget --output-document=$WPAD http://wpad.${SETDOMAIN}/wpad.dat
 PROXY=`cat $WPAD | grep PROXY | sed "s/^.*PROXY //" | sed "s/;.*$//"`
 ainsl /etc/environment "http_proxy=http://$PROXY/"
 
@@ -23,11 +23,11 @@ else
 fi
 
 ## Allow SSO in iceweasel:
-ainsl /etc/iceweasel/pref/iceweasel.js 'pref("network.negotiate-auth.delegation-uris", "intern");'
-ainsl /etc/iceweasel/pref/iceweasel.js 'pref("network.negotiate-auth.trusted-uris", "intern");'
+ainsl /etc/iceweasel/pref/iceweasel.js "pref(\"network.negotiate-auth.delegation-uris\", \"${SETDOMAIN}\");"
+ainsl /etc/iceweasel/pref/iceweasel.js "pref(\"network.negotiate-auth.trusted-uris\", \"${SETDOMAIN}\");"
 
 ## Default Homepage:
-ainsl /etc/iceweasel/pref/iceweasel.js 'pref("browser.startup.homepage", "data:text/plain,browser.startup.homepage=http://www.intern");'
+ainsl /etc/iceweasel/pref/iceweasel.js "pref(\"browser.startup.homepage\", \"data:text/plain,browser.startup.homepage=http://www.${SETDOMAIN}\");"
 
 ## Switch off caching over the network (commented, managed by unburden-home-dir now):
 #ainsl /etc/iceweasel/pref/iceweasel.js 'pref("browser.cache.disk.enable", false);'

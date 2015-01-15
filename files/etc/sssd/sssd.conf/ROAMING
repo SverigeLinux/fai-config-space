@@ -3,7 +3,7 @@ config_file_version = 2
 reconnection_retries = 3
 sbus_timeout = 30
 services = nss, pam
-domains = intern
+domains = @SETDOMAIN@
 
 [nss]
 filter_groups = root
@@ -13,7 +13,7 @@ reconnection_retries = 3
 [pam]
 reconnection_retries = 3
 
-[domain/intern]
+[domain/@SETDOMAIN@]
 ; Using enumerate = true leads to high load and slow response
 enumerate = false
 cache_credentials = true
@@ -23,11 +23,11 @@ auth_provider = krb5
 chpass_provider = krb5
 
 ldap_uri = ldap://ldap
-ldap_search_base = dc=intern
+ldap_search_base = @LDAP_DOMAIN@
 ldap_tls_reqcert = demand
 ldap_tls_cacert = /etc/ldap/slapd.crt
 
 krb5_kdcip = kerberos
-krb5_realm = INTERN
+krb5_realm = @KRB_REALM@
 krb5_changepw_principle = kadmin/changepw
 krb5_auth_timeout = 15

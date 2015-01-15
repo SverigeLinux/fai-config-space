@@ -1,2 +1,2 @@
 nameserver NAMESERVER
-search intern
+search @SETDOMAIN@

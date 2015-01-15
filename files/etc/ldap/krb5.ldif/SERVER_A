@@ -1,15 +1,15 @@
 ################### Kerberos #######################
-dn: cn=kerberos,dc=intern
+dn: cn=kerberos,@LDAP_DOMAIN@
 objectClass: krbContainer
 cn: kerberos
 
-dn: cn=kdc,cn=kerberos,dc=intern
+dn: cn=kdc,cn=kerberos,@LDAP_DOMAIN@
 objectClass: organizationalRole
 objectClass: simpleSecurityObject
 cn: kdc
 userPassword: @KDC_SERVICE_PW_HASH@
 
-dn: cn=kadmin,cn=kerberos,dc=intern
+dn: cn=kadmin,cn=kerberos,@LDAP_DOMAIN@
 objectClass: organizationalRole
 objectClass: simpleSecurityObject
 cn: kadmin

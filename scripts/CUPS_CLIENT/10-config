@@ -5,5 +5,5 @@
 
 set -e
 
-ainsl -a /etc/cups/client.conf 'ServerName print.intern'
+ainsl -a /etc/cups/client.conf 'ServerName print.${SETDOMAIN}'
 ainsl -a /etc/cups/client.conf 'Encryption Always'

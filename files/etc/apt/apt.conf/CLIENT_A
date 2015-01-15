@@ -1,1 +1,1 @@
-Acquire::http::Proxy "http://aptcache.intern:3128/";
+Acquire::http::Proxy "http://aptcache:3128/";

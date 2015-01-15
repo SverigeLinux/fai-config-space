@@ -4,7 +4,7 @@ set -e
 
 ## Switch on apt-cacher-ng:
 # FIXME: resolv.conf does not use the internal name server, so DNS fails here:
-ainsl -a /etc/apt/apt.conf '#Acquire::http::Proxy "http://aptcache.intern:3128/";'
+ainsl -a /etc/apt/apt.conf '#Acquire::http::Proxy "http://aptcache.${SETDOMAIN}:3128/";'
 
 if [ "$FAI_ACTION" != "install" ] && [ "$CONVERT" != "true" ] ; then
     exit 0
@@ -15,7 +15,7 @@ cat > $target/etc/network/interfaces <<EOF
 # The loopback network interface
 auto lo
 iface lo inet loopback
-      dns-search intern
+      dns-search ${SETDOMAIN}
 
 # The internal network interface
 auto eth0

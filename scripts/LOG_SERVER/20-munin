@@ -8,7 +8,7 @@ control:
 editfiles:
    any::
       { ${target}/etc/munin/munin.conf
-	  ReplaceAll "\[localhost\.localdomain\]" With "[mainserver.intern]"
+	  ReplaceAll "\[localhost\.localdomain\]" With "[mainserver.${SETDOMAIN}]"
       }
 
 files:

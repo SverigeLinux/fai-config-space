@@ -131,7 +131,7 @@ _RUNTIMEFILE="/usr/share/ldapscripts/runtime"
 
 # We need to overwrite variables defined in the configuration
 # and sourced in the runtime file above:
-SUFFIX="$GOSAOU,ou=gosa,dc=intern"
+SUFFIX="$GOSAOU,ou=gosa,@LDAP_DOMAIN@"
 SUFFIX=${SUFFIX#,} # remove ',' if $GOSAOU=""
 GIDSTART="10000"
 UIDSTART="10000"

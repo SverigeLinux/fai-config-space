@@ -1,10 +1,10 @@
-# configs, intern
-dn: ou=configs,dc=intern
+# configs, @SETDOMAIN@
+dn: ou=configs,@LDAP_DOMAIN@
 objectClass: organizationalUnit
 ou: configs
 
-# fusiondirectory, configs, intern
-dn: cn=fusiondirectory,ou=configs,dc=intern
+# fusiondirectory, configs, @SETDOMAIN@
+dn: cn=fusiondirectory,ou=configs,@LDAP_DOMAIN@
 fdPasswordDefaultHash: ssha
 fdUserRDN: ou=people
 fdGroupRDN: ou=groups
@@ -18,7 +18,7 @@ fdRfc2307bis: FALSE
 fdStrictNamingRules: TRUE
 fdHandleExpiredAccounts: FALSE
 fdEnableSnapshots: TRUE
-fdSnapshotBase: ou=snapshots,dc=intern
+fdSnapshotBase: ou=snapshots,@LDAP_DOMAIN@
 fdLanguage: sv_SE
 fdPrimaryGroupFilter: FALSE
 fdModificationDetectionAttribute: entryCSN
@@ -55,14 +55,14 @@ fdTabHook: posixAccount|postcreate|sudo /usr/local/sbin/gosa-create %uid%
 fdPasswordHook: sudo /usr/local/sbin/fd-sync
 
 
-# people, intern
-# dn: ou=people,dc=intern
+# people, @SETDOMAIN@
+# dn: ou=people,@LDAP_DOMAIN@
 # objectClass: organizationalUnit
 # ou: people
 
 ### Original user - removed by matfri
-## fd-admin, people, intern
-#dn: uid=fd-admin,ou=people,dc=intern
+## fd-admin, people, @SETDOMAIN@
+#dn: uid=fd-admin,ou=people,@LDAP_DOMAIN@
 #objectClass: top
 #objectClass: person
 #objectClass: gosaAccount
@@ -76,7 +76,7 @@ fdPasswordHook: sudo /usr/local/sbin/fd-sync
 ## userPassword:: e1NTSEF9NnR4WGVyT2N4eGMvTUdLYzhpZzlNUWNFSkhmbCtwQi8=
 
 ## First user 'admin':
-dn: uid=admin,ou=people,dc=intern
+dn: uid=admin,ou=people,@LDAP_DOMAIN@
 objectClass: top
 objectClass: person
 objectClass: organizationalPerson
@@ -95,36 +95,36 @@ uidNumber: 10000
 gidNumber: 10000
 userPassword: @ADMIN_PW_HASH@
 
-dn: cn=admin,ou=groups,dc=intern
+dn: cn=admin,ou=groups,@LDAP_DOMAIN@
 cn: admin
 description: Group of user admin
 gidNumber: 10000
 objectClass: top
 objectClass: posixGroup
 
-# aclroles, intern
-dn: ou=aclroles,dc=intern
+# aclroles, @SETDOMAIN@
+dn: ou=aclroles,@LDAP_DOMAIN@
 objectClass: organizationalUnit
 ou: aclroles
 
-# admin, aclroles, intern
-dn: cn=admin,ou=aclroles,dc=intern
+# admin, aclroles, @SETDOMAIN@
+dn: cn=admin,ou=aclroles,@LDAP_DOMAIN@
 cn: admin
 description: Give all rights on all objects
 objectClass: top
 objectClass: gosaRole
 gosaAclTemplate: 0:all;cmdrw
 
-# manager, aclroles, intern
-dn: cn=manager,ou=aclroles,dc=intern
+# manager, aclroles, @SETDOMAIN@
+dn: cn=manager,ou=aclroles,@LDAP_DOMAIN@
 cn: manager
 description: Give all rights on users in the given branch
 objectClass: top
 objectClass: gosaRole
 gosaAclTemplate: 0:user/password;cmdrw,user/user;cmdrw,user/posixAccount;cmdrw
 
-# editowninfos, aclroles, intern
-dn: cn=editowninfos,ou=aclroles,dc=intern
+# editowninfos, aclroles, @SETDOMAIN@
+dn: cn=editowninfos,ou=aclroles,@LDAP_DOMAIN@
 cn: editowninfos
 description: Allow users to edit their own information (main tab and posix use
   only on base)
@@ -132,33 +132,33 @@ objectClass: top
 objectClass: gosaRole
 gosaAclTemplate: 0:user/posixAccount;srw,user/user;srw
 
-# systems, intern
-dn: ou=systems,dc=intern
+# systems, @SETDOMAIN@
+dn: ou=systems,@LDAP_DOMAIN@
 objectClass: organizationalUnit
 ou: systems
 
-# configs, systems, intern
-dn: ou=configs,ou=systems,dc=intern
+# configs, systems, @SETDOMAIN@
+dn: ou=configs,ou=systems,@LDAP_DOMAIN@
 objectClass: organizationalUnit
 ou: configs
 
-# fusiondirectory, configs, systems, intern
-dn: ou=fusiondirectory,ou=configs,ou=systems,dc=intern
+# fusiondirectory, configs, systems, @SETDOMAIN@
+dn: ou=fusiondirectory,ou=configs,ou=systems,@LDAP_DOMAIN@
 objectClass: organizationalUnit
 ou: fusiondirectory
 
-# snapshots, intern
-dn: ou=snapshots,dc=intern
+# snapshots, @SETDOMAIN@
+dn: ou=snapshots,@LDAP_DOMAIN@
 objectClass: organizationalUnit
 ou: snapshots
 
-# tokens, intern
-dn: ou=tokens,dc=intern
+# tokens, @SETDOMAIN@
+dn: ou=tokens,@LDAP_DOMAIN@
 objectClass: organizationalUnit
 ou: tokens
 
-# config, tokens, intern
-dn: cn=config,ou=tokens,dc=intern
+# config, tokens, @SETDOMAIN@
+dn: cn=config,ou=tokens,@LDAP_DOMAIN@
 objectClass: recoveryConfig
 passwordRecoveryActivated: TRUE
 passwordRecoveryEmail: to.be@chang.ed
@@ -179,7 +179,7 @@ cn: config
 #### Added
 
 ## User template:
-dn: uid=default_user,ou=people,dc=intern
+dn: uid=default_user,ou=people,@LDAP_DOMAIN@
 objectClass: top
 objectClass: person
 objectClass: organizationalPerson
@@ -200,19 +200,19 @@ gidNumber: 2147483647
 
 
 ## sudo-ldap (allow www-data to run /usr/sbin/gosa-*)
-dn: ou=sudoers,dc=intern
+dn: ou=sudoers,@LDAP_DOMAIN@
 objectClass: top
 objectClass: organizationalUnit
 ou: sudoers
 
-dn: cn=defaults,ou=sudoers,dc=intern
+dn: cn=defaults,ou=sudoers,@LDAP_DOMAIN@
 objectClass: top
 objectClass: sudoRole
 description: default sudo options
 cn: defaults
 sudoOption: env_reset
 
-dn: cn=SverigeLinux,ou=sudoers,dc=intern
+dn: cn=SverigeLinux,ou=sudoers,@LDAP_DOMAIN@
 objectClass: top
 objectClass: sudoRole
 description: propagate FusionDirectory's changes to the system
@@ -229,7 +229,7 @@ sudoCommand: /usr/local/sbin/fd-sync
 sudoUser: www-data
 
 ## some admin roles: give admin(s) sudo access
-dn: cn=Admins,ou=sudoers,dc=intern
+dn: cn=Admins,ou=sudoers,@LDAP_DOMAIN@
 objectClass: top
 objectClass: sudoRole
 description: sudo access all machines
@@ -239,7 +239,7 @@ sudoRunAs: ALL
 sudoCommand: ALL
 sudoUser: admin
 
-dn: cn=ClientAdmins,ou=sudoers,dc=intern
+dn: cn=ClientAdmins,ou=sudoers,@LDAP_DOMAIN@
 objectClass: top
 objectClass: sudoRole
 description: sudo access all clients

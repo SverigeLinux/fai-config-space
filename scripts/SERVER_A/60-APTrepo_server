@@ -76,7 +76,7 @@ Key-Length: 1024
 Key-Usage: sign
 Name-Real: SverigeLinux
 Name-Comment: ARCHIVE KEY
-Name-Email: root@mainserver.intern
+Name-Email: root@mainserver.$SETDOMAIN
 Expire-Date: 0
 %commit
 %echo done

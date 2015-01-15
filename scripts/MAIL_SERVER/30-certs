@@ -7,7 +7,7 @@
 set -e
 
 TEMPLATE="${target}/usr/share/ssl-cert/ssleay.cnf"
-HostName="${HOSTNAME}.intern"
+HostName="${HOSTNAME}.${SETDOMAIN}"
 
 ## Activate TLS for exim:
 FILE=/etc/exim4/conf.d/main/000_localmacros
@@ -20,7 +20,7 @@ CONF="/etc/exim4/exim.cnf"
 
 if [ ! -f $target/$CERT ] || [ ! -f $target/$KEY ]; then
     sed -e s#@HostName@#"$HostName"# $TEMPLATE > ${target}/$CONF
-    echo "subjectAltName=DNS:$HostName,DNS:mail.intern" >> ${target}/$CONF
+    echo "subjectAltName=DNS:$HostName,DNS:mail.${SETDOMAIN}" >> ${target}/$CONF
     $ROOTCMD openssl req -config $CONF -new -x509 -days 7000 -nodes -out $CERT -keyout $KEY
     $ROOTCMD chmod 640 $KEY $CERT $CONF
     $ROOTCMD chown root:Debian-exim $KEY $CERT
@@ -36,7 +36,7 @@ CONF="/etc/dovecot/dovecot.cnf"
 
 if [ ! -f ${target}/$CONF ] ; then
     sed -e s#@HostName@#"$HostName"# $TEMPLATE > ${target}/$CONF
-    echo "subjectAltName=DNS:$HostName,DNS:mail.intern" >> ${target}/$CONF
+    echo "subjectAltName=DNS:$HostName,DNS:mail.${SETDOMAIN}" >> ${target}/$CONF
     $ROOTCMD openssl req -config $CONF -new -x509 -days 7000 -nodes -out $CERT -keyout $KEY
     $ROOTCMD chmod 640 $KEY $CERT $CONF
     $ROOTCMD chown root:dovecot $KEY $CERT

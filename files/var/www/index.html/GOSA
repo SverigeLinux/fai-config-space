@@ -5,19 +5,19 @@
 <p>When accessing the server from another network, set the mainservers IP address as nameserver in /etc/resolv.conf or similar. Otherwise the name
 resolving will not work as expected.</p>
 
-<p>Consider <a href="https://www.intern/fusiondirectory/password.php">changing
+<p>Consider <a href="https://www.@SETDOMAIN@/fusiondirectory/password.php">changing
     your password</a> after the first login.</p>
 
 
 <hr/>
 <h2>Available services:</h2>
 <ul>
-<li><a href="https://www.intern/fusiondirectory">Fusion Directory System Administration</a></li>
-<li><a href="https://print.intern:631">CUPS Print-Server Administration</a></li>
-<li><a href="https://syslog.intern/icinga">ICINGA System Monitoring</a></li>
-<li><a href="https://syslog.intern/munin">Munin System Monitoring</a></li>
-<li><a href="https://owncloud.intern/owncloud">ownCloud storage</a></li>
-<li><a href="https://mail.intern/roundcube">Roundcube webmail</a></li>
+<li><a href="https://www.@SETDOMAIN@/fusiondirectory">Fusion Directory System Administration</a></li>
+<li><a href="https://print.@SETDOMAIN@:631">CUPS Print-Server Administration</a></li>
+<li><a href="https://syslog.@SETDOMAIN@/icinga">ICINGA System Monitoring</a></li>
+<li><a href="https://syslog.@SETDOMAIN@/munin">Munin System Monitoring</a></li>
+<li><a href="https://owncloud.@SETDOMAIN@/owncloud">ownCloud storage</a></li>
+<li><a href="https://mail.@SETDOMAIN@/roundcube">Roundcube webmail</a></li>
 </ul>
 SverigeLinux is built on the 
 <a href="http://wiki.debian.org/DebianLAN">Debian-LAN</a> foundation.

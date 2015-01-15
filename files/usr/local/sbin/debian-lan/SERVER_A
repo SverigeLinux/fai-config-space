@@ -94,7 +94,7 @@ add2log () {
     CONFDIR='/etc/munin/munin-conf.d/'
     if [ -d $CONFDIR ] && ! grep -sq ${MACHINE} $CONFDIR/nodes.conf ; then
         cat >> $CONFDIR/nodes.conf <<EOF
-[${MACHINE}.intern]
+[${MACHINE}.@SETDOMAIN@]
      address ${MACHINE}
 
 EOF
@@ -168,7 +168,7 @@ case $COMMAND in
                     sed -i "s%$USERID%\# $USERID\t ${PASSWD} <-- new password | %" $1
                 fi
                 adduserLDAP $USERID
-                USERDN="dn=uid=$USERID,ou=people,dc=intern"
+                USERDN="dn=uid=$USERID,ou=people,@LDAP_DOMAIN@"
                 kadmin.local -q "add_principal -pw "$PASSWD" -x $USERDN $USERID"
 		echo
             done
@@ -184,7 +184,7 @@ case $COMMAND in
             for USERID in $@ ; do
                 echo "---------------- $USERID ----------------"
                 adduserLDAP $USERID
-                USERDN="dn=uid=$USERID,ou=people,dc=intern"
+                USERDN="dn=uid=$USERID,ou=people,@LDAP_DOMAIN@"
                 kadmin.local -q "add_principal -x $USERDN $USERID"
             done
         fi

@@ -35,7 +35,7 @@ sizelimit 500
 # for indexing.
 tool-threads 1
 
-defaultsearchbase "dc=intern"
+defaultsearchbase "@LDAP_DOMAIN@"
 
 security update_ssf=128  simple_bind=128
 
@@ -50,8 +50,8 @@ backend		hdb
 database	hdb
 
 # First database
-suffix		"dc=intern"
-rootdn		"cn=admin,dc=intern"
+suffix		"@LDAP_DOMAIN@"
+rootdn		"cn=admin,@LDAP_DOMAIN@"
 # Where the database file are physically stored
 directory	"/var/lib/ldap"
 
@@ -94,7 +94,7 @@ checkpoint      512 30
 
 ## map authentication via gssapi on user dn:
 authz-regexp "uid=([^,]*),cn=gssapi,cn=auth"
-        "ldap:///dc=intern??sub?(uid=$1)"
+        "ldap:///@LDAP_DOMAIN@??sub?(uid=$1)"
 
 access to attrs=userPassword
        by anonymous auth
@@ -102,18 +102,18 @@ access to attrs=userPassword
        by * none
 
 ################# Kerberos-KDC access ##################
-access to dn.subtree="cn=kerberos,dc=intern"
-       by dn.exact="cn=kdc,cn=kerberos,dc=intern"    read
-       by dn.exact="cn=kadmin,cn=kerberos,dc=intern" write
+access to dn.subtree="cn=kerberos,@LDAP_DOMAIN@"
+       by dn.exact="cn=kdc,cn=kerberos,@LDAP_DOMAIN@"    read
+       by dn.exact="cn=kadmin,cn=kerberos,@LDAP_DOMAIN@" write
        by * none
 
 access to attrs=krbPrincipalName,krbLastPwdChange,krbPrincipalKey,krbExtraData
-       by dn.exact="cn=kdc,cn=kerberos,dc=intern"     read
-       by dn.exact="cn=kadmin,cn=kerberos,dc=intern"  write
+       by dn.exact="cn=kdc,cn=kerberos,@LDAP_DOMAIN@"     read
+       by dn.exact="cn=kadmin,cn=kerberos,@LDAP_DOMAIN@"  write
        by self read
        by *    auth
 
 ## Default access; kadmin needs full access:
 access to *
-       by dn.exact="cn=kadmin,cn=kerberos,dc=intern" write
+       by dn.exact="cn=kadmin,cn=kerberos,@LDAP_DOMAIN@" write
        by * read

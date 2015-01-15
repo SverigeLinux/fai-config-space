@@ -10,7 +10,7 @@ CERT="/etc/ssl/certs/ssl-cert-snakeoil.pem"
 KEY="/etc/ssl/private/ssl-cert-snakeoil.key"
 CONF="/etc/apache2/ssl-crt.cnf"
 TEMPLATE="${target}/usr/share/ssl-cert/ssleay.cnf"
-HostName="${HOSTNAME}.intern"
+HostName="${HOSTNAME}.${SETDOMAIN}"
 
 ## Overwrite existing certificate only when installing:
 if [ "$FAI_ACTION" != "install" ] && [ "$CONVERT" != "true" ] ; then
@@ -21,7 +21,7 @@ if [ "$FAI_ACTION" != "install" ] && [ "$CONVERT" != "true" ] ; then
 fi
 
 sed -e s#@HostName@#"$HostName"# $TEMPLATE > ${target}/$CONF
-echo "subjectAltName=DNS:$HostName,DNS:www.intern,DNS:syslog.intern,DNS:print.intern" >> ${target}/$CONF
+echo "subjectAltName=DNS:$HostName,DNS:www.${SETDOMAIN},DNS:syslog.${SETDOMAIN},DNS:print.${SETDOMAIN}" >> ${target}/$CONF
 
 $ROOTCMD openssl req -config $CONF -new -x509 -days 7000 -nodes -out $CERT -keyout $KEY
 
