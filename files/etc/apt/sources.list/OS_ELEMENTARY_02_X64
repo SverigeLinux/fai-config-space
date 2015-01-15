@@ -1,0 +1,41 @@
+## Main Repositories 
+deb http://10.0.0.1:9999/ppa.launchpad.net/elementary-os/stable/ubuntu precise main
+deb-src http://10.0.0.1:9999/ppa.launchpad.net/elementary-os/stable/ubuntu precise main
+
+deb http://10.0.0.1:9999/ppa.launchpad.net/elementary-os/os-patches/ubuntu precise main
+deb-src http://10.0.0.1:9999/ppa.launchpad.net/elementary-os/os-patches/ubuntu precise main
+
+deb http://10.0.0.1:9999/se.archive.ubuntu.com/ubuntu/ precise main restricted 
+deb-src http://10.0.0.1:9999/se.archive.ubuntu.com/ubuntu/ precise main restricted 
+
+## Major bug fix updates produced after the final release of the 
+## distribution. 
+deb http://10.0.0.1:9999/se.archive.ubuntu.com/ubuntu/ precise-updates main restricted 
+deb-src http://10.0.0.1:9999/se.archive.ubuntu.com/ubuntu/ precise-updates main restricted 
+
+## Universe Repositories 
+deb http://10.0.0.1:9999/se.archive.ubuntu.com/ubuntu/ precise universe 
+deb-src http://10.0.0.1:9999/se.archive.ubuntu.com/ubuntu/ precise universe 
+deb http://10.0.0.1:9999/se.archive.ubuntu.com/ubuntu/ precise-updates universe 
+deb-src http://10.0.0.1:9999/se.archive.ubuntu.com/ubuntu/ precise-updates universe 
+
+## Multiverse Repositories 
+deb http://10.0.0.1:9999/se.archive.ubuntu.com/ubuntu/ precise multiverse 
+deb-src http://10.0.0.1:9999/se.archive.ubuntu.com/ubuntu/ precise multiverse 
+deb http://10.0.0.1:9999/se.archive.ubuntu.com/ubuntu/ precise-updates multiverse 
+deb-src http://10.0.0.1:9999/se.archive.ubuntu.com/ubuntu/ precise-updates multiverse 
+
+## Security Updates 
+deb http://10.0.0.1:9999/security.ubuntu.com/ubuntu precise-security main restricted 
+deb-src http://10.0.0.1:9999/security.ubuntu.com/ubuntu precise-security main restricted 
+deb http://10.0.0.1:9999/security.ubuntu.com/ubuntu precise-security universe 
+deb-src http://10.0.0.1:9999/security.ubuntu.com/ubuntu precise-security universe 
+deb http://10.0.0.1:9999/security.ubuntu.com/ubuntu precise-security multiverse 
+deb-src http://10.0.0.1:9999/security.ubuntu.com/ubuntu precise-security multiverse
+
+# FAI Repository 
+deb http://10.0.0.1:9999/fai-project.org/download squeeze koeln
+
+# Backports
+deb http://10.0.0.1:9999/archive.ubuntu.com/ubuntu precise-backports main restricted universe multiverse
+deb-src http://10.0.0.1:9999/archive.ubuntu.com/ubuntu precise-backports main restricted universe multiverse

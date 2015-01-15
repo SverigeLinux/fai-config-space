@@ -1,0 +1,21 @@
+#! /bin/bash
+# Import custom apt sources.list and apt keys.
+
+echo "Preparing apt"
+fcopy -v /etc/apt/secring.gpg
+fcopy -v /etc/apt/sources.list
+fcopy -v /etc/apt/trustdb.gpg
+fcopy -v /etc/apt/trusted.gpg
+
+# Initialize apt-key before apt is called the first time
+if [ -x $target/usr/bin/apt-key ]; then
+  echo "Apt: list of keys"
+  $ROOTCMD /usr/bin/apt-key list
+fi
+
+# Copy the console-setup file early to avoid unnecessary
+# error messages
+fcopy -v /etc/default/console-setup
+
+# join Workplays WiFi-network
+fcopy -v /etc/NetworkManager/system-connections/Workplays
