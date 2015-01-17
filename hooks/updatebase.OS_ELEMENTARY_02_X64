@@ -16,6 +16,3 @@ fi
 # Copy the console-setup file early to avoid unnecessary
 # error messages
 fcopy -v /etc/default/console-setup
-
-# join Workplays WiFi-network
-fcopy -v /etc/NetworkManager/system-connections/Workplays

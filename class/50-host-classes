@@ -87,6 +87,8 @@ case $HOSTNAME in
         echo "DEBIAN $WORKSTATION_A XORG DISKLESS_CLIENT"
         ## skip GRUB_PC below:
         exit 0 ;;
+    elementary*)
+        echo "BC_BASE DHCPC LVM5_A OS_ELEMENTARY_02_X64" ;;
     *)
         ## Unknown machines are installed as roaming workstation by default:
         echo "FAIBASE DEBIAN DHCPC $WORKSTATION_A XORG DESKTOP ROAMING" ;;

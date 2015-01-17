@@ -22,6 +22,7 @@ include /etc/ldap/schema/fusiondirectory/sudo-fd-conf.schema
 include /etc/ldap/schema/fusiondirectory/service-fd.schema
 include /etc/ldap/schema/fusiondirectory/systems-fd-conf.schema
 include /etc/ldap/schema/fusiondirectory/systems-fd.schema
+include /etc/ldap/schema/fusiondirectory/dhcp-fd.schema
 
 # include /etc/ldap/schema/fusiondirectory/
 # include /etc/ldap/schema/fusiondirectory/

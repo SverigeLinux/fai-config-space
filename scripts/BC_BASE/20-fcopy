@@ -1,0 +1,7 @@
+#! /bin/bash
+
+# Copy files from $FAI/files
+fcopy -v /etc/network/interfaces
+fcopy -v /etc/ssh_known_hosts
+fcopy -v /etc/default/locale
+fcopy -v /etc/default/keyboard
