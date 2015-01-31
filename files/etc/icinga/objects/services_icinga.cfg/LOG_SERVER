@@ -36,8 +36,8 @@ define service{
 
 define service{
         hostgroup_name         dns-servers
-        service_description    DNS intern
-        check_command          check_dig!'domain.intern'
+        service_description    DNS @SETDOMAIN@
+        check_command          check_dig!'domain.@SETDOMAIN@'
         use                    generic-service
 }
 
@@ -65,7 +65,7 @@ define service{
 define service{
         hostgroup_name         ldap-servers
         service_description    LDAP
-        check_command          debian-lan_check_ldap!dc=intern
+        check_command          debian-lan_check_ldap!@LDAP_DOMAIN@
         use                    generic-service
 }
 
@@ -100,7 +100,7 @@ define service {
 define service{
         host                   mainserver
         service_description    Squid
-        check_command          check_squid!3128!'http://www.intern'
+        check_command          check_squid!3128!'http://www.@SETDOMAIN@'
         use                    generic-service
 }
 

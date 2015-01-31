@@ -75,7 +75,7 @@ use-host-decl-names   on;
 
 include "/etc/dhcp/ddns.key";
 
-zone ${DOMPREFIX2}.${DOMPREFIX1}. {
+zone ${SETDOMAIN}. {
   primary dns;
   key DHCP_UPDATER;
 }

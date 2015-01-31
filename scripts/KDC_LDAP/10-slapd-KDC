@@ -3,7 +3,7 @@
 set -e
 
 if ifclass GOSA ; then
-    LDIFS="/etc/ldap/root.ldif /etc/ldap/krb5.ldif /etc/ldap/autofs.ldif /etc/ldap/gosa.ldif"
+    LDIFS="/etc/ldap/root.ldif /etc/ldap/krb5.ldif /etc/ldap/autofs.ldif /etc/ldap/gosa.ldif /etc/ldap/dhcpd.ldif"
     ## sudo schema:
     cp -n $target/usr/share/doc/sudo-ldap/schema.OpenLDAP \
 	$target/etc/ldap/schema/fusiondirectory/sudo.schema
@@ -27,6 +27,12 @@ $ROOTCMD sed -i s:@LDAP_DOMAIN@:$LDAP_DOMAIN:g /etc/ldap/krb5.ldif
 $ROOTCMD sed -i s:@LDAP_DOMAIN@:$LDAP_DOMAIN:g /etc/ldap/autofs.ldif
 $ROOTCMD sed -i s:@SETDOMAIN@:$SETDOMAIN:g /etc/ldap/autofs.ldif
 $ROOTCMD sed -i s:@LDAP_DOMAIN@:$LDAP_DOMAIN:g /etc/ldap/gosa.ldif
+$ROOTCMD sed -i s:@SETDOMAIN@:$SETDOMAIN:g /etc/ldap/dhcpd.ldif
+$ROOTCMD sed -i s:@LDAP_DOMAIN@:$LDAP_DOMAIN:g /etc/ldap/dhcpd.ldif
+$ROOTCMD sed -i s:@SUBNET@:$SUBNET:g /etc/ldap/dhcpd.ldif
+$ROOTCMD sed -i s:@numbits@:$numbits:g /etc/ldap/dhcpd.ldif
+$ROOTCMD sed -i s:@PREFIX@:$PREFIX:g /etc/ldap/dhcpd.ldif
+$ROOTCMD sed -i s:@MAINSERVER_IPADDR@:$MAINSERVER_IPADDR:g /etc/ldap/dhcpd.ldif
 $ROOTCMD sed -i s:@LDAP_DOMAIN@:$LDAP_DOMAIN:g /etc/ldap/slapd.conf
 
 DN_KRB_CONT=`$ROOTCMD awk '/^dn: cn=kerberos,/ {print $2}' /etc/ldap/krb5.ldif`

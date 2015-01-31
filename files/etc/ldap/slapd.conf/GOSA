@@ -120,6 +120,11 @@ index  krbPrincipalName       pres,sub,eq
 index  cn                     pres,sub,eq
 index  uid                    pres,sub,eq
 index  sudoUser               eq,sub
+index  dhcpHWAddress          eq
+index  dhcpClassData          eq
+index  dhcpPrimaryDN          eq
+index  dhcpSecondaryDN        eq
+
 
 # Save the time that the entry gets modified, for database #1
 lastmod         on

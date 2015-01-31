@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # add a demo user account
-if [ -n "$ROOTPW" ] && ! $ROOTCMD getent passwd demo ; then
-    $ROOTCMD adduser --disabled-login --gecos "Workplays" workplays
-    $ROOTCMD usermod -p "$ROOTPW" workplays
+if [ -n "$ROOTPW" ] && ! $ROOTCMD getent passwd sverigelinux ; then
+    $ROOTCMD adduser --disabled-login --gecos "SverigeLinux" sverigelinux
+    $ROOTCMD usermod -p "$ROOTPW" sverigelinux
 fi

@@ -10,6 +10,10 @@ fcopy /etc/icinga/objects/hostgroups_icinga.cfg
 fcopy /etc/icinga/objects/services_icinga.cfg
 fcopy /etc/icinga/objects/commands.cfg
 
+$ROOTCMD sed -i "s/@SETDOMAIN@/$SETDOMAIN/g" /etc/icinga/objects/services_icinga.cfg
+$ROOTCMD sed -i "s/@LDAP_DOMAIN@/$LDAP_DOMAIN/g" /etc/icinga/objects/services_icinga.cfg
+
+
 if [ "$FAI_ACTION" == "install" ] || [ "$CONVERT" == "true" ] ; then
     ## Machines are added here, so do not overwrite them on softupdate:
     fcopy /etc/icinga/objects/hosts.cfg

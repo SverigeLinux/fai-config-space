@@ -9,7 +9,6 @@ description: SverigeLinux
 dc: @DOMCOMP@
 o: SverigeLinux
 labeledURI: http://www/ LDAP for SverigeLinux
-# gosaAclEntry: 0:subtree:Y249YWRtaW4sb3U9YWNscm9sZXMsZGM9aW50ZXJu:dWlkPWFkbWluLG91PXBlb3BsZSxkYz1pbnRlcm4=
 gosaAclEntry: 0:subtree:@GOSA_ACL_ROLE@
 
 dn: cn=admin,@LDAP_DOMAIN@

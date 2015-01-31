@@ -1,42 +1,42 @@
 ################## Autofs ###########################
 
-## base dn for autofs is 'ou=autofs,@LDAP_DOMAIN@'
-dn: ou=autofs,@LDAP_DOMAIN@
+## base dn for autofs is 'ou=automount,@LDAP_DOMAIN@'
+dn: ou=automount,@LDAP_DOMAIN@
 objectClass: top
 objectClass: organizationalUnit
 ou: automount
 
 ##
-dn: ou=auto.master,ou=autofs,@LDAP_DOMAIN@
+dn: ou=auto.master,ou=automount,@LDAP_DOMAIN@
 objectClass: top
 objectClass: automountMap
 ou: auto.master
 
 ## reference to indirect automounts:
-dn: cn=/lan,ou=auto.master,ou=autofs,@LDAP_DOMAIN@
+dn: cn=/lan,ou=auto.master,ou=automount,@LDAP_DOMAIN@
 objectClass: automount
 cn: /lan
-automountInformation: ldap:ou=auto.lan,ou=autofs,@LDAP_DOMAIN@
+automountInformation: ldap:ou=auto.lan,ou=automount,@LDAP_DOMAIN@
 
 ## indirect mounts:
-dn: ou=auto.lan,ou=autofs,@LDAP_DOMAIN@
+dn: ou=auto.lan,ou=automount,@LDAP_DOMAIN@
 objectClass: top
 objectClass: automountMap
 ou: auto.lan
 
 ## the /lan/mainserver submount
-dn: cn=mainserver,ou=auto.lan,ou=autofs,@LDAP_DOMAIN@
+dn: cn=mainserver,ou=auto.lan,ou=automount,@LDAP_DOMAIN@
 objectClass: automount
 cn: mainserver
-automountInformation: -fstype=autofs --timeout=60 ldap:ou=auto.mainserver,ou=autofs,@LDAP_DOMAIN@
+automountInformation: -fstype=autofs --timeout=60 ldap:ou=auto.mainserver,ou=automount,@LDAP_DOMAIN@
 
-dn: ou=auto.mainserver,ou=autofs,@LDAP_DOMAIN@
+dn: ou=auto.mainserver,ou=automount,@LDAP_DOMAIN@
 objectClass: top
 objectClass: automountMap
 ou: auto.mainserver
 
 ## the /lan/mainserver/* mount points
-dn: cn=/,ou=auto.mainserver,ou=autofs,@LDAP_DOMAIN@
+dn: cn=/,ou=auto.mainserver,ou=automount,@LDAP_DOMAIN@
 objectClass: automount
 cn: /
 automountInformation: -fstype=nfs4,sec=krb5i,nodev,nosuid mainserver.@SETDOMAIN@:/&
