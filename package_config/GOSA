@@ -13,3 +13,5 @@ fusiondirectory-plugin-autofs
 fusiondirectory-plugin-autofs-schema
 fusiondirectory-plugin-dhcp
 fusiondirectory-plugin-dhcp-schema
+fusiondirectory-plugin-dns
+fusiondirectory-plugin-dns-schema

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#
+# Make a FAI-NFSROOT install GUI
+#
+
+NFSROOT=/srv/fai/nfsroot/live/filesystem.dir/
+
+chroot $NFSROOT apt-get install lxde lightdm unclutter python-pygame
+
+# Add appropriate lines to /usr/sbin/fai to start LXDE at boot
+chroot $NFSROOT cp /usr/sbin/fai /usr/sbin/fai.old
+chroot $NFSROOT sed -i 's/.*udev start.*/&\n                \/etc\/init\.d\/dbus start\n                \/etc\/init\.d\/lightdm start\n                unclutter \-display 0\:0 \-noevents \-grab/' /usr/sbin/fai
+
+sed -i 's/#autologin-user=/autologin-user=root/g' $NFSROOT/etc/lightdm/lightdm.conf
+sed -i 's/#autologin-user-timeout=0/autologin-user-timeout=0/g' $NFSROOT/etc/lightdm/lightdm.conf
+
+chroot $NFSROOT groupadd autologin
+chroot $NFSROOT gpasswd -a root autologin
+
+sed -i 's/wallpaper_mode=1/wallpaper_mode=0/g' $NFSROOT/etc/xdg/pcmanfm/LXDE/pcmanfm.conf
+
+echo "/root/pxegui/run.sh" > $NFSROOT/etc/xdg/lxsession/LXDE/autostart  
+
+mv $NFSROOT/etc/xdg/autostart $NFSROOT/etc/xdg/autostart.old/
+mkdir $NFSROOT/etc/xdg/autostart/
+
+cp -r /root/installation/pxegui $NFSROOT/root/

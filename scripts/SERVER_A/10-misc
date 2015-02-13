@@ -50,11 +50,13 @@ iface eth0 inet static
       address   ${MAINSERVER_IPADDR}
       netmask   ${NETMASK}
       broadcast ${BROADCAST_LAN}
+      dns-nameservers ${GATEWAY} 8.8.8.8
 EOF
 
 if [ "$MAINSERVER_IPADDR" != "$GATEWAY" ] ; then
     cat >> $target/etc/network/interfaces <<EOF
       gateway   ${GATEWAY}
+      dns-nameservers ${GATEWAY} 8.8.8.8
 EOF
 else
     if $ROOTCMD which dansguardian > /dev/null ; then

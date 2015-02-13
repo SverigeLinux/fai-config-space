@@ -180,6 +180,23 @@ if [ "$inp" = "y" ] ; then
     setup_PXEinstaller
 fi
 
+## Setup/update nfsroot for FAI:
+cat <<EOF
+
+================================================================================
+The nfsroot for FAI can be equipped with a graphical user interface (GUI)
+to hide the complexity of FAI for ordinary users.
+
+Would you like to install that now?
+If unanswered, this script will exit after $TIMEOUT seconds.
+
+EOF
+
+read -e -t $TIMEOUT -n 1 -p "Install GUI for the nfsroot for FAI now? [y|N]: " inp
+if [ "$inp" = "y" ] ; then
+    sh /etc/init.d/create-nfsroot-gui.sh
+fi
+
 ## The following code is activated if diskless machines
 ## are to be served.  Do not change the following line:
 exit 0  ##DISKLESS_SERVER##

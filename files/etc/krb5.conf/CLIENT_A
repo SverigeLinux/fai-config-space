@@ -1,0 +1,17 @@
+[libdefaults]
+        default_realm = @KRB_REALM@
+
+[realms]
+        @KRB_REALM@ = {
+                kdc = kerberos
+                admin_server = kerberos
+        }
+
+[domain_realm]
+        .@SETDOMAIN@ = @KRB_REALM@
+        @SETDOMAIN@ = @KRB_REALM@
+
+[logging]
+        kdc = FILE:/var/log/kdc.log
+        kadmin = FILE:/var/log/kadmin.log
+        default = FILE:/var/log/krb5.log

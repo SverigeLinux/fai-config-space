@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ftar /root/installation/
+fcopy /etc/init.d/create-nfsroot-gui.sh
