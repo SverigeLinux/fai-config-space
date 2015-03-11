@@ -80,7 +80,7 @@ case $HOSTNAME in
     workstation*)
         ## You might want to add some localization class like:
         # echo "FAIBASE DEBIAN DHCPC $WORKSTATION_A XORG DESKTOP GERMAN" ;;
-        echo "FAIBASE DEBIAN DHCPC $WORKSTATION_A XORG DESKTOP" ;;
+        echo "FAIBASE DEBIAN DHCPC $WORKSTATION_A XORG DESKTOP SVERIGELINUX" ;;
     diskless)
         ## You might want to add some localization class like:
         # echo "DEBIAN $WORKSTATION_A XORG DISKLESS_CLIENT GERMAN"
@@ -88,7 +88,7 @@ case $HOSTNAME in
         ## skip GRUB_PC below:
         exit 0 ;;
     elementary*)
-        echo "BC_BASE DHCPC LVM5_A OS_ELEMENTARY_02_X64" ;;
+        echo "BC_BASE DHCPC LVM5_A OS_ELEMENTARY_02_X64 SVERIGELINUX" ;;
     *)
         ## Unknown machines are installed as roaming workstation by default:
         echo "FAIBASE DEBIAN DHCPC $WORKSTATION_A XORG DESKTOP ROAMING" ;;

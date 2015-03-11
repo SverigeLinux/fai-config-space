@@ -21,7 +21,7 @@ sed -i s/@LDAP_ADMIN_PW_BASE64@/$LDAP_ADMIN_PW_BASE64/g ${target}/root/owncloud_
 # fi
 
 # Rename skeleton folders for owncloud for swedish users
-mv ${target}/var/www/owncloud/core/skeleton/documents ${target}/var/www/owncloud/core/skeleton/Dokument
-mv ${target}/var/www/owncloud/core/skeleton/music ${target}/var/www/owncloud/core/skeleton/Musik
-mv ${target}/var/www/owncloud/core/skeleton/photos ${target}/var/www/owncloud/core/skeleton/Bilder
+mv ${target}/var/www/owncloud/core/skeleton/Documents ${target}/var/www/owncloud/core/skeleton/Dokument
+# mv ${target}/var/www/owncloud/core/skeleton/music ${target}/var/www/owncloud/core/skeleton/Musik
+mv ${target}/var/www/owncloud/core/skeleton/Photos ${target}/var/www/owncloud/core/skeleton/Bilder
 

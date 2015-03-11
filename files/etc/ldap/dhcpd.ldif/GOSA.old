@@ -1,0 +1,38 @@
+# servers, systems, @SETDOMAIN@
+dn: ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: organizationalUnit
+ou: servers
+
+# mainserver, servers, systems, @SETDOMAIN@
+dn: cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+cn: mainserver
+gotoMode: active
+ipHostNumber: @MAINSERVER_IPADDR@
+dhcpServiceDN: cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: goServer
+objectClass: GOhard
+objectClass: dhcpServer
+
+# dhcp, debian-dhcp, servers, systems, @SETDOMAIN@
+dn: cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+cn: dhcp
+objectClass: top
+objectClass: dhcpService
+dhcpPrimaryDN: cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpStatements: default-lease-time 600
+dhcpStatements: max-lease-time 1200
+dhcpStatements: authoritative
+dhcpStatements: ddns-update on
+dhcpStatements: ddns-update-style interim
+dhcpStatements: update-static-leases on
+dhcpStatements: use-host-decl-names on
+
+# @SUBNET@, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=@SUBNET@,cn=dhcp,cn=mainserver,ou=servers,ou=systems, @LDAP_DOMAIN@
+cn: @SUBNET@
+objectClass: top
+objectClass: dhcpSubnet
+objectClass: dhcpOptions
+dhcpNetMask: @numbits@
+dhcpRange: @PREFIX@.100 @PREFIX@.200

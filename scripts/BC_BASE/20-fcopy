@@ -5,3 +5,4 @@ fcopy -v /etc/network/interfaces
 fcopy -v /etc/ssh_known_hosts
 fcopy -v /etc/default/locale
 fcopy -v /etc/default/keyboard
+fcopy -v /etc/default/console_setup

@@ -33,6 +33,9 @@ PWFILE="$DATADIR/LDAPadminPWD"
 PW=`cat $target/$PWFILE`
 sed -i "s#@LDAP_ADMIN_PW@#$PW#" $target/$GOSACONF
 
+# Insert LDAP admin password in dhcpd.conf 
+sed -i "s#@LDAP_ADMIN_PW@#$PW#" $target/etc/dhcp/dhcpd.conf
+
 ## Encrypt password:
 # $ROOTCMD fusiondirectory-setup --check-config --yes
 

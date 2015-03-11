@@ -30,7 +30,8 @@ fi
 # different subnet than during the installation
 fcopy -iUM /etc/resolv.conf
 
-if [ -e $target/etc/resolv.conf ];
+if [ -e $target/etc/resolv.conf ]
+  then
     sed -i s#@SETDOMAIN@#$SETDOMAIN#g $target/etc/resolv.conf
 fi
 

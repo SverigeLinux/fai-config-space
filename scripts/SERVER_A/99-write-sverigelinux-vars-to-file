@@ -6,7 +6,7 @@ cat >> $FAIDIR/SVERIGELINUX.var << EOF
 # Log user to store fai log files to remote
 FAILOGUSER="fai"
 # LDAP 
-LDAP_DOMAIN="$LDAPDOMAIN"
+LDAP_DOMAIN="$LDAP_DOMAIN"
 # Domain name for the installation
 SETDOMAIN="$SETDOMAIN"
 # Kerberos realm for the installation

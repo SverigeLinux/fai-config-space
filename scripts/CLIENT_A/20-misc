@@ -34,3 +34,13 @@ ainsl /etc/iceweasel/pref/iceweasel.js "pref(\"browser.startup.homepage\", \"dat
 ainsl /etc/iceweasel/pref/iceweasel.js 'pref("browser.cache.offline.enable", false);'
 #ainsl /etc/iceweasel/pref/iceweasel.js 'pref("browser.safebrowsing.enabled", false);'
 #ainsl /etc/iceweasel/pref/iceweasel.js 'pref("browser.safebrowsing.malware.enabled", false);'
+
+
+## If class KDC_LDAP is set, exit script
+ifclass KDC_LDAP || exit 0
+
+## Client_A Kerberos configuration
+fcopy /etc/krb5.conf
+$ROOTCMD sed -i s:@SETDOMAIN@:$SETDOMAIN:g $target/etc/krb5.conf
+$ROOTCMD sed -i s:@KRB_REALM@:$KRB_REALM:g $target/etc/krb5.conf
+

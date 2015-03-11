@@ -1,3 +1,18 @@
+# systems, @SETDOMAIN@
+# dn: ou=systems,@LDAP_DOMAIN@
+# objectClass: organizationalUnit
+# ou: systems
+
+# configs, systems, @SETDOMAIN@
+# dn: ou=configs,ou=systems,@LDAP_DOMAIN@
+# objectClass: organizationalUnit
+# ou: configs
+
+# fusiondirectory, configs, systems, @SETDOMAIN@
+# dn: ou=fusiondirectory,ou=configs,ou=systems,@LDAP_DOMAIN@
+# objectClass: organizationalUnit
+# ou: fusiondirectory
+
 # servers, systems, @SETDOMAIN@
 dn: ou=servers,ou=systems,@LDAP_DOMAIN@
 objectClass: organizationalUnit
@@ -14,7 +29,7 @@ objectClass: goServer
 objectClass: GOhard
 objectClass: dhcpServer
 
-# dhcp, debian-dhcp, servers, systems, @SETDOMAIN@
+# dhcp, mainserver, servers, systems, @SETDOMAIN@
 dn: cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
 cn: dhcp
 objectClass: top
@@ -23,16 +38,193 @@ dhcpPrimaryDN: cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
 dhcpStatements: default-lease-time 600
 dhcpStatements: max-lease-time 1200
 dhcpStatements: authoritative
-dhcpStatements: ddns-update on
-dhcpStatements: ddns-update-style interim
+# dhcpStatements: ddns-update on
+# dhcpStatements: ddns-update-style interim
 dhcpStatements: update-static-leases on
 dhcpStatements: use-host-decl-names on
 
-# @SUBNET@, dhcp, mainserver, servers, systems, @SETDOMAIN@
-dn: cn=@SUBNET@,cn=dhcp,cn=mainserver,ou=servers,ou=systems, @LDAP_DOMAIN@
-cn: @SUBNET@
+# @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpOption: routers @PREFIX@.1
+dhcpOption: domain-name "@SETDOMAIN@"
+dhcpOption: subnet-mask 255.255.255.0
+dhcpOption: broadcast-address @PREFIX@.255
+dhcpOption: domain-name-servers @MAINSERVER_IPADDR@
+dhcpStatements: filename "fai/pxelinux.0"
+dhcpStatements: next-server @MAINSERVER_IPADDR@
+cn: @PREFIX@.0
 objectClass: top
 objectClass: dhcpSubnet
 objectClass: dhcpOptions
-dhcpNetMask: @numbits@
+dhcpNetMask: 24
 dhcpRange: @PREFIX@.100 @PREFIX@.200
+
+# @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+zoneName: @SETDOMAIN@.
+relativeDomainName: @
+dNSClass: IN
+sOARecord: mainserver root.mainserver. 2015022555 3600 1800 720000 6400
+nSRecord: mainserver
+
+# 122.168.192.in-addr.arpa., @SETDOMAIN@., mainserver, servers, system
+ s, @SETDOMAIN@
+dn: zoneName=122.168.192.in-addr.arpa.,zoneName=@SETDOMAIN@.,cn=mainser
+ ver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+zoneName: 122.168.192.in-addr.arpa.
+relativeDomainName: @
+dNSClass: IN
+sOARecord: mainserver root.mainserver. 2015022555 3600 1800 720000 6400
+nSRecord: mainserver
+
+# mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,o
+ u=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: mainserver
+
+# mainserver, mainserver, @SETDOMAIN@., mainserver, servers, systems, 
+ @SETDOMAIN@
+dn: relativeDomainName=mainserver,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: mainserver
+aRecord: @MAINSERVER_IPADDR@
+
+# DHCP_UPDATER, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=DHCP_UPDATER,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+cn: DHCP_UPDATER
+objectClass: top
+objectClass: dhcpTSigKey
+dhcpKeyAlgorithm: HMAC-MD5
+dhcpKeySecret: UL/xDQpMD1FEXzhqTITIag==
+
+# @SETDOMAIN@., dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=@SETDOMAIN@.,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+cn: @SETDOMAIN@.
+objectClass: top
+objectClass: dhcpDnsZone
+dhcpKeyDN: cn=DHCP_UPDATER,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpDnsZoneServer: mainserver
+
+# workstations, systems, @SETDOMAIN@
+dn: ou=workstations,ou=systems,@LDAP_DOMAIN@
+objectClass: organizationalUnit
+ou: workstations
+
+# workstation00, workstations, systems, @SETDOMAIN@
+dn: cn=workstation00,ou=workstations,ou=systems,@LDAP_DOMAIN@
+cn: workstation00
+gotoMode: active
+ipHostNumber: @PREFIX@.50
+macAddress: A1:B2:C3:D4:E5:00
+objectClass: top
+objectClass: gotoWorkstation
+objectClass: GOhard
+
+# workstation00, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=workstation00,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpOption: host-name workstation00
+dhcpStatements: fixed-address @PREFIX@.50
+cn: workstation00
+objectClass: top
+objectClass: dhcpHost
+dhcpHWAddress: ethernet A1:B2:C3:D4:E5:00
+
+# workstation00, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=workstation00,zoneName=@SETDOMAIN@.,cn=mainserve
+ r,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation00
+
+# workstation00, workstation00, @SETDOMAIN@., mainserver, servers, sys
+ tems, @SETDOMAIN@
+dn: relativeDomainName=workstation00,relativeDomainName=workstation00,zoneName
+ =@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation00
+aRecord: @PREFIX@.50
+
+# 50, workstation00, @SETDOMAIN@., mainserver, servers, systems, sveri
+ gelinux.local
+dn: relativeDomainName=50,relativeDomainName=workstation00,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: 122.168.192.in-addr.arpa.
+relativeDomainName: 50
+pTRRecord: workstation00.@SETDOMAIN@.
+
+# workstation01, workstations, systems, @SETDOMAIN@
+dn: cn=workstation01,ou=workstations,ou=systems,@LDAP_DOMAIN@
+cn: workstation01
+gotoMode: active
+ipHostNumber: @PREFIX@.51
+macAddress: A1:B2:C3:D4:E5:01
+objectClass: top
+objectClass: gotoWorkstation
+objectClass: GOhard
+
+# workstation01, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=workstation01,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpOption: host-name workstation01
+dhcpStatements: fixed-address @PREFIX@.51
+cn: workstation01
+objectClass: top
+objectClass: dhcpHost
+dhcpHWAddress: ethernet A1:B2:C3:D4:E5:01
+
+# workstation01, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=workstation01,zoneName=@SETDOMAIN@.,cn=mainserve
+ r,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation01
+
+# workstation01, workstation01, @SETDOMAIN@., mainserver, servers, sys
+ tems, @SETDOMAIN@
+dn: relativeDomainName=workstation01,relativeDomainName=workstation01,zoneName
+ =@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation01
+aRecord: @PREFIX@.51
+
+# 51, workstation01, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=51,relativeDomainName=workstation01,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: 122.168.192.in-addr.arpa.
+relativeDomainName: 51
+pTRRecord: workstation01.@SETDOMAIN@.
+
+# 26, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=26,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: 122.168.192.in-addr.arpa.
+relativeDomainName: 26
+pTRRecord: mainserver.@SETDOMAIN@.
+
+
