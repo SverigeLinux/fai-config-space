@@ -1,0 +1,7 @@
+#! /bin/bash
+
+fcopy -Mv /etc/idmapd.conf
+
+$ROOTCMD sed -i s:@SETDOMAIN@:$SETDOMAIN:g /etc/idmapd.conf
+$ROOTCMD sed -i s:@KRB_REALM@:$KRB_REALM:g /etc/idmapd.conf
+

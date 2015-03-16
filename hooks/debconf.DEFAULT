@@ -7,6 +7,8 @@ FILEDIR=/tmp/debconf
 mkdir $FILEDIR
 cp -r $FAI/debconf /tmp/
 
+sendmon "TASKBEGIN debconf"
+
 # cd /tmp/debconf
 for file in $FILEDIR/*; do
     sed -i s#@LDAP_DOMAIN@#$LDAP_DOMAIN#g "$file"
@@ -16,6 +18,9 @@ done
 
 # Run fai-debconf from the temporary directory
 fai-debconf -v /tmp/debconf
+
+# FIXME: error code should not be 0 by default
+sendmon "TASKEND debconf 0"
 
 # Skip the regular debconf-task
 skiptask debconf

@@ -18,3 +18,8 @@ editfiles:
 	  ## Needed for correct ID mapping:
 	  HashCommentLinesStarting "Domain ="
 	}
+
+        { ${target}/etc/hosts
+          ## Needed for NFS-mount via LDAP + Kerberos
+          AppendIfNoSuchLine "${DNSSRVS} mainserver.${SETDOMAIN}"
+        }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -vx
 
 ## faiconfig:
 fcopy -ir /etc/fai
@@ -37,10 +37,9 @@ ainsl /etc/iceweasel/pref/iceweasel.js 'pref("browser.cache.offline.enable", fal
 
 
 ## If class KDC_LDAP is set, exit script
-ifclass KDC_LDAP || exit 0
-
-## Client_A Kerberos configuration
-fcopy /etc/krb5.conf
-$ROOTCMD sed -i s:@SETDOMAIN@:$SETDOMAIN:g $target/etc/krb5.conf
-$ROOTCMD sed -i s:@KRB_REALM@:$KRB_REALM:g $target/etc/krb5.conf
-
+if ifclass KDC_LDAP ; then
+   exit 0
+else
+   ## Client_A Kerberos configuration
+   fcopy /etc/krb5.conf
+fi

@@ -19,10 +19,10 @@ editfiles:
 	  ReplaceAll "NEED_GSSD=$" With "NEED_GSSD=yes"
 	}
 
-     	{ ${target}/etc/idmapd.conf
-	  ## Needed for correct ID mapping:
-	  HashCommentLinesStarting "Domain ="
-	}
+     	#{ ${target}/etc/idmapd.conf
+	#  ## Needed for correct ID mapping:
+	#  HashCommentLinesStarting "Domain ="
+	#}
 
 	{ ${target}/etc/exports
 	  ## kerberized NFS4:
