@@ -16,6 +16,12 @@ fcopy -m root,root,0770 /usr/local/sbin/gosa-remove
 fcopy -m root,root,0770 /usr/local/sbin/fd-sync
 fcopy -m root,root,0770 /usr/local/sbin/add2gosa
 
+wget https://github.com/twbs/bootstrap/releases/download/v3.3.4/bootstrap-3.3.4-dist.zip --no-check-certificate -O $target/var/www/bootstrap.zip
+unzip $target/var/www/bootstrap.zip -d $target/var/www/
+
+# FIXME - better permissions
+chmod -R 777 $target/var/www/bootstrap-3.3.4-dist/
+
 fcopy /var/www/index.html
 
 # set variables for files

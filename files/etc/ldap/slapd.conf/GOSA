@@ -127,7 +127,8 @@ index  dhcpHWAddress          eq
 index  dhcpClassData          eq
 index  dhcpPrimaryDN          eq
 index  dhcpSecondaryDN        eq
-
+index  zoneName               eq
+index  relativeDomainName     eq
 
 # Save the time that the entry gets modified, for database #1
 lastmod         on

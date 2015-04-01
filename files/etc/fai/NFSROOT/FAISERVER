@@ -10,6 +10,7 @@ console-tools console-common
 iproute udev subversion
 xz-utils
 cupt
+unzip
 
 grub-pc
 cfengine2

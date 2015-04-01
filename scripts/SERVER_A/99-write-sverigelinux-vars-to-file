@@ -4,7 +4,7 @@ FAIDIR="$target/srv/fai/config/class"
 
 cat >> $FAIDIR/SVERIGELINUX.var << EOF
 # Log user to store fai log files to remote
-FAILOGUSER="fai"
+LOGUSER="fai"
 # LDAP 
 LDAP_DOMAIN="$LDAP_DOMAIN"
 # Domain name for the installation
@@ -12,6 +12,6 @@ SETDOMAIN="$SETDOMAIN"
 # Kerberos realm for the installation
 KRB_REALM="$KRB_REALM"
 # Set default root password
-ROOTPW="$ROOTPW"
+ROOTPW=\'$ROOTPW\'
 
 EOF
