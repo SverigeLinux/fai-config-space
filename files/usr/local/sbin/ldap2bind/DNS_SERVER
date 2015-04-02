@@ -1,0 +1,92 @@
+#!/bin/sh
+
+[ -r /etc/default/ldap2zone ] && . /etc/default/ldap2zone
+
+case "$LDAP_URI" in 
+ldap://*|ldaps://*) ;; 
+ *) LDAP_URI="ldap://${LDAP_URI}" ;; 
+ esac
+
+LDAPSEARCH=`which ldapsearch`
+
+if [ -z "${LDAPSEARCH}" ]; then
+        echo "ldapsearch program not in $PATH. Exiting..."
+        exit 1
+fi
+
+LDAP_URI_PARAM=${LDAP_URI:+"-H $LDAP_URI"}
+
+if [ "$ALLOW_NOTIFY" ]; then
+        ALLOW_NOTIFY="$ALLOW_NOTIFY";
+else ALLOW_NOTIFY=;
+fi
+
+if [ "$ALLOW_UPDATE" ]; then
+	ALLOW_UPDATE_PARAM="allow-update {$ALLOW_UPDATE};";
+else ALLOW_UPDATE_PARAM=;
+fi
+
+if [ "$ALLOW_TRANSFER" ]; then
+	ALLOW_TRANSFER_PARAM="allow-transfer {$ALLOW_TRANSFER};";
+else ALLOW_TRANSFER_PARAM=;
+fi
+
+ZONES=`ldapsearch -LLL $LDAP_URI_PARAM -x "(objectClass=dNSZone)" zoneName | grep zoneName: | sort | uniq | awk '{print $2}'`
+ldap2zone=`which ldap2zone`
+rndc=`which rndc`
+
+if [ -z "${ZONES}" ]; then
+	echo "No domains configured. Exiting..."
+	exit 0
+fi
+
+if [ -z "${rndc}" ]; then
+	echo "rndc program not in $PATH. Exiting..."
+	exit 1
+fi
+
+if [ -z "${ldap2zone}" ]; then
+	echo "ldap2zone program not in $PATH. Exiting..."
+	exit 1
+fi
+
+if [ ! -d $BIND_DIR ]; then
+	echo "The directory specified as $BIND_DIR does not exist. Exiting..."
+	exit 1
+fi
+
+if [ ! -d $BIND_DATA ]; then
+        echo "The directory specified as $BIND_DATA does not exist. Exiting..."
+        exit 1
+fi
+
+
+if [ -w $BIND_DIR/named.conf.ldap2zone ]; then
+	>${BIND_DIR}/named.conf.ldap2zone
+	for domain in $ZONES; do
+		cat << EOF >> ${BIND_DIR}/named.conf.ldap2zone
+zone "${domain}" {
+	type master;
+	$ALLOW_NOTIFY
+	file "${BIND_DATA}/${PREFIX}${domain}";
+	$ALLOW_UPDATE_PARAM
+	$ALLOW_TRANSFER_PARAM
+};
+EOF
+	done
+	$rndc reconfig
+fi
+
+for domain in $ZONES; do
+	if $ldap2zone $domain $LDAP_URI $TTL > /tmp/$domain; then
+		lines=$(cat /tmp/$domain | wc -l)
+		[ $lines -gt 1 ] && mv /tmp/$domain $BIND_DATA/${PREFIX}${domain} && chown bind.bind $BIND_DATA/${PREFIX}${domain}
+	fi
+
+	result=$($rndc freeze $domain && $rndc thaw $domain 2>&1)
+	if [ $? -ne 0 ]; then
+                logger -t ldap2bind "Reloading the zone '$domain' failed: $result\n"
+	else
+                logger -t ldap2bind "Reloading the zone '$domain' was successful\n"
+	fi
+done

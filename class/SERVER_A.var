@@ -123,13 +123,25 @@ mask2cidr() {
  
 IFS=. read -r i1 i2 i3 i4 <<< "$MAINSERVER_IPADDR"
 IFS=. read -r m1 m2 m3 m4 <<< "$NETMASK"
- 
+
 # Calculate network using bitwise AND operator
 SUBNET=$(printf "%d.%d.%d.%d\n" "$((i1 & m1))" "$((i2 & m2))" "$((i3 & m3))" "$((i4 & m4))")
 
 # Set CIDR-mask (e.g. 10.0.0.0/16)
 numbits=$(mask2cidr $NETMASK)
 SUBNETMASK=$SUBNET/$numbits
+
+## "Calculate" DNS reverse lookup zone IP 
+case $NETMASK in
+    255.255.255.0)
+        REVDNS_NO="$i3.$i2.$i1" 
+        MAINSERVER_PTR="$i4" ;; 
+    255.255.0.0)
+        REVDNS_NO="$i2.$i1" 
+        MAINSERVER_PTR="$i4.$i3";;
+    *)
+        REVDNS_NO="$i1" ;;
+esac
 
 ## NETMASK for FAI config space access:
 FAINETMASK=$SUBNETMASK

@@ -16,27 +16,36 @@ if [ -e $target$FILE ]; then
     exit 0
 fi
 
-ainsl /etc/bind/named.conf.local "include \"/etc/bind/localzones\";"
+# Copy files for LDAP dynamic DNS updates
+fcopy -m root,root,0755 /usr/local/sbin/ldap2bind
+fcopy -m root,root,0644 /etc/default/ldap2zone
+fcopy -m root,root,0644 /etc/cron.d/ldap2zone
 
-cat > $target/etc/bind/localzones <<EOF
-include "/etc/bind/ddns.key";
+ainsl /etc/bind/named.conf.local "include \"/etc/bind/ddns.key\";"
+ainsl /etc/bind/named.conf.local "include \"/etc/bind/named.conf.ldap2zone\";"
+ainsl /etc/crontab "*/10 *  * * *   root    /usr/local/sbin/ldap2bind"
 
-zone "${PREFIX2}.${PREFIX1}.in-addr.arpa" {
-        type master;
-        notify no;
-        file "$FILE";
-        allow-update { key DHCP_UPDATER; };
-        journal "$JOURNAL";
-};
+touch $target/etc/bind/named.conf.ldap2zone
 
-zone "${SETDOMAIN}" {
-        type master;
-        notify no;
-        file "/etc/bind/db.${SETDOMAIN}";
-        allow-update { key DHCP_UPDATER; };
-        journal "/var/lib/bind/db.${SETDOMAIN}.jnl";
-};
-EOF
+# cat > $target/etc/bind/localzones <<EOF
+# include "/etc/bind/ddns.key";
+
+# zone "${PREFIX2}.${PREFIX1}.in-addr.arpa" {
+#        type master;
+#        notify no;
+#        file "$FILE";
+#        allow-update { key DHCP_UPDATER; };
+#        journal "$JOURNAL";
+# };
+
+# zone "${SETDOMAIN}" {
+#        type master;
+#        notify no;
+#        file "/etc/bind/db.${SETDOMAIN}";
+#        allow-update { key DHCP_UPDATER; };
+#        journal "/var/lib/bind/db.${SETDOMAIN}.jnl";
+# };
+#EOF
 
 ###################
 
@@ -52,7 +61,7 @@ cat > $target$FILE <<EOF
                                 6400 )  ; Minimum TTL
                         NS      mainserver.${SETDOMAIN}.
                         MX      10 mainserver.${SETDOMAIN}.
-$REV.0                    PTR     mainserver.${SETDOMAIN}.
+$REV                    PTR     mainserver.${SETDOMAIN}.
 EOF
 ## Uncomment if you prefere hardcoded DNS entries:
 # NUM=0

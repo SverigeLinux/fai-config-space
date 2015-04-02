@@ -1,0 +1,4 @@
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin
+
+@reboot    bind    /usr/local/sbin/ldap2bind
+@hourly    bind    /usr/local/sbin/ldap2bind

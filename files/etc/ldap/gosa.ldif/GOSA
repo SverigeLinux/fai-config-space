@@ -226,6 +226,7 @@ sudoCommand: /usr/local/sbin/gosa-sync
 sudoCommand: /usr/local/sbin/gosa-remove
 sudoCommand: /usr/local/sbin/gosa-create
 sudoCommand: /usr/local/sbin/fd-sync
+sudoCommand: /usr/local/sbin/dhcpd-keytab
 sudoUser: www-data
 
 ## some admin roles: give admin(s) sudo access

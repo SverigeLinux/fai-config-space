@@ -32,6 +32,10 @@ $ROOTCMD sed -i s:@LDAP_DOMAIN@:$LDAP_DOMAIN:g /etc/ldap/dhcpd.ldif
 $ROOTCMD sed -i s:@SUBNET@:$SUBNET:g /etc/ldap/dhcpd.ldif
 $ROOTCMD sed -i s:@numbits@:$numbits:g /etc/ldap/dhcpd.ldif
 $ROOTCMD sed -i s:@PREFIX@:$PREFIX:g /etc/ldap/dhcpd.ldif
+$ROOTCMD sed -i s:@GATEWAY@:$GATEWAY:g /etc/ldap/dhcpd.ldif
+$ROOTCMD sed -i s:@NETMASK@:$NETMASK:g /etc/ldap/dhcpd.ldif
+$ROOTCMD sed -i s:@REVDNS_NO@:$REVDNS_NO:g /etc/ldap/dhcpd.ldif
+$ROOTCMD sed -i s:@MAINSERVER_PTR@:$MAINSERVER_PTR:g /etc/ldap/dhcpd.ldif
 $ROOTCMD sed -i s:@MAINSERVER_IPADDR@:$MAINSERVER_IPADDR:g /etc/ldap/dhcpd.ldif
 $ROOTCMD sed -i s:@LDAP_DOMAIN@:$LDAP_DOMAIN:g /etc/ldap/slapd.conf
 

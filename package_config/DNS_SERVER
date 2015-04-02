@@ -3,3 +3,4 @@
 PACKAGES aptitude
 bind9
 resolvconf
+ldap2zone

@@ -45,9 +45,9 @@ dhcpStatements: use-host-decl-names on
 
 # @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
 dn: cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
-dhcpOption: routers @PREFIX@.1
+dhcpOption: routers @GATEWAY@
 dhcpOption: domain-name "@SETDOMAIN@"
-dhcpOption: subnet-mask 255.255.255.0
+dhcpOption: subnet-mask @NETMASK@
 dhcpOption: broadcast-address @PREFIX@.255
 dhcpOption: domain-name-servers @MAINSERVER_IPADDR@
 dhcpStatements: filename "fai/pxelinux.0"
@@ -59,6 +59,14 @@ objectClass: dhcpOptions
 dhcpNetMask: 24
 dhcpRange: @PREFIX@.100 @PREFIX@.200
 
+# FAI-clients, @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=FAI-clients,cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpStatements: on commit { execute("/usr/local/sbin/dhcpd-keytab", host-decl-name);   }
+cn: FAI-clients
+objectClass: top
+objectClass: dhcpGroup
+objectClass: dhcpOptions
+
 # @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
 dn: zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
 objectClass: top
@@ -69,13 +77,13 @@ dNSClass: IN
 sOARecord: mainserver root.mainserver. 2015022555 3600 1800 720000 6400
 nSRecord: mainserver
 
-# 122.168.192.in-addr.arpa., @SETDOMAIN@., mainserver, servers, system
+# @REVDNS_NO@.in-addr.arpa., @SETDOMAIN@., mainserver, servers, system
  s, @SETDOMAIN@
-dn: zoneName=122.168.192.in-addr.arpa.,zoneName=@SETDOMAIN@.,cn=mainser
+dn: zoneName=@REVDNS_NO@.in-addr.arpa.,zoneName=@SETDOMAIN@.,cn=mainser
  ver,ou=servers,ou=systems,@LDAP_DOMAIN@
 objectClass: top
 objectClass: dNSZone
-zoneName: 122.168.192.in-addr.arpa.
+zoneName: @REVDNS_NO@.in-addr.arpa.
 relativeDomainName: @
 dNSClass: IN
 sOARecord: mainserver root.mainserver. 2015022555 3600 1800 720000 6400
@@ -99,6 +107,297 @@ dNSClass: IN
 zoneName: @SETDOMAIN@.
 relativeDomainName: mainserver
 aRecord: @MAINSERVER_IPADDR@
+
+######################
+## Service records SRV
+######################
+
+# _ldap._tcp, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=_ldap._tcp,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: _ldap._tcp
+
+# _ldap._tcp, _ldap._tcp, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=_ldap._tcp,relativeDomainName=_ldap._tcp,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: _ldap._tcp
+sRVRecord: 100 0 389 mainserver.@SETDOMAIN@
+
+# _syslog._udp, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=_syslog._udp,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: _syslog._udp
+
+# _syslog._udp, _syslog._udp, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=_syslog._udp,relativeDomainName=_syslog._udp,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: _syslog._udp
+sRVRecord: 100 0 514 mainserver.@SETDOMAIN@
+
+# _kerberos._udp, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=_kerberos._udp,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: _kerberos._udp
+
+# _kerberos._udp, _kerberos._udp, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=_kerberos._udp,relativeDomainName=_kerberos._udp,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: _kerberos._udp
+sRVRecord: 100 0 88 mainserver.@SETDOMAIN@
+
+# _kerberos-adm._tcp, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=_kerberos-adm._tcp,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: _kerberos-adm._tcp
+
+# _kerberos-adm._tcp, _kerberos-adm._tcp, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=_kerberos-adm._tcp,relativeDomainName=_kerberos-adm._tcp,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: _kerberos-adm._tcp
+sRVRecord: 100 0 749 mainserver.@SETDOMAIN@
+
+# _kpasswd._udp, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=_kpasswd._udp,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: _kpasswd._udp
+
+# _kpasswd._udp, _kpasswd._udp, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=_kpasswd._udp,relativeDomainName=_kpasswd._udp,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: _kpasswd._udp
+sRVRecord: 100 0 464 mainserver.@SETDOMAIN@
+
+########################
+## CNAMEs for mainserver
+########################
+
+# ns, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=ns,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: ns
+cNAMERecord: mainserver
+
+# dns, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=dns,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: dns
+cNAMERecord: mainserver
+
+# www, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=www,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: www
+cNAMERecord: mainserver
+
+# ntp, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=ntp,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: ntp
+cNAMERecord: mainserver
+
+# aptcache, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=aptcache,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: aptcache
+cNAMERecord: mainserver
+
+# webcache, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=webcache,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: webcache
+cNAMERecord: mainserver
+
+# cfengine, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=cfengine,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: cfengine
+cNAMERecord: mainserver
+
+# bootps, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=bootps,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: bootps
+cNAMERecord: mainserver
+
+# homes, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=homes,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: homes
+cNAMERecord: mainserver
+
+# wpad, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=wpad,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: wpad
+cNAMERecord: mainserver
+
+# db, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=db,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: db
+cNAMERecord: mainserver
+
+# backup, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=backup,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: backup
+cNAMERecord: mainserver
+
+# ssh, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=ssh,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: ssh
+cNAMERecord: mainserver
+
+# print, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=print,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: print
+cNAMERecord: mainserver
+
+# domain, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=domain,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: domain
+cNAMERecord: mainserver
+
+# ldap, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=ldap,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: ldap
+cNAMERecord: mainserver
+
+# kerberos, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=kerberos,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: kerberos
+cNAMERecord: mainserver
+
+# mail, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=mail,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: mail
+cNAMERecord: mainserver
+
+# syslog, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=syslog,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: syslog
+cNAMERecord: mainserver
+
+# faiserver, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=faiserver,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: faiserver
+cNAMERecord: mainserver
+
+# swapserver, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=swapserver,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: swapserver
+cNAMERecord: mainserver
+
+# owncloud, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=owncloud,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: owncloud
+cNAMERecord: mainserver
 
 # DHCP_UPDATER, dhcp, mainserver, servers, systems, @SETDOMAIN@
 dn: cn=DHCP_UPDATER,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
@@ -166,7 +465,7 @@ dn: relativeDomainName=50,relativeDomainName=workstation00,zoneName=@SETDOMAIN@.
 objectClass: top
 objectClass: dNSZone
 dNSClass: IN
-zoneName: 122.168.192.in-addr.arpa.
+zoneName: @REVDNS_NO@.in-addr.arpa.
 relativeDomainName: 50
 pTRRecord: workstation00.@SETDOMAIN@.
 
@@ -214,17 +513,17 @@ dn: relativeDomainName=51,relativeDomainName=workstation01,zoneName=@SETDOMAIN@.
 objectClass: top
 objectClass: dNSZone
 dNSClass: IN
-zoneName: 122.168.192.in-addr.arpa.
+zoneName: @REVDNS_NO@.in-addr.arpa.
 relativeDomainName: 51
 pTRRecord: workstation01.@SETDOMAIN@.
 
-# 26, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
-dn: relativeDomainName=26,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+# @MAINSERVER_PTR@, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=@MAINSERVER_PTR@,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
 objectClass: top
 objectClass: dNSZone
 dNSClass: IN
-zoneName: 122.168.192.in-addr.arpa.
-relativeDomainName: 26
+zoneName: @REVDNS_NO@.in-addr.arpa.
+relativeDomainName: @MAINSERVER_PTR@
 pTRRecord: mainserver.@SETDOMAIN@.
 
 
