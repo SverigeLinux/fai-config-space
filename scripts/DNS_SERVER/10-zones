@@ -23,7 +23,7 @@ fcopy -m root,root,0644 /etc/cron.d/ldap2zone
 
 ainsl /etc/bind/named.conf.local "include \"/etc/bind/ddns.key\";"
 ainsl /etc/bind/named.conf.local "include \"/etc/bind/named.conf.ldap2zone\";"
-ainsl /etc/crontab "*/10 *  * * *   root    /usr/local/sbin/ldap2bind"
+ainsl -q /etc/crontab '*/10 *  * * *   root    /usr/local/sbin/ldap2bind'
 
 touch $target/etc/bind/named.conf.ldap2zone
 
