@@ -1,0 +1,5 @@
+#!/bin/bash
+
+fcopy /etc/default/console-setup  
+fcopy /etc/default/keyboard
+fcopy /etc/default/locale

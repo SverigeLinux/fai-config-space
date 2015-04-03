@@ -4,11 +4,11 @@
 FAI_ALLOW_UNSIGNED=0
 
 CONSOLEFONT=
-KEYMAP=us-latin1
+# KEYMAP=us-latin1
 
 # Set UTC=yes if your system clock is set to UTC (GMT), and UTC=no if not.
 UTC=yes
-TIMEZONE=Europe/Berlin
+# TIMEZONE=Europe/Berlin
 
 # Use: 'mkpasswd -Hsha-256 <PASSWORD>' to create the password hash
 # pw is "fai":

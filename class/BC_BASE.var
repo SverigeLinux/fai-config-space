@@ -4,11 +4,11 @@
 # allow installation of packages from unsigned repositories
 FAI_ALLOW_UNSIGNED=1
 
-KEYMAP=se-latin1
+# KEYMAP=se-latin1
 
 # set UTC=yes if your system clock is set to UTC (GMT), and UTC=no if not.
 UTC=yes
-TIMEZONE=Europe/Stockholm
+# TIMEZONE=Europe/Stockholm
 
 # root password for the new installed linux system; md5 and crypt are possible
 # pw is "fai"

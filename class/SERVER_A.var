@@ -3,24 +3,9 @@
 # allow installation of packages from unsigned repositories
 FAI_ALLOW_UNSIGNED=1
 
-CONSOLEFONT=
-if [ -z "$KEYMAP" ] || [ -z "$TIMEZONE" ] ; then
-    # Dialog to choose IP-setup:
-    inp=$(dialog --insecure --stdout --backtitle "Language settings" --radiolist \
-        "Please choose your keyboard layout" 20 63 2 \
-         ENGLISH " English keyboard " on \
-         SVENSKA " Svenskt tangentbord " off )
-
-    if [ "$inp" = "SVENSKA" ] ; then
-        KEYMAP=se-latin1
-        TIMEZONE=Europe/Stockholm
-    else
-        KEYMAP=us-latin1
-        TIMEZONE=Europe/Stockholm
-    fi
-    unset inp
-fi
-
+# If not overridden by LANG_* classes set keymap and timezone 
+KEYMAP=us-latin1
+TIMEZONE=Europe/Stockholm
 
 # Set UTC=yes if your system clock is set to UTC (GMT), and UTC=no if not.
 UTC=yes

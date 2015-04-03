@@ -5,7 +5,7 @@ FAI_ALLOW_UNSIGNED=0
 
 # Set UTC=yes if your system clock is set to UTC (GMT), and UTC=no if not.
 UTC=yes
-TIMEZONE=Europe/Berlin
+# TIMEZONE=Europe/Berlin
 
 # root password for the new installed linux system; md5 and crypt are possible
 # pw is "fai"

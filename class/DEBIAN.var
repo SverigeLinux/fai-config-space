@@ -1,5 +1,5 @@
 CONSOLEFONT=
-KEYMAP=us-latin1
+#KEYMAP=us-latin1
 
 # MODULESLIST contains modules that will be loaded by the new system,
 # not during installation these modules will be written to /etc/modules
