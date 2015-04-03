@@ -1,3 +1,3 @@
 CREATE DATABASE roundcube;
-GRANT ALL PRIVILEGES ON roundcube.* TO 'rcadmin'@'localhost' IDENTIFIED BY 'rcpass';
+GRANT ALL PRIVILEGES ON roundcube.* TO 'rcadmin'@'localhost' IDENTIFIED BY '@ROUNDCUBE_DB_PW@';
 

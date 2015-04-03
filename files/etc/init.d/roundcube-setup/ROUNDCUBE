@@ -6,11 +6,11 @@
 
 
 echo "Starting script roundcube-setup"
-mysql -u root -pfai < /root/create-grant-roundcube.sql
-mysql -u root -pfai roundcube < /root/roundcube_start.sql
+mysql -u root -p@MYSQLROOTPW@ < /root/create-grant-roundcube.sql
+mysql -u root -p@MYSQLROOTPW@ roundcube < /root/roundcube_start.sql
 
-rm /root/create-grant-roundcube.sql
-rm /root/roundcube_start.sql
+# rm /root/create-grant-roundcube.sql
+# rm /root/roundcube_start.sql
 
 ln -s /var/www/roundcubemail-1.0.4 /var/www/roundcube
 chmod a+r /var/www/roundcube/config/config.inc.php

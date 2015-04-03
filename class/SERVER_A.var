@@ -164,5 +164,7 @@ APT_REPO_DIR="/var/www/debian/"
 APT_URL="http://www.intern/debian/"
 #APT_URL="http://www.${SETDOMAIN}/debian/"
 
+MYSQLROOTPW=`date +%s | sha256sum | base64 | head -c 16`
+
 # errors in tasks greater than this value will cause the installation to stop
 STOP_ON_ERROR=700

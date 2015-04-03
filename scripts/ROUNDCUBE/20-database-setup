@@ -6,3 +6,8 @@ fcopy -m root,root,0777 /etc/init.d/roundcube-setup
 fcopy -m root,root,0700 /root/create-grant-roundcube.sql
 fcopy -m root,root,0700 /root/roundcube_start.sql
 
+ROUNDCUBE_DB_PW=`date +%s | sha256sum | base64 | head -c 12`
+
+sed -i s:@MYSQLROOTPW@:$MYSQLROOTPW:g $target/etc/init.d/roundcube-setup
+sed -i s:@ROUNDCUBE_DB_PW@:$ROUNDCUBE_DB_PW:g $target/root/create-grant-roundcube.sql
+sed -i s:@ROUNDCUBE_DB_PW@:$ROUNDCUBE_DB_PW:g $target/var/www/roundcubemail-1.0.4/config/config.inc.php

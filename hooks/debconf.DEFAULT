@@ -14,6 +14,7 @@ for file in $FILEDIR/*; do
     sed -i s#@LDAP_DOMAIN@#$LDAP_DOMAIN#g "$file"
     sed -i s#@KRB_REALM@#$KRB_REALM#g "$file"
     sed -i s#@SETDOMAIN@#$SETDOMAIN#g "$file"
+    sed -i s#@MYSQLROOTPW@#$MYSQLROOTPW#g "$file"
 done
 
 # Run fai-debconf from the temporary directory

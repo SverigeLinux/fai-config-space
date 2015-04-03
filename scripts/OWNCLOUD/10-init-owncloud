@@ -11,6 +11,9 @@ fcopy -v -m www-data,www-data,0700 /var/www/owncloud/config/config.php
 sed -i s/@LDAP_DOMAIN@/$LDAP_DOMAIN/g ${target}/root/owncloud_start.sql
 sed -i s/@MAINSERVER_IPADDR@/$MAINSERVER_IPADDR/g ${target}/var/www/owncloud/config/config.php
 sed -i s/@SETDOMAIN@/$SETDOMAIN/g ${target}/var/www/owncloud/config/config.php
+sed -i s/@OWNCLOUD_DB_PW@/$OWNCLOUD_DB_PW/g ${target}/var/www/owncloud/config/config.php
+sed -i s/@OWNCLOUD_DB_PW@/$OWNCLOUD_DB_PW/g ${target}/root/create-grant-owncloud.sql
+sed -i s/@MYSQLROOTPW@/$MYSQLROOTPW/g ${target}/etc/init.d/owncloud-setup
 
 touch $target/var/www/owncloud/data/.ocdata
 

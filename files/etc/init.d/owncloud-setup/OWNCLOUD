@@ -6,11 +6,11 @@
 
 
 echo "Starting script owncloud-setup"
-mysql -u root -pfai < /root/create-grant-owncloud.sql
-mysql -u root -pfai owncloud < /root/owncloud_start.sql
+mysql -u root -p@MYSQLROOTPW@ < /root/create-grant-owncloud.sql
+mysql -u root -p@MYSQLROOTPW@ owncloud < /root/owncloud_start.sql
 
-rm /root/create-grant-owncloud.sql
-rm /root/owncloud_start.sql
+# rm /root/create-grant-owncloud.sql
+# rm /root/owncloud_start.sql
 
 exit 0
 
