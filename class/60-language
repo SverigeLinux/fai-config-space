@@ -1,20 +1,24 @@
 #!/bin/bash
 
-if [ -z "$KEYMAP" ] || [ -z "$TIMEZONE" ] ; then
-    # Dialog to choose Language-setup:
-    inp=$(dialog --insecure --stdout --backtitle "Language settings" --radiolist \
-        "Please choose your keyboard layout" 20 63 2 \
-         ENGLISH " English keyboard " on \
-         SVENSKA " Svenskt tangentbord " off )
 
-    if [ "$inp" = "SVENSKA" ] ; then
-        KEYMAP=se-latin1
-        TIMEZONE=Europe/Stockholm
-        echo "LANG_SWEDISH"
-    else
-        KEYMAP=us-latin1
-        TIMEZONE=Europe/Stockholm
-        echo "LANG_ENGLISH"
-    fi
-    unset inp
+# Only run this on SERVER_A / mainserver
+if ifclass SERVER_A ; then
+  if [ -z "$KEYMAP" ] || [ -z "$TIMEZONE" ] ; then
+      # Dialog to choose Language-setup:
+      inp=$(dialog --insecure --stdout --backtitle "Language settings" --radiolist \
+          "Please choose your keyboard layout" 20 63 2 \
+           ENGLISH " English keyboard " on \
+           SVENSKA " Svenskt tangentbord " off )
+
+      if [ "$inp" = "SVENSKA" ] ; then
+          KEYMAP=se-latin1
+          TIMEZONE=Europe/Stockholm
+          echo "LANG_SWEDISH"
+      else
+          KEYMAP=us-latin1
+          TIMEZONE=Europe/Stockholm
+          echo "LANG_ENGLISH"
+      fi
+      unset inp
+  fi
 fi

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+wget https://github.com/SverigeLinux/faimond/archive/master.zip --no-check-certificate -O $target/var/www/faimond.zip
+unzip $target/var/www/faimond.zip -d $target/var/www/
+
+mv $target/var/www/faimond-master $target/var/www/faimond
+
+chmod a+r $target/var/www/faimond
+
+sed -i s/@FAIMOND_DB_USER@/$FAIMOND_DB_USER/g $target/var/www/faimond/index.php
+sed -i s/@FAIMOND_DB_PWD@/$FAIMOND_DB_PWD/g $target/var/www/faimond/index.php
+sed -i s/@FAIMOND_DB_USER@/$FAIMOND_DB_USER/g $target/var/www/faimond/faimond.php
+sed -i s/@FAIMOND_DB_PWD@/$FAIMOND_DB_PWD/g $target/var/www/faimond/faimond.php
+
+fcopy /root/create-grant-faimond.sql
+fcopy /etc/init.d/faimond-setup
+

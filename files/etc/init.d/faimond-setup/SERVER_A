@@ -1,0 +1,21 @@
+#!/bin/bash
+# /etc/init.d/roundcube-setup
+#
+
+# Some things that run always
+
+echo "Starting script faimond-setup"
+mysql -u root -p@MYSQLROOTPW@ < /root/create-grant-faimond.sql
+mysql -u root -p@MYSQLROOTPW@ faimond < /var/www/faimond/faimond.sql
+
+# rm /root/create-grant-faimond.sql
+# rm /var/www/faimond/faimond.sql
+
+chmod a+x /var/www/faimond/faimond.php
+
+chmod a+x /etc/init.d/faimond
+
+echo "Faimond-setup finished"
+
+exit 0
+

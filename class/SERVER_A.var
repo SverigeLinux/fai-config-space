@@ -151,5 +151,10 @@ APT_URL="http://www.intern/debian/"
 
 MYSQLROOTPW=`date +%s | sha256sum | base64 | head -c 16`
 
+# User / password for faimond database
+FAIMOND_DB_USER=faimond
+FAIMOND_DB_PWD=`date +%s | sha256sum | base64 | head -c 10`
+
+
 # errors in tasks greater than this value will cause the installation to stop
 STOP_ON_ERROR=700

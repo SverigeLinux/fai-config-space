@@ -169,7 +169,12 @@ if [ -e /usr/local/sbin/ldap2bind ] ; then
     /usr/local/sbin/ldap2bind
 fi
 
-
+#########################
+## Setup Faimond database
+if [ -e /etc/init.d/faimond-setup ] ; then
+    /etc/init.d/faimond-setup
+    #rm /etc/init.d/roundcube-setup
+fi
 
 ## Setup/update nfsroot for FAI:
 cat <<EOF

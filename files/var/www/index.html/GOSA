@@ -74,6 +74,7 @@ body {
         <li><a href="https://syslog.@SETDOMAIN@/munin">Munin System Monitoring</a></li>
         <li><a href="https://owncloud.@SETDOMAIN@/owncloud">ownCloud storage</a></li>
         <li><a href="https://mail.@SETDOMAIN@/roundcube">Roundcube webmail</a></li>
+        <li><a href="https://www.@SETDOMAIN@/faimond">FAI install monitor</a></li>
       </ul>
       SverigeLinux is built on the 
       <a href="http://wiki.debian.org/DebianLAN">Debian-LAN</a> foundation.

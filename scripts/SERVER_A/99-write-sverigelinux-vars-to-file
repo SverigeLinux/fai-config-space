@@ -4,8 +4,9 @@ FAIDIR="$target/srv/fai/config/class"
 
 cat >> $FAIDIR/SVERIGELINUX.var << EOF
 # Log user to store fai log files to remote
-LOGUSER="fai"
-# LDAP 
+# Temporarily disabled until we get GSSAPI-logins to work
+# LOGUSER="fai"
+# LDAP
 LDAP_DOMAIN="$LDAP_DOMAIN"
 # Domain name for the installation
 SETDOMAIN="$SETDOMAIN"

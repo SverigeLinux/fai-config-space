@@ -430,8 +430,8 @@ objectClass: top
 objectClass: gotoWorkstation
 objectClass: GOhard
 
-# workstation00, dhcp, mainserver, servers, systems, @SETDOMAIN@
-dn: cn=workstation00,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+# workstation00, FAI-clients, @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=workstation00,cn=FAI-clients,cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
 dhcpOption: host-name workstation00
 dhcpStatements: fixed-address @PREFIX@.50
 cn: workstation00
@@ -479,8 +479,8 @@ objectClass: top
 objectClass: gotoWorkstation
 objectClass: GOhard
 
-# workstation01, dhcp, mainserver, servers, systems, @SETDOMAIN@
-dn: cn=workstation01,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+# workstation01, FAI-clients, @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=workstation01,cn=FAI-clients,cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
 dhcpOption: host-name workstation01
 dhcpStatements: fixed-address @PREFIX@.51
 cn: workstation01
@@ -516,6 +516,408 @@ dNSClass: IN
 zoneName: @REVDNS_NO@.in-addr.arpa.
 relativeDomainName: 51
 pTRRecord: workstation01.@SETDOMAIN@.
+
+# workstation02, workstations, systems, @SETDOMAIN@
+dn: cn=workstation02,ou=workstations,ou=systems,@LDAP_DOMAIN@
+cn: workstation02
+gotoMode: active
+ipHostNumber: @PREFIX@.52
+macAddress: A1:B2:C3:D4:E5:02
+objectClass: top
+objectClass: gotoWorkstation
+objectClass: GOhard
+
+# workstation02, FAI-clients, @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=workstation02,cn=FAI-clients,cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpOption: host-name workstation02
+dhcpStatements: fixed-address @PREFIX@.52
+cn: workstation02
+objectClass: top
+objectClass: dhcpHost
+dhcpHWAddress: ethernet A1:B2:C3:D4:E5:02
+
+# workstation02, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=workstation02,zoneName=@SETDOMAIN@.,cn=mainserve
+ r,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation02
+
+# workstation02, workstation02, @SETDOMAIN@., mainserver, servers, sys
+ tems, @SETDOMAIN@
+dn: relativeDomainName=workstation02,relativeDomainName=workstation02,zoneName
+ =@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation02
+aRecord: @PREFIX@.52
+
+# 52, workstation02, @SETDOMAIN@., mainserver, servers, systems, sveri
+ gelinux.local
+dn: relativeDomainName=52,relativeDomainName=workstation02,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @REVDNS_NO@.in-addr.arpa.
+relativeDomainName: 52
+pTRRecord: workstation02.@SETDOMAIN@.
+
+# ---------------------------------------------------------------------------------------------------
+
+# workstation03, workstations, systems, @SETDOMAIN@
+dn: cn=workstation03,ou=workstations,ou=systems,@LDAP_DOMAIN@
+cn: workstation03
+gotoMode: active
+ipHostNumber: @PREFIX@.53
+macAddress: A1:B2:C3:D4:E5:03
+objectClass: top
+objectClass: gotoWorkstation
+objectClass: GOhard
+
+# workstation03, FAI-clients, @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=workstation03,cn=FAI-clients,cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpOption: host-name workstation03
+dhcpStatements: fixed-address @PREFIX@.53
+cn: workstation03
+objectClass: top
+objectClass: dhcpHost
+dhcpHWAddress: ethernet A1:B2:C3:D4:E5:03
+
+# workstation03, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=workstation03,zoneName=@SETDOMAIN@.,cn=mainserve
+ r,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation03
+
+# workstation03, workstation03, @SETDOMAIN@., mainserver, servers, sys
+ tems, @SETDOMAIN@
+dn: relativeDomainName=workstation03,relativeDomainName=workstation03,zoneName
+ =@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation03
+aRecord: @PREFIX@.53
+
+# 53, workstation03, @SETDOMAIN@., mainserver, servers, systems, sveri
+ gelinux.local
+dn: relativeDomainName=53,relativeDomainName=workstation03,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @REVDNS_NO@.in-addr.arpa.
+relativeDomainName: 53
+pTRRecord: workstation03.@SETDOMAIN@.
+
+# ---------------------------------------------------------------------------------------------------
+# workstation04, workstations, systems, @SETDOMAIN@
+dn: cn=workstation04,ou=workstations,ou=systems,@LDAP_DOMAIN@
+cn: workstation04
+gotoMode: active
+ipHostNumber: @PREFIX@.54
+macAddress: A1:B2:C3:D4:E5:04
+objectClass: top
+objectClass: gotoWorkstation
+objectClass: GOhard
+
+# workstation04, FAI-clients, @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=workstation04,cn=FAI-clients,cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpOption: host-name workstation04
+dhcpStatements: fixed-address @PREFIX@.54
+cn: workstation04
+objectClass: top
+objectClass: dhcpHost
+dhcpHWAddress: ethernet A1:B2:C3:D4:E5:04
+
+# workstation04, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=workstation04,zoneName=@SETDOMAIN@.,cn=mainserve
+ r,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation04
+
+# workstation04, workstation04, @SETDOMAIN@., mainserver, servers, sys
+ tems, @SETDOMAIN@
+dn: relativeDomainName=workstation04,relativeDomainName=workstation04,zoneName
+ =@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation04
+aRecord: @PREFIX@.54
+
+# 54, workstation04, @SETDOMAIN@., mainserver, servers, systems, sveri
+ gelinux.local
+dn: relativeDomainName=54,relativeDomainName=workstation04,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @REVDNS_NO@.in-addr.arpa.
+relativeDomainName: 54
+pTRRecord: workstation04.@SETDOMAIN@.
+
+# ---------------------------------------------------------------------------------------------------
+# workstation05, workstations, systems, @SETDOMAIN@
+dn: cn=workstation05,ou=workstations,ou=systems,@LDAP_DOMAIN@
+cn: workstation05
+gotoMode: active
+ipHostNumber: @PREFIX@.55
+macAddress: A1:B2:C3:D4:E5:05
+objectClass: top
+objectClass: gotoWorkstation
+objectClass: GOhard
+
+# workstation05, FAI-clients, @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=workstation05,cn=FAI-clients,cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpOption: host-name workstation05
+dhcpStatements: fixed-address @PREFIX@.55
+cn: workstation05
+objectClass: top
+objectClass: dhcpHost
+dhcpHWAddress: ethernet A1:B2:C3:D4:E5:05
+
+# workstation05, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=workstation05,zoneName=@SETDOMAIN@.,cn=mainserve
+ r,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation05
+
+# workstation05, workstation05, @SETDOMAIN@., mainserver, servers, sys
+ tems, @SETDOMAIN@
+dn: relativeDomainName=workstation05,relativeDomainName=workstation05,zoneName
+ =@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation05
+aRecord: @PREFIX@.55
+
+# 55, workstation05, @SETDOMAIN@., mainserver, servers, systems, sveri
+ gelinux.local
+dn: relativeDomainName=55,relativeDomainName=workstation05,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @REVDNS_NO@.in-addr.arpa.
+relativeDomainName: 55
+pTRRecord: workstation05.@SETDOMAIN@.
+
+# ---------------------------------------------------------------------------------------------------
+# workstation06, workstations, systems, @SETDOMAIN@
+dn: cn=workstation06,ou=workstations,ou=systems,@LDAP_DOMAIN@
+cn: workstation06
+gotoMode: active
+ipHostNumber: @PREFIX@.56
+macAddress: A1:B2:C3:D4:E5:06
+objectClass: top
+objectClass: gotoWorkstation
+objectClass: GOhard
+
+# workstation06, FAI-clients, @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=workstation06,cn=FAI-clients,cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpOption: host-name workstation06
+dhcpStatements: fixed-address @PREFIX@.56
+cn: workstation06
+objectClass: top
+objectClass: dhcpHost
+dhcpHWAddress: ethernet A1:B2:C3:D4:E5:06
+
+# workstation06, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=workstation06,zoneName=@SETDOMAIN@.,cn=mainserve
+ r,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation06
+
+# workstation06, workstation06, @SETDOMAIN@., mainserver, servers, sys
+ tems, @SETDOMAIN@
+dn: relativeDomainName=workstation06,relativeDomainName=workstation06,zoneName
+ =@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation06
+aRecord: @PREFIX@.56
+
+# 56, workstation06, @SETDOMAIN@., mainserver, servers, systems, sveri
+ gelinux.local
+dn: relativeDomainName=56,relativeDomainName=workstation06,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @REVDNS_NO@.in-addr.arpa.
+relativeDomainName: 56
+pTRRecord: workstation06.@SETDOMAIN@.
+
+# ---------------------------------------------------------------------------------------------------
+# workstation07, workstations, systems, @SETDOMAIN@
+dn: cn=workstation07,ou=workstations,ou=systems,@LDAP_DOMAIN@
+cn: workstation07
+gotoMode: active
+ipHostNumber: @PREFIX@.57
+macAddress: A1:B2:C3:D4:E5:07
+objectClass: top
+objectClass: gotoWorkstation
+objectClass: GOhard
+
+# workstation07, FAI-clients, @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=workstation07,cn=FAI-clients,cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpOption: host-name workstation07
+dhcpStatements: fixed-address @PREFIX@.57
+cn: workstation07
+objectClass: top
+objectClass: dhcpHost
+dhcpHWAddress: ethernet A1:B2:C3:D4:E5:07
+
+# workstation07, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=workstation07,zoneName=@SETDOMAIN@.,cn=mainserve
+ r,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation07
+
+# workstation07, workstation07, @SETDOMAIN@., mainserver, servers, sys
+ tems, @SETDOMAIN@
+dn: relativeDomainName=workstation07,relativeDomainName=workstation07,zoneName
+ =@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation07
+aRecord: @PREFIX@.57
+
+# 57, workstation07, @SETDOMAIN@., mainserver, servers, systems, sveri
+ gelinux.local
+dn: relativeDomainName=57,relativeDomainName=workstation07,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @REVDNS_NO@.in-addr.arpa.
+relativeDomainName: 57
+pTRRecord: workstation07.@SETDOMAIN@.
+
+# ---------------------------------------------------------------------------------------------------
+# workstation08, workstations, systems, @SETDOMAIN@
+dn: cn=workstation08,ou=workstations,ou=systems,@LDAP_DOMAIN@
+cn: workstation08
+gotoMode: active
+ipHostNumber: @PREFIX@.58
+macAddress: A1:B2:C3:D4:E5:08
+objectClass: top
+objectClass: gotoWorkstation
+objectClass: GOhard
+
+# workstation08, FAI-clients, @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=workstation08,cn=FAI-clients,cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpOption: host-name workstation08
+dhcpStatements: fixed-address @PREFIX@.58
+cn: workstation08
+objectClass: top
+objectClass: dhcpHost
+dhcpHWAddress: ethernet A1:B2:C3:D4:E5:08
+
+# workstation08, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=workstation08,zoneName=@SETDOMAIN@.,cn=mainserve
+ r,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation08
+
+# workstation08, workstation08, @SETDOMAIN@., mainserver, servers, sys
+ tems, @SETDOMAIN@
+dn: relativeDomainName=workstation08,relativeDomainName=workstation08,zoneName
+ =@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation08
+aRecord: @PREFIX@.58
+
+# 58, workstation08, @SETDOMAIN@., mainserver, servers, systems, sveri
+ gelinux.local
+dn: relativeDomainName=58,relativeDomainName=workstation08,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @REVDNS_NO@.in-addr.arpa.
+relativeDomainName: 58
+pTRRecord: workstation08.@SETDOMAIN@.
+
+# ---------------------------------------------------------------------------------------------------
+# workstation09, workstations, systems, @SETDOMAIN@
+dn: cn=workstation09,ou=workstations,ou=systems,@LDAP_DOMAIN@
+cn: workstation09
+gotoMode: active
+ipHostNumber: @PREFIX@.59
+macAddress: A1:B2:C3:D4:E5:09
+objectClass: top
+objectClass: gotoWorkstation
+objectClass: GOhard
+
+# workstation09, FAI-clients, @PREFIX@.0, dhcp, mainserver, servers, systems, @SETDOMAIN@
+dn: cn=workstation09,cn=FAI-clients,cn=@PREFIX@.0,cn=dhcp,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+dhcpOption: host-name workstation09
+dhcpStatements: fixed-address @PREFIX@.59
+cn: workstation09
+objectClass: top
+objectClass: dhcpHost
+dhcpHWAddress: ethernet A1:B2:C3:D4:E5:09
+
+# workstation09, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
+dn: relativeDomainName=workstation09,zoneName=@SETDOMAIN@.,cn=mainserve
+ r,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation09
+
+# workstation09, workstation09, @SETDOMAIN@., mainserver, servers, sys
+ tems, @SETDOMAIN@
+dn: relativeDomainName=workstation09,relativeDomainName=workstation09,zoneName
+ =@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @SETDOMAIN@.
+relativeDomainName: workstation09
+aRecord: @PREFIX@.59
+
+# 59, workstation09, @SETDOMAIN@., mainserver, servers, systems, sveri
+ gelinux.local
+dn: relativeDomainName=59,relativeDomainName=workstation09,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
+objectClass: top
+objectClass: dNSZone
+dNSClass: IN
+zoneName: @REVDNS_NO@.in-addr.arpa.
+relativeDomainName: 59
+pTRRecord: workstation09.@SETDOMAIN@.
+
+# ---------------------------------------------------------------------------------------------------
 
 # @MAINSERVER_PTR@, mainserver, @SETDOMAIN@., mainserver, servers, systems, @SETDOMAIN@
 dn: relativeDomainName=@MAINSERVER_PTR@,relativeDomainName=mainserver,zoneName=@SETDOMAIN@.,cn=mainserver,ou=servers,ou=systems,@LDAP_DOMAIN@
