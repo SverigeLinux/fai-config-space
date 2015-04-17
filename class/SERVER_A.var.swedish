@@ -44,20 +44,20 @@ LDAP_ADMIN_PW=
 
 MAINSERVER_IPADDR=""
 GATEWAY=""
-# BROADCAST_LAN=${BROADCAST_LAN:-'10.0.255.255'}
+BROADCAST_LAN=${BROADCAST_LAN:-'10.0.255.255'}
 NAMESERVER_IPADDR=""  # leave empty to use mainserver's IP address
 
 if [ -z "$GATEWAY" ] || [ -z "$MAINSERVER_IPADDR" ] ; then
     # Dialog to choose IP-setup:
-    inp=$(dialog --insecure --stdout --backtitle "Network settings" --radiolist \
-        "Two alternatives:\n\n
-STANDARD: The server is configured as gateway to\n
-          the external network. The IP address will be\n
-          10.0.0.1, the external Network Interface will be configured\n 
-          using DHCP. (requires 2 network interfaces)\n\n
-SPECIAL: Choose your own settings for network and server address." 20 63 2 \
+    inp=$(dialog --insecure --stdout --backtitle "Nätverksinställningar" --radiolist \
+        "Två alternativ finns:\n\n
+STANDARD: Servern konfigureras som gateway till\n
+          externa nätverket. IP-adressen blir\n
+          10.0.0.1, externa nätverkskortet adresseras\n 
+          med DHCP. (kräver 2 nätverkskort)\n\n
+SPECIAL: Du väljer själv nätverk och serveradresser." 20 63 2 \
          STANDARD " mainserver: 10.0.0.1, gateway: 10.0.0.1 " on \
-         SPECIAL " Customize settings.. " off )
+         SPECIAL " Skräddarsy inställningarna.. " off )
 
     if [ "$inp" = "STANDARD" ] ; then
         MAINSERVER_IPADDR='10.0.0.1'
@@ -67,10 +67,12 @@ SPECIAL: Choose your own settings for network and server address." 20 63 2 \
         SUBNETMASK='10.0.0.0/16'
         DOMAIN='intern'
     else
-        MAINSERVER_IPADDR=$(dialog --insecure --backtitle "Network settings" --stdout --inputbox "mainserver IP-adress after reboot (ex. 10.0.0.10): " 8 40)
-        GATEWAY=$(dialog --insecure --backtitle "Network settings" --stdout --inputbox "Gateway IP address (ex. 10.0.0.1): " 8 40)
-        NETMASK=$(dialog --insecure --backtitle "Network settings" --stdout --inputbox "Netmask (ex. 255.255.0.0): " 8 40)
-        SETDOMAIN=$(dialog --insecure --backtitle "Network settings" --stdout --inputbox "Domain name (ex. sverigelinux.local): " 8 40)
+        MAINSERVER_IPADDR=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "mainserver IP-adress (ex. 10.0.0.10): " 8 40)
+        GATEWAY=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Gateway IP-adress (ex. 10.0.0.1): " 8 40)
+##        SUBNET=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Subnät IP-adress (ex. 10.0.0.0): " 8 40)
+        NETMASK=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Nätmask (ex. 255.255.0.0): " 8 40)
+##        SUBNETMASK=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Subnätmask (ex. 10.0.0.0/16): " 8 40)
+        SETDOMAIN=$(dialog --insecure --backtitle "Nätverksinställningar" --stdout --inputbox "Domännamn (ex. sverigelinux.local): " 8 40)
     fi
     unset inp
 fi
@@ -129,27 +131,6 @@ esac
 ## NETMASK for FAI config space access:
 FAINETMASK=$SUBNETMASK
 #FAINETMASK=${FAINETMASK:-'10.0.0.0/16'}
-
-###########################################################################
-# bcastcalc: Caclulate the broadcast address of a given IP address and mask.
-###########################################################################
-bcastcalc(){
-
-    local IFS='.' ip i
-    local -a oct msk
-
-    read -ra oct <<<"$MAINSERVER_IPADDR"
-    read -ra msk <<<"$NETMASK"
-
-    for i in ${!oct[@]}; do
-        ip+=( "$(( oct[i] + ( 255 - ( oct[i] | msk[i] ) ) ))" )
-    done
-
-    echo -n "${ip[*]}"
-}
-
-# Set broadcast address for mainserver eth interface
-BROADCAST_LAN=$(bcastcalc)
 
 ## DHCP range for unknown clients (cf. dhcpd.conf):
 PREFIX=`echo $SUBNET | cut -d "." --fields=1,2,3`
